@@ -1,0 +1,69 @@
+[
+    {
+      "name": "Indonesia",
+      "code": "ID",
+      "flag": "https://flagcdn.com/w40/id.png",
+      "dial_code": "+62"
+    },
+    {
+      "name": "Malaysia",
+      "code": "MY",
+      "flag": "https://flagcdn.com/w40/my.png",
+      "dial_code": "+60"
+    },
+    {
+      "name": "Singapore",
+      "code": "SG",
+      "flag": "https://flagcdn.com/w40/sg.png",
+      "dial_code": "+65"
+    },
+    {
+      "name": "Thailand",
+      "code": "TH",
+      "flag": "https://flagcdn.com/w40/th.png",
+      "dial_code": "+66"
+    },
+    {
+      "name": "Vietnam",
+      "code": "VN",
+      "flag": "https://flagcdn.com/w40/vn.png",
+      "dial_code": "+84"
+    },
+    {
+      "name": "Philippines",
+      "code": "PH",
+      "flag": "https://flagcdn.com/w40/ph.png",
+      "dial_code": "+63"
+    },
+    {
+      "name": "Brunei",
+      "code": "BN",
+      "flag": "https://flagcdn.com/w40/bn.png",
+      "dial_code": "+673"
+    },
+    {
+      "name": "Cambodia",
+      "code": "KH",
+      "flag": "https://flagcdn.com/w40/kh.png",
+      "dial_code": "+855"
+    },
+    {
+      "name": "Laos",
+      "code": "LA",
+      "flag": "https://flagcdn.com/w40/la.png",
+      "dial_code": "+856"
+    },
+    {
+      "name": "Myanmar",
+      "code": "MM",
+      "flag": "https://flagcdn.com/w40/mm.png",
+      "dial_code": "+95"
+    },
+    {
+      "name": "Timor-Leste",
+      "code": "TL",
+      "flag": "https://flagcdn.com/w40/tl.png",
+      "dial_code": "+670"
+    }
+  ]
+  
