@@ -1,7 +1,11 @@
 import React from 'react'
 import { CiMenuFries } from "react-icons/ci";
 
-const Navbar = () => {
+type NavbarProps = {
+    setIsProfileShown: (isShown: boolean) => void
+}
+
+const Navbar: React.FC<NavbarProps> = ({setIsProfileShown}) => {
     return (
         <div className='w-full h-16 border-b border-b-[#2C2C2C] flex items-center justify-between px-4'>
             <div className="flex-[2]">
@@ -10,7 +14,10 @@ const Navbar = () => {
                 </div>
             </div>
             <div className="flex-1 flex items-center justify-end">
-                <button className="p-2 border border-[#2c2c2c] rounded-full">
+                <button 
+                onClick={() => setIsProfileShown(true)}
+                className="p-2 border border-[#2c2c2c] rounded-full cursor-pointer"
+                >
                     <CiMenuFries className='text-[#e0e0e0] text-xl'/>
                 </button>
             </div>

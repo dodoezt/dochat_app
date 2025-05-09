@@ -1,0 +1,8 @@
+background: '#121212',
+surface: '#1E1E1E',
+primary: '#00A884',
+secondary: '#25D366',
+text: '#EAEAEA',
+muted: '#B0B0B0',
+divider: '#2C2C2C',
+danger: '#FF5E5E',
