@@ -49,7 +49,7 @@ const page = () => {
 
     return (
         <div className='w-full h-screen flex justify-center items-center'>
-            <div className="w-2/3 p-5 rounded-2xl border border-[#2c2c2c] space-y-4">
+            <div className="w-3/4 p-5 rounded-2xl border border-[#2c2c2c] space-y-4">
                 <header className="w-full flex items-center justify-center">
                     <div className="flex flex-col items-center">
                         <img src="/assets/doChat.svg" alt="logo-doChat" className="w-auto h-10 bg-[#e0e0e0] px-2 rounded-full" />

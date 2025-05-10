@@ -14,7 +14,6 @@ const page = () => {
     const [user, setUser] = useState({
         name: '',
         email: '',
-        createdAt: '',
     })
 
     const getUser = async () => {
@@ -23,7 +22,6 @@ const page = () => {
             setUser({
                 name: user.name,
                 email: user.email,
-                createdAt: user.$createdAt.slice(0, 19).replace('T', ' '),
             })
         } catch (error) {
             console.error('Error fetching user:', error);
