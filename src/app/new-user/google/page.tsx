@@ -3,47 +3,29 @@ import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Client, Account } from 'appwrite';
 import { useRouter } from 'next/navigation';
+import { useGoogleAuth } from '@/components/contexts/children/googleAuthcContext';
 
 import ConfirmPopUp from '@/components/mini-components/confirmPopUp';
 import Overlay from '@/components/mini-components/overlay';
 
-const client = new Client()
-    .setEndpoint(process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT!)
-    .setProject(process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID!);
-
-const account = new Account(client);
-
 const page = () => {
-    const [userInfo, setUserInfo] = useState({
-        username: '',
-        email: '',
-    })
     const [loadings, setLoadings] = useState({
         usernameCheck: false,
     });
     const [isConfirmOpen, setIsConfirmOpen] = useState(false);
     const [buttonBlock, setButtonBlock] = useState(false);
-
+    
     const searchParams = useSearchParams();
     const redirect = searchParams.get('redirect');
     const router = useRouter();
 
+    const { userInfo, getUser, getJwtToken } = useGoogleAuth()
+
     useEffect(() => {
-        const getUser = async () => {
-            try {
-                const user = await account.get();
-                setUserInfo({
-                    username: user.name,
-                    email: user.email,
-                })
-            } catch (error) {
-                console.log('error:', error);
-            }
-        }
         getUser()
     }, [])
-
-    //## PERBAIKI GOOGLE AUTHNYA BIAR BISA NUMPUK PAS BEDA EMAIL, DAN FRONTENDNYA JUGA DIPERBAGUS
+    
+    const [username, setUsername] = useState('');
 
     const handleIsUsernameExists = async (username: string) => {
         if(buttonBlock) return
@@ -71,14 +53,17 @@ const page = () => {
 
     const handleCreateAccount = async() => {
         try {
+            const jwtToken = await getJwtToken()
             const response = await fetch('/api/create-new-account/google', {
                 method : 'POST',
                 headers : {
                     'Content-Type' : 'application/json',
                 },
                 body : JSON.stringify({
-                    username : userInfo.username,
+                    username : username,
                     email : userInfo.email,
+                    email_name : userInfo.username,
+                    jwt : jwtToken,
                 }),
             })
 
@@ -99,7 +84,7 @@ const page = () => {
                 <ConfirmPopUp 
                     isOpen={isConfirmOpen}
                     title="Are you sure?"
-                    description={`Are you sure you wanna use "${userInfo.username}" as your username?`}
+                    description={`Are you sure you wanna use "${username}" as your username?`}
                     onConfirm={() => {
                         handleCreateAccount();
                     }}
@@ -123,8 +108,8 @@ const page = () => {
                                 <input 
                                 id="username"
                                 name="username"
-                                value={userInfo.username}
-                                onChange={(e) => setUserInfo({ ...userInfo, username: e.target.value })}
+                                value={username}
+                                onChange={(e) => setUsername(e.target.value)}
                                 maxLength={20}
                                 type='text' 
                                 placeholder='Enter Username'
@@ -137,7 +122,7 @@ const page = () => {
                         <div className="w-full">
                             <button 
                             onClick={() => {
-                                handleIsUsernameExists(userInfo.username) 
+                                handleIsUsernameExists(username) 
                             }}
                             className={`${buttonBlock ? 'brightness-[0.25] cursor-default' : 'brightness-100 cursor-pointer hover:bg-transparent hover:text-[#e0e0e0] '}
                             w-full bg-[#e0e0e0] font-sans font-medium rounded-lg py-1 px-1 transition-all ease-in-out duration-200 border border-[#e0e0e0]`}>

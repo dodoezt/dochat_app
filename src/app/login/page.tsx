@@ -2,25 +2,14 @@
 import { Client, Account } from 'appwrite'
 import React, { useEffect, useState } from 'react'
 import countries from '@/data/southeastAsiaCountries.json';
+import { useGoogleAuth } from '@/components/contexts/children/googleAuthcContext';
 
 const page = () => {
     const [selectedCountry, setSelectedCountry] = useState(countries[0])
     const [loading, setLoading] = useState(true)
     const [isListShown, setIsListShown] = useState(false)
 
-    const client = new Client()
-    .setEndpoint(process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT!)
-    .setProject(process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID!);
-
-    const account = new Account(client);
-
-    const handleGoogleLogin = () => {
-        account.createOAuth2Session(
-            'google',
-            'http://localhost:3000/google-success',
-            'http://localhost:3000/google-error'
-        );
-    };
+    const { loginWithGoogle } = useGoogleAuth()
 
     const getCountryCode = async () => {
         const res = await fetch('https://ipapi.co/json/');
@@ -115,7 +104,7 @@ const page = () => {
                     <div className="w-full">
                         <button className="w-full h-8 flex items-center justify-center gap-2 border border-[#2c2c2c] cursor-pointer
                         "
-                        onClick={handleGoogleLogin}
+                        onClick={loginWithGoogle}
                         >
                             <img src="/assets/google.png" alt="google-logo" className="w-auto h-1/2"/>
                             <span className="font-sans font-medium text-[#e0e0e0] text-xs">Continue with Google</span>

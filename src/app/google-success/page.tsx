@@ -1,34 +1,11 @@
 'use client'
 import React, { useEffect, useState } from 'react'
-import { Client, Account } from 'appwrite'
 import { useRouter } from 'next/navigation'
-
-const client = new Client()
-.setEndpoint(process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT!)
-.setProject(process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID!);
-
-const account = new Account(client);
+import { useGoogleAuth } from '@/components/contexts/children/googleAuthcContext'
 
 const page = () => {
     const router = useRouter()
-    const [user, setUser] = useState({
-        name: '',
-        email: '',
-    })
-
-    const getUser = async () => {
-        try {
-            const user = await account.get();
-            setUser({
-                name: user.name,
-                email: user.email,
-            })
-        } catch (error) {
-            console.error('Error fetching user:', error);
-        }
-    }
-
-    //# LANJUTKANN EMAIL AUTH   
+    const { userInfo, getUser, getJwtToken } = useGoogleAuth()
 
     const handleIsUserCreated = async (email: string) => {
         const res = await fetch(`/api/is-user-created?email=${email}`,{
@@ -42,26 +19,46 @@ const page = () => {
     }
     
     const checkUser = async () => {
-        const isUserCreated = await handleIsUserCreated(user.email)
+        const isUserCreated = await handleIsUserCreated(userInfo.email)
         if (isUserCreated) {
-            router.replace('/')
+            try {
+                const jwtToken = await getJwtToken()
+                const res = await fetch('/api/set-google-cookie', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        jwt: jwtToken,
+                    }), 
+                })
+                if (!res.ok) {
+                    alert('Failed to set cookie')
+                }
+            } catch (error) {
+                console.log('error:', error);
+            } finally { 
+                router.replace('/')
+            }
         } else {
             router.replace(`/new-user/google?redirect=/`)
         }
     }
-    
+
     useEffect(() => {
         getUser()
     }, [])
 
     useEffect(() => {
-        if (user.email){
+        if (userInfo.email){
             checkUser()
         }
-    }, [user])
+    }, [userInfo])
 
     return (
-        <div className=""></div>
+        <div className="w-full h-screen flex items-center justsify-center">
+            <h1 className="font-sans text-lg text-[#e0e0e0] font-medium">Loading....</h1>
+        </div>
     )
 }
 

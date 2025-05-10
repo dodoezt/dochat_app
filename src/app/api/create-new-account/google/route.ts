@@ -4,10 +4,12 @@ import { NextResponse } from 'next/server';
 type requestBody = {
     username: string,
     email: string,
+    email_name: string,
+    jwt: string,
 }
 
 export async function POST(request: Request) {
-    const { username, email }: requestBody = await request.json();
+    const { username, email, email_name, jwt  }: requestBody = await request.json();
 
     if (!username || !email) {
         return NextResponse.json({ error: 'NOT ENOUGH PARAMS' }, { status: 400 });
@@ -21,11 +23,24 @@ export async function POST(request: Request) {
                 username,
                 provider : 'google',
                 email,
+                email_name,
                 createdAt,
             },
         });
 
-        return NextResponse.json({ message: 'USER SUCCESFULLY CREATED' }, { status: 201 });
+        if (!user) {
+            return NextResponse.json({ message: 'USER NOT CREATED' }, { status: 400 });
+        }
+        const response = NextResponse.json({ message: 'USER SUCCESFULLY CREATED' }, { status: 201 });
+        
+        response.cookies.set('log-session', jwt, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite : 'lax',
+            maxAge: 60 * 60 * 24 * 7,
+        });
+
+        return response;
     } catch (error) {
         return NextResponse.json({ message: 'INTERNAL SERVER ERROR' }, { status: 500 });
     }
