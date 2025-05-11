@@ -13,7 +13,9 @@ const page = () => {
         usernameCheck: false,
     });
     const [isConfirmOpen, setIsConfirmOpen] = useState(false);
-    const [buttonBlock, setButtonBlock] = useState(false);
+    const [buttonBlock, setButtonBlock] = useState(true);
+    const [validationMsg, setValidationMsg] = useState<string | null>(null)
+    const [isUsernameNotValid, setIsUsernameNotValid] = useState(false)
     
     const searchParams = useSearchParams();
     const redirect = searchParams.get('redirect');
@@ -25,7 +27,7 @@ const page = () => {
         getUser()
     }, [])
     
-    const [username, setUsername] = useState('');
+    const [username, setUsername] = useState(userInfo.username);
 
     const handleIsUsernameExists = async (username: string) => {
         if(buttonBlock) return
@@ -77,6 +79,34 @@ const page = () => {
         }
     }
 
+    const handleUsernameValidation = (username: string) => {
+        if(username.length === 0){
+            setValidationMsg(null)
+            setIsUsernameNotValid(false)
+        }
+        if(username.length < 5 && username.length !== 0) {
+            setValidationMsg('Username must be at least 5 characters')
+            setIsUsernameNotValid(true)
+        } else if (username.length > 20) {
+            setValidationMsg('Username must be less than 20 characters')
+            setIsUsernameNotValid(true)
+        } else {
+            setValidationMsg(null)
+            setIsUsernameNotValid(false)
+        }
+    }
+
+    useEffect(() => {
+        handleUsernameValidation(username)
+        if(!isUsernameNotValid && username.length > 0) {
+            setButtonBlock(false)
+        } else {
+            setButtonBlock(true)
+        }
+    }, [username, isUsernameNotValid])
+    
+    //NOTE : NANTI LANJUTKAN GOOGLE AUTHNYA
+
     return (
         <>
             <Overlay isOpen={isConfirmOpen}/>
@@ -113,10 +143,17 @@ const page = () => {
                                 maxLength={20}
                                 type='text' 
                                 placeholder='Enter Username'
-                                className="appearance-none outline-none w-full h-full px-2 py-2 font-sans text-[#e0e0e0] text-xs border border-[#2c2c2c]
-                                transition-all ease-in-out duration-200 focus:border-[#e0e0e0] rounded-lg"/>
+                                className={`appearance-none outline-none w-full h-full px-2 py-2 font-sans text-[#e0e0e0] text-xs border
+                                transition-all ease-in-out duration-200 rounded-lg
+                                ${isUsernameNotValid ? 'border-[#FF5E5E] focus:border-[#FF5E5E]' : 'border-[#2c2c2c] focus:border-[#e0e0e0]'}
+                                `}/>
                                 <div className="absolute left-2 aspect-square w-auto h-full">
                                 </div>
+                            </div>
+                            <div className="w-full">
+                                <p className={`font-sans text-[0.65rem] ${isUsernameNotValid ? 'text-[#FF5E5E]' : 'text-[#e0e0e0]'}`}>
+                                    {validationMsg}
+                                </p>
                             </div>
                         </div>
                         <div className="w-full">

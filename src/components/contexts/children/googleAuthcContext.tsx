@@ -7,7 +7,7 @@ export type UserInfo = {
     email: string;
 }
 
-type GoogleAuthContextType = {
+export type GoogleAuthContextType = {
     userInfo: UserInfo;
     getUser: () => Promise<void>;
     googleLogOut: () => Promise<void>;
@@ -65,6 +65,10 @@ export const GoogleAuthProvider = ({ children } : any) => {
     useEffect(() => {
         console.log(userInfo)
     }, [userInfo])
+
+    useEffect(() => {
+        getUser()
+    }, [])
 
     return (
         <GoogleAuthContext.Provider value={{ userInfo, getUser, googleLogOut,loginWithGoogle, getJwtToken }}>
