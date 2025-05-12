@@ -95,7 +95,9 @@ const page = () => {
                         </div>
                         <div className="w-full space-y-1">
                             <p className="font-sans text-[0.65rem] text-[#e0e0e0]">We'll send you a verification msg</p>
-                            <button className="w-full bg-[#e0e0e0] font-sans font-medium rounded-lg py-1 px-1 cursor-pointer transition-all ease-in-out duration-200 border border-[#e0e0e0] hover:bg-transparent hover:text-[#e0e0e0]">Continue</button>
+                            <button className="w-full bg-[#e0e0e0] font-sans font-medium text-sm rounded-lg py-1 px-1 cursor-pointer transition-all ease-in-out duration-200 border border-[#e0e0e0] hover:bg-transparent hover:text-[#e0e0e0]">
+                                Send Notification
+                            </button>
                         </div>
                     </div>
                     <div className="w-full relative flex items-center justify-center">

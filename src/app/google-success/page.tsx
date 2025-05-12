@@ -56,8 +56,11 @@ const page = () => {
     }, [userInfo])
 
     return (
-        <div className="w-full h-screen flex items-center justsify-center">
-            <h1 className="font-sans text-lg text-[#e0e0e0] font-medium">Loading....</h1>
+        <div className="w-screen h-screen flex items-center justify-center">
+            <div className="flex flex-col items-center justify-center gap-1">
+                <img src="/assets/doChatWhite.png" alt="logo-doChat" className="w-auto h-10 bg-[#e0e0e0] px-2 rounded-full animate-pulse" />
+                <h1 className="font-sans text-[#e0e0e0] text-xs font-medium animate-pulse">loading...</h1>
+            </div>
         </div>
     )
 }

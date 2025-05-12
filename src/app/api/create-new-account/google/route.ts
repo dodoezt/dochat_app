@@ -12,7 +12,11 @@ export async function POST(request: Request) {
     const { username, email, email_name, jwt  }: requestBody = await request.json();
 
     if (!username || !email) {
-        return NextResponse.json({ error: 'NOT ENOUGH PARAMS' }, { status: 400 });
+        return NextResponse.json({ message: 'NOT ENOUGH PARAMS' }, { status: 400 });
+    }
+
+    if (username.length < 5 || username.length > 20) {
+        return NextResponse.json({ message: 'USERNAME MUsST BE BETWEEN 3 AND 20 CHARACTERS' }, { status: 400 });
     }
 
     const createdAt = new Date().toISOString()

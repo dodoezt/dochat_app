@@ -56,7 +56,7 @@ const page = () => {
     const handleCreateAccount = async() => {
         try {
             const jwtToken = await getJwtToken()
-            const response = await fetch('/api/create-new-account/google', {
+            const create = await fetch('/api/create-new-account/google', {
                 method : 'POST',
                 headers : {
                     'Content-Type' : 'application/json',
@@ -69,8 +69,11 @@ const page = () => {
                 }),
             })
 
-            if(!response.ok){
-                alert('ada masalah')
+            const res = await create.json()
+
+            if(!create.ok){
+                alert(res.message)
+                setIsConfirmOpen(false)
             } else (
                 router.replace(redirect!)
             )
