@@ -101,7 +101,8 @@ const page = () => {
                         </div>
                     </div>
                     <div className="w-full relative flex items-center justify-center">
-                        <span className="absolute bg-[#2c2c2c] w-full h-[2px] rounded-full"></span>
+                        <h1 className="z-10 absolute text-sm text-[#e0e0e0] bg-[#121212] px-1 py-1">or</h1>
+                        <span className="absolute top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2 bg-[#2c2c2c] w-full py-[1px] rounded-full"></span>
                     </div>
                     <div className="w-full">
                         <button className="w-full h-8 flex items-center justify-center gap-2 border border-[#2c2c2c] cursor-pointer

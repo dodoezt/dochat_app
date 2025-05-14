@@ -62,7 +62,7 @@ const page = () => {
                 {/* top and half right */}
                 <div className="absolute w-[4.8rem] h-20 border-t-[8px] border-white rounded-r-full rounded-l-lg -z-[21]"></div>
                 {/* c shape  */}
-                <div className="aspect-square h-[2.6rem] relative -translate-y-[4px] -translate-x-[2px] animate-spin transition-all ease-in-out">
+                <div className="aspect-square h-[2.6rem] relative -translate-y-[4px] -translate-x-[2px] transition-all ease-in-out">
                     <div className="aspect-square h-[2.6rem] border-[7px] border-white rounded-full"></div>
                     {/* c masking  */}
                     <div className="w-6 h-4 bg-[#121212] absolute right-0 top-1/2 -translate-y-1/2 flex flex-col justify-between translate-x-[1px]">
@@ -86,8 +86,11 @@ const page = () => {
             </div>
 
             {/* Animations element  */}
-            <div className="w-20 h-21 fixed">
-                
+            <div className="w-20 h-22 fixed">
+                <div className="w-full h-full">
+                    {/* left big line */}
+                    <div className="z-[50] absolute bottom-0 left-0 w-[8px] h-full bg-[yellow] translate-y-1"></div>
+                </div>
             </div>
         </div>
     )
