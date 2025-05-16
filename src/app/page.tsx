@@ -19,19 +19,19 @@ const Home = () => {
       <main className="w-full h-full flex flex-col justify-center items-center">
         <div className="flex flex-col items-center justify-center gap-3 pointer-default">
           <div className="">
-            <h1 className="font-sans text-[#EAEAEA] text-4xl font-bold">
-              Welcome to <span className="bg-[#e0e0e0] p-1 px-3 rounded-full text-[#121212] text-3xl">doChat</span>
+            <h1 className="font-roboto font-bold text-[#EAEAEA] text-4xl">
+              Welcome to <span className="bg-[#e0e0e0] p-1 px-3 rounded-full font-sans text-[#121212] text-3xl">doChat</span>
             </h1>
           </div>
           <div className="">
-            <h1 className="font-sans text-[#EAEAEA] text font-thin">
+            <h1 className="font-roboto font-extralight text-[#EAEAEA] text">
               A chatting platform powered by OpenAi.
             </h1>
           </div>
           <div className="">
             <Link
               href={'/login'}
-              className="font-sans bg-[#e0e0e0] font-semibold text-[#121212] text-base px-3 py-2 rounded-full flex items-center cursor-pointer"><span className="mr-1"><MdArrowOutward className="text-xl"/></span>Get Started</Link>
+              className="font-roboto bg-[#e0e0e0] font-semibold text-[#121212] text-base px-3 py-2 rounded-full flex items-center cursor-pointer"><span className="mr-1"><MdArrowOutward className="text-xl"/></span>Get Started</Link>
           </div>
         </div>
       </main>

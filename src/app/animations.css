@@ -1,0 +1,22 @@
+@keyframes left-line-grow {
+    0% {
+        height : 0;
+        bottom : 0;
+    } 25% {
+        height: 100%;
+        bottom: 0;
+    } 50% {
+        height: 100%;
+        top: 0;
+    } 75% {
+        height: 0%;
+        top: 0;
+    } 100% {
+        height: 0;
+        bottom: 0;
+    }
+}
+
+.left-line-grow-animate {
+    animation: left-line-grow 2s ease-in-out infinite;
+}

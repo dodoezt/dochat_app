@@ -24,7 +24,7 @@ const Menu:React.FC<MenuProps> = ({isProfileShown, setIsProfileShown}) => {
             <Overlay isOpen={isProfileShown} setIsOpen={setIsProfileShown}/>
             <div
             onDrag={(e) => e.preventDefault()}
-            className={`w-1/2 z-[100] fixed top-0 p-5 rounded-l-xl border border-[#2c2c2c] bg-[#121212] flex flex-col gap-3 transition-all duration-300 ease-in-out ${isProfileShown ? 'right-0' : '-right-full'} cursor-grab`}>
+            className={`w-1/2 z-[100] fixed top-0 p-5 rounded-l-xl border border-[#2c2c2c] bg-[#121212] flex flex-col gap-3 transition-all duration-300 ease-in-out ${isProfileShown ? 'right-0' : '-right-full'}`}>
                 <header className="w-full flex items-center gap-3">
                     {userInfo.username ? (
                         <>

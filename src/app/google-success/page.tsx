@@ -51,7 +51,7 @@ const page = () => {
 
     useEffect(() => {
         if (userInfo.email){
-            // checkUser()
+            checkUser()
         }
     }, [userInfo])
 
@@ -85,13 +85,18 @@ const page = () => {
                 <div className="-z-[19] bg-[#121212] aspect-square w-1/2 h-10 absolute right-0 top-0 translate-x-1"></div>
             </div>
 
-            {/* Animations element  */}
+            {/* Animations element 
             <div className="w-20 h-22 fixed">
                 <div className="w-full h-full">
-                    {/* left big line */}
-                    <div className="z-[50] absolute bottom-0 left-0 w-[8px] h-full bg-[yellow] translate-y-1"></div>
+                    left big line
+                    <div className="z-[50] absolute left-0 w-[8px] bg-[#121212] translate-y-1 left-line-grow-animate"></div>
+
+                    <div className="z-[50] bg-[yellow] absolute top-[1px] left-[8px] w-[40px] h-[12px]"></div>
+                    <div className="z-[50] bg-[yellow] absolute top-[12px] left-[40px] w-[40px] h-[12px] rotate-45"></div>
+                    <div className="z-[50] bg-[yellow] absolute top-[45px] -right-[8px] w-[40px] h-[12px] -rotate-[75deg]"></div>
+                    <div className="z-[50] bg-[yellow] absolute bottom-[12px] right-[14px] w-[42px] h-[8px]"></div>
                 </div>
-            </div>
+            </div> */}
         </div>
     )
 }
