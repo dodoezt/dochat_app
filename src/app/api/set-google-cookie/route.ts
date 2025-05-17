@@ -5,7 +5,7 @@ export async function POST(request: Request) {
 
     const cookie = NextResponse.json({ message: "Cookie set successfully" }, { status: 200 });
 
-    cookie.cookies.set('log-session', jwt, {
+    cookie.cookies.set('google-token', jwt, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite : 'lax',

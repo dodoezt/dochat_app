@@ -2,13 +2,13 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { Client, Account, Models } from 'appwrite';
 
-export type UserInfo = {
+export type GoogleUserInfo = {
     username: string;
     email: string;
 }
 
 export type GoogleAuthContextType = {
-    userInfo: UserInfo;
+    googleUserInfo: GoogleUserInfo;
     getUser: () => Promise<void>;
     googleLogOut: () => Promise<void>;
     loginWithGoogle: () => void;
@@ -24,7 +24,7 @@ const account = new Account(client);
 const GoogleAuthContext = createContext<GoogleAuthContextType | null>(null);
 
 export const GoogleAuthProvider = ({ children } : any) => { 
-    const [userInfo, setUserInfo] = useState({
+    const [googleUserInfo, setGoogleUserInfo] = useState({
         username: '',
         email: '',
     })
@@ -32,7 +32,7 @@ export const GoogleAuthProvider = ({ children } : any) => {
     const getUser = async () => {
         try {
             const user = await account.get();
-            setUserInfo({
+            setGoogleUserInfo({
                 username: user.name,
                 email: user.email,
             })
@@ -63,15 +63,15 @@ export const GoogleAuthProvider = ({ children } : any) => {
     }
 
     useEffect(() => {
-        console.log(userInfo)
-    }, [userInfo])
+        console.log(googleUserInfo)
+    }, [googleUserInfo])
 
     useEffect(() => {
         getUser()
     }, [])
 
     return (
-        <GoogleAuthContext.Provider value={{ userInfo, getUser, googleLogOut,loginWithGoogle, getJwtToken }}>
+        <GoogleAuthContext.Provider value={{ googleUserInfo, getUser, googleLogOut,loginWithGoogle, getJwtToken }}>
             {children}
         </GoogleAuthContext.Provider>
     )

@@ -5,7 +5,7 @@ import { useGoogleAuth } from '@/components/contexts/children/googleAuthcContext
 
 const page = () => {
     const router = useRouter()
-    const { userInfo, getUser, getJwtToken } = useGoogleAuth()
+    const { googleUserInfo, getUser, getJwtToken } = useGoogleAuth()
 
     const handleIsUserCreated = async (email: string) => {
         const res = await fetch(`/api/is-user-created?email=${email}`,{
@@ -19,7 +19,7 @@ const page = () => {
     }
     
     const checkUser = async () => {
-        const isUserCreated = await handleIsUserCreated(userInfo.email)
+        const isUserCreated = await handleIsUserCreated(googleUserInfo.email)
         if (isUserCreated) {
             try {
                 const jwtToken = await getJwtToken()
@@ -50,10 +50,10 @@ const page = () => {
     }, [])
 
     useEffect(() => {
-        if (userInfo.email){
+        if (googleUserInfo.email){
             checkUser()
         }
-    }, [userInfo])
+    }, [googleUserInfo])
 
     return (
         <div className="w-screen h-screen flex items-center justify-center">

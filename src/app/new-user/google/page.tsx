@@ -21,13 +21,13 @@ const page = () => {
     const redirect = searchParams.get('redirect');
     const router = useRouter();
 
-    const { userInfo, getUser, getJwtToken } = useGoogleAuth()
+    const { googleUserInfo, getUser } = useGoogleAuth()
 
     useEffect(() => {
         getUser()
     }, [])
     
-    const [username, setUsername] = useState(userInfo.username);
+    const [username, setUsername] = useState(googleUserInfo.username);
 
     const handleIsUsernameExists = async (username: string) => {
         if(buttonBlock) return
@@ -55,7 +55,6 @@ const page = () => {
 
     const handleCreateAccount = async() => {
         try {
-            const jwtToken = await getJwtToken()
             const create = await fetch('/api/create-new-account/google', {
                 method : 'POST',
                 headers : {
@@ -63,9 +62,8 @@ const page = () => {
                 },
                 body : JSON.stringify({
                     username : username,
-                    email : userInfo.email,
-                    email_name : userInfo.username,
-                    jwt : jwtToken,
+                    email : googleUserInfo.email,
+                    email_name : googleUserInfo.username,
                 }),
             })
 

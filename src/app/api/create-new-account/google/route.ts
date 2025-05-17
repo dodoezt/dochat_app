@@ -1,22 +1,22 @@
 import { prisma } from '@/lib/prisma';
 import { NextResponse } from 'next/server';
+import jwt from 'jsonwebtoken'
 
 type requestBody = {
     username: string,
     email: string,
     email_name: string,
-    jwt: string,
 }
 
 export async function POST(request: Request) {
-    const { username, email, email_name, jwt  }: requestBody = await request.json();
+    const { username, email, email_name  }: requestBody = await request.json();
 
     if (!username || !email) {
         return NextResponse.json({ message: 'NOT ENOUGH PARAMS' }, { status: 400 });
     }
 
     if (username.length < 5 || username.length > 20) {
-        return NextResponse.json({ message: 'USERNAME MUsST BE BETWEEN 3 AND 20 CHARACTERS' }, { status: 400 });
+        return NextResponse.json({ message: 'USERNAME MUsST BE BETWEEN 5 AND 20 CHARACTERS' }, { status: 400 });
     }
 
     const createdAt = new Date().toISOString()
@@ -36,12 +36,25 @@ export async function POST(request: Request) {
             return NextResponse.json({ message: 'USER NOT CREATED' }, { status: 400 });
         }
         const response = NextResponse.json({ message: 'USER SUCCESFULLY CREATED' }, { status: 201 });
+
+        const jwtToken = jwt.sign(
+            {
+                userId: user.userId,
+                username: user.username,
+                email: user.email,
+                email_name : user.email_name
+            },
+            process.env.JWT_SECRET!,
+            { expiresIn: '7d' }
+        )
+
         
-        response.cookies.set('log-session', jwt, {
+        response.cookies.set('log-session',jwtToken , {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
             sameSite : 'lax',
             maxAge: 60 * 60 * 24 * 7,
+            path: '/'
         });
 
         return response;

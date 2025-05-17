@@ -38,7 +38,7 @@ const page = () => {
 
     return (
         <div className='w-full h-screen flex justify-center items-center'>
-            <div className="w-3/4 p-5 rounded-2xl border border-[#2c2c2c] space-y-4">
+            <div className="w-3/4 bg-black p-5 rounded-2xl border border-[#2c2c2c] space-y-4">
                 <header className="w-full flex items-center justify-center">
                     <div className="flex flex-col items-center">
                         <img src="/assets/doChat.svg" alt="logo-doChat" className="w-auto h-10 bg-[#e0e0e0] px-2 rounded-full" />
@@ -101,7 +101,7 @@ const page = () => {
                         </div>
                     </div>
                     <div className="w-full relative flex items-center justify-center">
-                        <h1 className="z-10 absolute text-sm text-[#e0e0e0] bg-[#121212] px-1 py-1">or</h1>
+                        <h1 className="z-10 absolute text-sm text-[#e0e0e0] bg-[black] px-1 py-1">or</h1>
                         <span className="absolute top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2 bg-[#2c2c2c] w-full py-[1px] rounded-full"></span>
                     </div>
                     <div className="w-full">

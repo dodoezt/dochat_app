@@ -14,10 +14,10 @@ type MenuProps = {
 
 const Menu:React.FC<MenuProps> = ({isProfileShown, setIsProfileShown}) => {
     const [loadings, setLoadings] = useState({
-        getUserInfo: false,
+        getgoogleUserInfo: false,
     })
 
-    const { userInfo } = useUnifiedAuth()
+    const { googleUserInfo } = useUnifiedAuth()
     
     return (
         <>
@@ -26,14 +26,14 @@ const Menu:React.FC<MenuProps> = ({isProfileShown, setIsProfileShown}) => {
             onDrag={(e) => e.preventDefault()}
             className={`w-1/2 z-[100] fixed top-0 p-5 rounded-l-xl border border-[#2c2c2c] bg-[#121212] flex flex-col gap-3 transition-all duration-300 ease-in-out ${isProfileShown ? 'right-0' : '-right-full'}`}>
                 <header className="w-full flex items-center gap-3">
-                    {userInfo.username ? (
+                    {googleUserInfo.username ? (
                         <>
                             <div className="aspect-square">
                                 <FaRegCircleUser className="text-3xl text-[#e0e0e0]"/>
                             </div>
                             <div className="flex-1">
-                                <h1 className="font-sans font-medium text-[#e0e0e0] text-xs">{userInfo.username}</h1>
-                                <h1 className="font-sans font-normal text-[#e0e0e0] text-xs">{userInfo.email}</h1>
+                                <h1 className="font-sans font-medium text-[#e0e0e0] text-xs">{googleUserInfo.username}</h1>
+                                <h1 className="font-sans font-normal text-[#e0e0e0] text-xs">{googleUserInfo.email}</h1>
                             </div>
                         </>
                     ) : (
