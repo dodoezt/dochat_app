@@ -13,6 +13,8 @@ export type GoogleAuthContextType = {
     googleLogOut: () => Promise<void>;
     loginWithGoogle: () => void;
     getJwtToken: () => Promise<Models.Jwt>;
+    isLoggedIn :  boolean;
+    setIsLoggedIn: (value : boolean) => void
 }
 
 const client = new Client()
@@ -21,9 +23,26 @@ const client = new Client()
 
 const account = new Account(client);
 
+function getCookie(name: string): string | null {
+  const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+  return match ? decodeURIComponent(match[2]) : null;
+}
+
+function isTokenExpired(token: string): boolean {
+  try {
+    const base64Payload = token.split('.')[1];
+    const payload = JSON.parse(atob(base64Payload));
+    const now = Math.floor(Date.now() / 1000);
+    return payload.exp < now;
+  } catch {
+    return true;
+  }
+}
+
 const GoogleAuthContext = createContext<GoogleAuthContextType | null>(null);
 
 export const GoogleAuthProvider = ({ children } : any) => { 
+    const [isLoggedIn, setIsLoggedIn] = useState(false)
     const [googleUserInfo, setGoogleUserInfo] = useState({
         username: '',
         email: '',
@@ -68,10 +87,16 @@ export const GoogleAuthProvider = ({ children } : any) => {
 
     useEffect(() => {
         getUser()
+        const token = getCookie('log-session')
+        if (token && !isTokenExpired(token)){
+            setIsLoggedIn(true)
+        } else {
+            setIsLoggedIn(false)
+        }
     }, [])
 
     return (
-        <GoogleAuthContext.Provider value={{ googleUserInfo, getUser, googleLogOut,loginWithGoogle, getJwtToken }}>
+        <GoogleAuthContext.Provider value={{ googleUserInfo, getUser, googleLogOut,loginWithGoogle, getJwtToken, isLoggedIn, setIsLoggedIn }}>
             {children}
         </GoogleAuthContext.Provider>
     )

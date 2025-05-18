@@ -47,7 +47,6 @@ export async function POST(request: Request) {
             process.env.JWT_SECRET!,
             { expiresIn: '7d' }
         )
-
         
         response.cookies.set('log-session',jwtToken , {
             httpOnly: true,
