@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Client, Account } from 'appwrite';
 import { useRouter } from 'next/navigation';
-import { useGoogleAuth } from '@/components/contexts/children/googleAuthcContext';
+import { useGoogleAuth } from '@/components/contexts/children/googleAuthContext';
 
 import ConfirmPopUp from '@/components/mini-components/confirmPopUp';
 import Overlay from '@/components/mini-components/overlay';

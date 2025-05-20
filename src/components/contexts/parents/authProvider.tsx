@@ -1,12 +1,29 @@
 'use client';
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 import {
   GoogleAuthProvider,
   useGoogleAuth,
-  GoogleAuthContextType,
-} from '../children/googleAuthcContext';
+} from '../children/googleAuthContext';
+import {
+  UnLoggedProvider,
+  useUnlogged,
+} from '../children/unLoggedContext'
 
-export const UnifiedAuthContext = createContext<GoogleAuthContextType | null>(null);
+import { UnifiedAuthContextType } from '@/types/contexts';
+
+import { jwtDecode } from 'jwt-decode';
+
+type DecodedToken = {
+  userId: number,
+  username: string,
+  provider: 'google' | 'whatsapp' | null,
+  email?: string,
+  email_name?: string,
+  phone_number?: string,
+  dial_code?: string,
+};
+
+export const UnifiedAuthContext = createContext<UnifiedAuthContextType | null>(null);
 
 export const useUnifiedAuth = () => {
   const context = useContext(UnifiedAuthContext);
@@ -17,7 +34,7 @@ export const useUnifiedAuth = () => {
 };
 
 const GoogleToUnified = ({ children }: { children: React.ReactNode }) => {
-  const googleAuth = useGoogleAuth(); // ✅ this now works
+  const googleAuth = useGoogleAuth();
   return (
     <UnifiedAuthContext.Provider value={googleAuth}>
       {children}
@@ -25,21 +42,64 @@ const GoogleToUnified = ({ children }: { children: React.ReactNode }) => {
   );
 };
 
+const UnLoggedToUnified = ({ children }: { children: React.ReactNode }) => {
+  const unLoggedValue = useUnlogged();
+  return (
+    <UnifiedAuthContext.Provider value={unLoggedValue}>
+      {children}
+    </UnifiedAuthContext.Provider>
+  )
+}
+
 export const AuthProvider = ({
   children,
-  provider,
 }: {
   children: React.ReactNode;
-  provider: 'google' | 'whatsapp' | null;
 }) => {
+  const [provider, setProvider] = useState<string | null>('google');
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const checkAuthFromCookie = () => {
+      const cookie = document.cookie
+        .split('; ')
+        .find((row) => row.startsWith('log-session='));
+      if (!cookie) {
+        setLoading(false);
+        return;
+      }
+
+      const token = cookie.split('=')[1];
+      try {
+        const decoded = jwtDecode<DecodedToken>(token);
+        setProvider(decoded.provider);
+      } catch (error) {
+        console.error('Invalid token', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    checkAuthFromCookie();
+  }, []);
+
+  if (loading) return null; 
+
   if (provider === 'google') {
     return (
       <GoogleAuthProvider>
-        <GoogleToUnified>{children}</GoogleToUnified>
+        <GoogleToUnified>
+          {children}
+        </GoogleToUnified>
       </GoogleAuthProvider>
     );
   }
 
-
-  return <>{children}</>;
+  return (
+    <UnLoggedProvider>
+      <UnLoggedToUnified>
+        {children}
+      </UnLoggedToUnified>
+    </UnLoggedProvider>
+  );
 };

@@ -1,11 +1,15 @@
 'use client'
 import React, { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { useGoogleAuth } from '@/components/contexts/children/googleAuthcContext'
+import { useUnifiedAuth } from '@/components/contexts/parents/authProvider'
 
 const page = () => {
     const router = useRouter()
-    const { googleUserInfo, getUser, getJwtToken } = useGoogleAuth()
+    const auth = useUnifiedAuth()
+
+    if(auth?.provider !== 'google') return null
+
+    const {getUser, googleUserInfo} = auth;
 
     const handleIsUserCreated = async (email: string) => {
         const res = await fetch(`/api/is-user-created?email=${email}`,{
@@ -18,23 +22,17 @@ const page = () => {
         return data.exists
     }
     
-    const checkUser = async () => {
-        const isUserCreated = await handleIsUserCreated(googleUserInfo.email)
+    const checkUser = async (email: string) => {
+        const isUserCreated = await handleIsUserCreated(email)
         if (isUserCreated) {
             try {
-                const jwtToken = await getJwtToken()
-                const res = await fetch('/api/set-google-cookie', {
+                const res = await fetch('api/login/google', {
                     method: 'POST',
-                    headers: {
+                    headers : {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({
-                        jwt: jwtToken,
-                    }), 
+                    body: JSON.stringify({email : email})
                 })
-                if (!res.ok) {
-                    alert('Failed to set cookie')
-                }
             } catch (error) {
                 console.log('error:', error);
             } finally { 
@@ -51,7 +49,7 @@ const page = () => {
 
     useEffect(() => {
         if (googleUserInfo.email){
-            checkUser()
+            checkUser(googleUserInfo.email)
         }
     }, [googleUserInfo])
 

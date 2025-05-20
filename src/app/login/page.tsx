@@ -2,19 +2,31 @@
 import { Client, Account } from 'appwrite'
 import React, { useEffect, useState } from 'react'
 import countries from '@/data/southeastAsiaCountries.json';
-import { useGoogleAuth } from '@/components/contexts/children/googleAuthcContext';
+import { useUnifiedAuth } from '@/components/contexts/parents/authProvider';
+
+const client = new Client()
+    .setEndpoint(process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT!)
+    .setProject(process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID!);
+
+const account = new Account(client);
 
 const page = () => {
     const [selectedCountry, setSelectedCountry] = useState(countries[0])
     const [loading, setLoading] = useState(true)
     const [isListShown, setIsListShown] = useState(false)
 
-    const { loginWithGoogle } = useGoogleAuth()
-
     const getCountryCode = async () => {
         const res = await fetch('https://ipapi.co/json/');
         const data = await res.json()
         setSelectedCountry(countries.find(country => country.code === data.country_code) || countries[0])
+    }
+
+    const loginWithGoogle = () => {
+        account.createOAuth2Session(
+            'google',
+            'http://localhost:3000/google-success',
+            'http://localhost:3000/google-error'
+        );
     }
 
     useEffect(() => {
@@ -25,6 +37,7 @@ const page = () => {
         const listShown = isListShown;
         setIsListShown(!listShown)
     }
+
 
     // useEffect(() => {
     //     console.log(selectedCountry)

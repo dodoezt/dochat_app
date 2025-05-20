@@ -7,9 +7,6 @@ import { MdArrowOutward } from "react-icons/md";
 
 const Home = () => {
   const [isProfileShown, setIsProfileShown] = useState(false)
-  useEffect(() => {
-    console.log('isProfileShown:', isProfileShown)
-  }, [isProfileShown])
 
   return (
     <>

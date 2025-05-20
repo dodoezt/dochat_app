@@ -1,12 +1,11 @@
 import { prisma } from '@/lib/prisma';
 import { NextResponse } from 'next/server';
+import jwt from 'jsonwebtoken'
 
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     const email = searchParams.get('email');
-
-    console.log('Email:', email);
 
     if (!email) {
       return NextResponse.json({ error: 'Email is required' }, { status: 400 });
@@ -14,7 +13,7 @@ export async function GET(request: Request) {
 
     const user = await prisma.users.findUnique({
       where: {
-        email,
+        email: email,
       },
     });
 
