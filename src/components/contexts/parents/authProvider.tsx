@@ -9,7 +9,7 @@ import {
   useUnlogged,
 } from '../children/unLoggedContext'
 
-import { UnifiedAuthContextType } from '@/types/contexts';
+import { UnifiedAuthContextType, UnLoggedContextType } from '@/types/contexts';
 
 import { jwtDecode } from 'jwt-decode';
 
@@ -23,6 +23,21 @@ type DecodedToken = {
   dial_code?: string,
 };
 
+const MergedProvider = ({
+  children,
+  value,
+}: {
+  children: React.ReactNode;
+  value: UnifiedAuthContextType;
+}) => {
+  return (
+    <UnifiedAuthContext.Provider value={value}>
+      {children}
+    </UnifiedAuthContext.Provider>
+  );
+};
+
+
 export const UnifiedAuthContext = createContext<UnifiedAuthContextType | null>(null);
 
 export const useUnifiedAuth = () => {
@@ -33,38 +48,66 @@ export const useUnifiedAuth = () => {
   return context;
 };
 
-const GoogleToUnified = ({ children }: { children: React.ReactNode }) => {
+const GoogleToUnified = ({
+  children,
+  setProvider,
+}: {
+  children: React.ReactNode;
+  setProvider: (provider: 'google' | 'whatsapp' | null) => void;
+}) => {
   const googleAuth = useGoogleAuth();
+
+  const unifiedValue: UnifiedAuthContextType = {
+    ...googleAuth,
+    setProvider,
+  };
+
   return (
-    <UnifiedAuthContext.Provider value={googleAuth}>
+    <MergedProvider value={unifiedValue}>
       {children}
-    </UnifiedAuthContext.Provider>
+    </MergedProvider>
   );
 };
 
-const UnLoggedToUnified = ({ children }: { children: React.ReactNode }) => {
-  const unLoggedValue = useUnlogged();
-  return (
-    <UnifiedAuthContext.Provider value={unLoggedValue}>
-      {children}
-    </UnifiedAuthContext.Provider>
-  )
-}
-
-export const AuthProvider = ({
+const UnLoggedToUnified = ({
   children,
+  setProvider,
 }: {
   children: React.ReactNode;
+  setProvider: (provider: 'google' | 'whatsapp' | null) => void;
 }) => {
-  const [provider, setProvider] = useState<string | null>('google');
+  const unLogged = useUnlogged();
+
+  const unifiedValue: UnifiedAuthContextType = {
+    ...unLogged,
+    provider: null,
+    setProvider,
+  };
+
+  return (
+    <MergedProvider value={unifiedValue}>
+      {children}
+    </MergedProvider>
+  );
+};
+
+
+export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
+  const [provider, setProvider] = useState<'google' | 'whatsapp' | null>(null);
   const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    console.log(provider)
+  }, [provider])
 
   useEffect(() => {
     const checkAuthFromCookie = () => {
       const cookie = document.cookie
         .split('; ')
         .find((row) => row.startsWith('log-session='));
+
       if (!cookie) {
+        setProvider(null);
         setLoading(false);
         return;
       }
@@ -72,9 +115,14 @@ export const AuthProvider = ({
       const token = cookie.split('=')[1];
       try {
         const decoded = jwtDecode<DecodedToken>(token);
-        setProvider(decoded.provider);
-      } catch (error) {
-        console.error('Invalid token', error);
+        console.log(decoded)
+        if (decoded.provider === 'google' || decoded.provider === 'whatsapp') {
+          setProvider(decoded.provider);
+        } else {
+          setProvider(null);
+        }
+      } catch {
+        setProvider(null);
       } finally {
         setLoading(false);
       }
@@ -83,12 +131,12 @@ export const AuthProvider = ({
     checkAuthFromCookie();
   }, []);
 
-  if (loading) return null; 
+  if (loading) return null;
 
   if (provider === 'google') {
     return (
       <GoogleAuthProvider>
-        <GoogleToUnified>
+        <GoogleToUnified setProvider={setProvider}>
           {children}
         </GoogleToUnified>
       </GoogleAuthProvider>
@@ -97,7 +145,7 @@ export const AuthProvider = ({
 
   return (
     <UnLoggedProvider>
-      <UnLoggedToUnified>
+      <UnLoggedToUnified setProvider={setProvider}>
         {children}
       </UnLoggedToUnified>
     </UnLoggedProvider>

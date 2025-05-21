@@ -6,52 +6,65 @@ import { useUnifiedAuth } from '@/components/contexts/parents/authProvider'
 const page = () => {
     const router = useRouter()
     const auth = useUnifiedAuth()
+    const { provider, setProvider, getUser, googleUserInfo } = auth
 
-    if(auth?.provider !== 'google') return null
+    useEffect(() => {
+        if (provider === 'whatsapp') {
+        router.replace('/')
+        }
+    }, [provider, router])
 
-    const {getUser, googleUserInfo} = auth;
+    useEffect(() => {
+        if (provider === null) {
+        setProvider!('google')
+        }
+    }, [provider, setProvider])
+
+    if (provider === null) return null
+
+    if (provider === 'whatsapp') return null
 
     const handleIsUserCreated = async (email: string) => {
-        const res = await fetch(`/api/is-user-created?email=${email}`,{
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-            },
+        const res = await fetch(`/api/is-user-created?email=${email}`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+        },
         })
         const data = await res.json()
         return data.exists
     }
-    
+
     const checkUser = async (email: string) => {
         const isUserCreated = await handleIsUserCreated(email)
         if (isUserCreated) {
-            try {
-                const res = await fetch('api/login/google', {
-                    method: 'POST',
-                    headers : {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({email : email})
-                })
-            } catch (error) {
-                console.log('error:', error);
-            } finally { 
-                router.replace('/')
-            }
+        try {
+            await fetch('api/login/google', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ email }),
+            })
+        } catch (error) {
+            console.log('error:', error)
+        } finally {
+            router.replace('/')
+        }
         } else {
-            router.replace(`/new-user/google?redirect=/`)
+        router.replace(`/new-user/google?redirect=/`)
         }
     }
 
     useEffect(() => {
-        getUser()
+        getUser!()
     }, [])
 
     useEffect(() => {
-        if (googleUserInfo.email){
-            checkUser(googleUserInfo.email)
+        if (googleUserInfo!.email) {
+            checkUser(googleUserInfo!.email)
         }
-    }, [googleUserInfo])
+    }, [googleUserInfo!.email]) // Hanya trigger saat email berubah
 
     return (
         <div className="w-screen h-screen flex items-center justify-center">

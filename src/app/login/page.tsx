@@ -1,5 +1,5 @@
 'use client'
-import { Client, Account } from 'appwrite'
+import { Client, Account, OAuthProvider } from 'appwrite'
 import React, { useEffect, useState } from 'react'
 import countries from '@/data/southeastAsiaCountries.json';
 import { useUnifiedAuth } from '@/components/contexts/parents/authProvider';
@@ -23,7 +23,7 @@ const page = () => {
 
     const loginWithGoogle = () => {
         account.createOAuth2Session(
-            'google',
+            OAuthProvider.Google,
             'http://localhost:3000/google-success',
             'http://localhost:3000/google-error'
         );
