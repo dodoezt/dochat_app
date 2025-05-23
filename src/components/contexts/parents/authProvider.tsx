@@ -100,6 +100,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     console.log(provider)
   }, [provider])
 
+  //NOTE : FIX CHECK COOKIE DAN SETPROVIDER
+
   useEffect(() => {
     const checkAuthFromCookie = () => {
       const cookie = document.cookie
