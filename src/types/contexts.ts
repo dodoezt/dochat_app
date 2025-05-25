@@ -7,12 +7,13 @@ export type BaseAuthContext = {
 };
 
 export type GoogleUserInfo = {
-    username: string;
+    email_name: string;
     email: string;
 }
 
 export type GoogleAuthContextType = BaseAuthContext & {
     provider: ProviderType;
+    userInfo: userInfoByGoogle;
     googleUserInfo?: GoogleUserInfo;
     getUser?: () => Promise<void>;
     googleLogOut?: () => Promise<void>;
@@ -27,3 +28,22 @@ export type UnLoggedContextType = BaseAuthContext & {
 };
 
 export type UnifiedAuthContextType = GoogleAuthContextType | UnLoggedContextType;
+
+
+export type DecodedToken = {
+    userId: number,
+    username: string,
+    provider: 'google' | 'whatsapp' | null,
+    email?: string,
+    email_name?: string,
+    phone_number?: string,
+    dial_code?: string,
+};
+
+export type userInfoByGoogle = {
+    userId: number | null,
+    username: string,
+    email: string,
+    email_name: string,
+    createdAt: string,
+}

@@ -9,19 +9,9 @@ import {
   useUnlogged,
 } from '../children/unLoggedContext'
 
-import { UnifiedAuthContextType, UnLoggedContextType } from '@/types/contexts';
+import { UnifiedAuthContextType, UnLoggedContextType, DecodedToken } from '@/types/contexts';
 
 import { jwtDecode } from 'jwt-decode';
-
-type DecodedToken = {
-  userId: number,
-  username: string,
-  provider: 'google' | 'whatsapp' | null,
-  email?: string,
-  email_name?: string,
-  phone_number?: string,
-  dial_code?: string,
-};
 
 const MergedProvider = ({
   children,
@@ -91,46 +81,42 @@ const UnLoggedToUnified = ({
   );
 };
 
-
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [provider, setProvider] = useState<'google' | 'whatsapp' | null>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    console.log(provider)
-  }, [provider])
+  // useEffect(() => {
+  //   console.log(provider)
+  // }, [provider])
+
+  // useEffect(() => {
+  //   console.log('authProvdier mount')
+  // }, [])
+
 
   //NOTE : FIX CHECK COOKIE DAN SETPROVIDER
 
   useEffect(() => {
-    const checkAuthFromCookie = () => {
-      const cookie = document.cookie
-        .split('; ')
-        .find((row) => row.startsWith('log-session='));
-
-      if (!cookie) {
-        setProvider(null);
-        setLoading(false);
-        return;
-      }
-
-      const token = cookie.split('=')[1];
+    const getProviderFromCookie = async() => {
+      setLoading(true)
       try {
-        const decoded = jwtDecode<DecodedToken>(token);
-        console.log(decoded)
-        if (decoded.provider === 'google' || decoded.provider === 'whatsapp') {
-          setProvider(decoded.provider);
-        } else {
-          setProvider(null);
-        }
-      } catch {
-        setProvider(null);
+        const response = await fetch('/api/auth/get-provider', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        })
+
+        const providerFromAPI = await response.json();
+        setProvider(providerFromAPI.provider)
+      } catch (error) {
+        console.log(error) 
       } finally {
-        setLoading(false);
+        setLoading(false)
       }
     };
 
-    checkAuthFromCookie();
+    getProviderFromCookie();
   }, []);
 
   if (loading) return null;

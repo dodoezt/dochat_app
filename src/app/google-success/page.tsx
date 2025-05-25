@@ -2,27 +2,44 @@
 import React, { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useUnifiedAuth } from '@/components/contexts/parents/authProvider'
+import { Client, Account } from 'appwrite'
+
+const client = new Client()
+    .setEndpoint(process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT!)
+    .setProject(process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID!);
+
+const account = new Account(client);
 
 const page = () => {
+    const [googleUserInfo, setGoogleUserInfo] = useState({
+        email_name: '',
+        email: '',
+    })
+
     const router = useRouter()
     const auth = useUnifiedAuth()
-    const { provider, setProvider, getUser, googleUserInfo } = auth
+    const { provider } = auth
 
     useEffect(() => {
-        if (provider === 'whatsapp') {
-        router.replace('/')
+        console.log('provider:', provider)
+        if (provider !== null ) {
+            router.replace('/')
         }
-    }, [provider, router])
+    }, [])
 
-    useEffect(() => {
-        if (provider === null) {
-        setProvider!('google')
+    if (provider !== null) return null
+
+    const getUser = async () => {
+        try {
+            const user = await account.get();
+            setGoogleUserInfo({
+                email_name: user.name,
+                email: user.email,
+            })
+        } catch (error) {
+            console.log('error:', error);
         }
-    }, [provider, setProvider])
-
-    if (provider === null) return null
-
-    if (provider === 'whatsapp') return null
+    }
 
     const handleIsUserCreated = async (email: string) => {
         const res = await fetch(`/api/is-user-created?email=${email}`, {
@@ -40,11 +57,11 @@ const page = () => {
         if (isUserCreated) {
         try {
             await fetch('api/login/google', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ email }),
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ email }),
             })
         } catch (error) {
             console.log('error:', error)
@@ -57,14 +74,14 @@ const page = () => {
     }
 
     useEffect(() => {
-        getUser!()
+        getUser()
     }, [])
 
     useEffect(() => {
         if (googleUserInfo!.email) {
             checkUser(googleUserInfo!.email)
         }
-    }, [googleUserInfo!.email]) // Hanya trigger saat email berubah
+    }, [googleUserInfo!.email])
 
     return (
         <div className="w-screen h-screen flex items-center justify-center">

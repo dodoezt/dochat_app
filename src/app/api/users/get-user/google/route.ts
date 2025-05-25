@@ -2,31 +2,23 @@ import { prisma } from '@/lib/prisma'
 import { NextResponse } from 'next/server'
 
 export async function POST (req: Request) {
-    const { username, provider }: {username : string, provider : 'google' | 'whatsapp'} = await req.json()
+    const { email, provider }: {email : string, provider : 'google' | 'whatsapp'} = await req.json()
     let user;
+    
+    console.log('email:', email)
+    console.log('provider:', provider)
 
-    if (!username || username.length < 5 || username.length > 20) return NextResponse.json({message: 'invalid request body'}, {status: 400})
+    if(!email || provider !== 'google') return NextResponse.json({message: 'invalid email'}, {status: 400})
 
     try {
-        if(provider === 'google') {
+        if (provider === 'google') {
             user = await prisma.users.findUnique({
-                where: {username: username},
+                where: {email: email},
                 select: {
                     userId: true,
                     username : true,
                     email: true,
                     email_name: true,
-                    createdAt: true,
-                }
-            })
-        } else if (provider === 'whatsapp'){
-            user = await prisma.users.findUnique({
-                where: {username: username},
-                select: {
-                    userId: true,
-                    username : true,
-                    phone_number: true,
-                    dial_code: true,
                     createdAt: true,
                 }
             })
