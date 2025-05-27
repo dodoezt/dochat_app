@@ -13,7 +13,7 @@ export type GoogleUserInfo = {
 
 export type GoogleAuthContextType = BaseAuthContext & {
     provider: ProviderType;
-    userInfo: userInfoByGoogle;
+    userInfo?: userInfoByGoogle;
     googleUserInfo?: GoogleUserInfo;
     getUser?: () => Promise<void>;
     googleLogOut?: () => Promise<void>;
@@ -27,7 +27,7 @@ export type UnLoggedContextType = BaseAuthContext & {
     loginWithGoogle?: () => void;
 };
 
-export type UnifiedAuthContextType = GoogleAuthContextType | UnLoggedContextType;
+export type UnifiedAuthContextType = GoogleAuthContextType & UnLoggedContextType;
 
 
 export type DecodedToken = {

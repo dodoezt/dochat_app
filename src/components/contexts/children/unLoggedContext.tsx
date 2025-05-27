@@ -20,9 +20,8 @@ export const UnLoggedProvider = ({ children } : any) => {
             'http://localhost:3000/google-error'
         );
     }
-    
-    return (
-        <UnLoggedContext.Provider value={{ provider: null, loginWithGoogle }}>
+      return (
+        <UnLoggedContext.Provider value={{ provider: null, loginWithGoogle}}>
             { children }
         </UnLoggedContext.Provider>
     )

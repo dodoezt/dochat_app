@@ -118,7 +118,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     getProviderFromCookie();
   }, []);
-
   if (loading) return null;
 
   if (provider === 'google') {

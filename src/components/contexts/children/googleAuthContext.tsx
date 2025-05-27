@@ -1,8 +1,8 @@
 'use client'
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { Client, Account, Models } from 'appwrite';
-import { GoogleAuthContextType } from '@/types/contexts';
-import { json } from 'stream/consumers';
+import { GoogleAuthContextType, userInfoByGoogle } from '@/types/contexts';
+
 
 const client = new Client()
     .setEndpoint(process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT!)
@@ -20,7 +20,7 @@ export const GoogleAuthProvider = ({ children } : any) => {
         email: '',
     })
 
-    const [userInfo, setUserInfo] = useState({
+    const [userInfo, setUserInfo] = useState<userInfoByGoogle>({
         userId: null,
         username: '',
         email: '',

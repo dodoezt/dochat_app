@@ -6,21 +6,23 @@ import { FaRegCircleUser } from "react-icons/fa6";
 
 import { useUnifiedAuth } from '@/components/contexts/parents/authProvider';
 import Overlay from '@/components/mini-components/overlay';
+import { userInfoByGoogle } from '@/types/contexts';
 
 type MenuProps = { 
     isProfileShown: boolean
     setIsProfileShown: (isShown: boolean) => void
+    userInfo: userInfoByGoogle;
 }
 
-const Menu:React.FC<MenuProps> = ({isProfileShown, setIsProfileShown}) => {
+const Menu:React.FC<MenuProps> = ({isProfileShown, setIsProfileShown, userInfo}) => {
     const [loadings, setLoadings] = useState({
         getgoogleUserInfo: false,
     })
 
     const auth = useUnifiedAuth()
-    const { provider, userInfo } = auth;
+    const { provider } = auth;
 
-    if (!provider) return null
+    //NOTE : FUTURE ME, FIX TYPE TYPE INIIIIIIIIIIII!!!!!!!!!!
     
     return (
         <>
@@ -44,8 +46,8 @@ const Menu:React.FC<MenuProps> = ({isProfileShown, setIsProfileShown}) => {
                                 <FaRegCircleUser className="text-3xl text-[#e0e0e0]"/>
                             </div>
                             <div className="flex-1">
-                                <h1 className="font-sans font-medium text-[#e0e0e0] text-xs">{userInfo?.username}</h1>
-                                <h1 className="font-sans font-normal text-[#e0e0e0] text-xs">{userInfo?.email}</h1>
+                                <h1 className="font-sans font-medium text-[#e0e0e0] text-xs">{userInfo.username}</h1>
+                                <h1 className="font-sans font-normal text-[#e0e0e0] text-xs">{userInfo.email}</h1>
                             </div>
                         </>
                     )}
