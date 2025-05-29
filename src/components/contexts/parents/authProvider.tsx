@@ -95,29 +95,29 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
 
   //NOTE : FIX CHECK COOKIE DAN SETPROVIDER
+  const getProviderFromCookie = async() => {
+    setLoading(true)
+    try {
+      const response = await fetch('/api/auth/get-provider', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+
+      const providerFromAPI = await response.json();
+      setProvider(providerFromAPI.provider)
+    } catch (error) {
+      console.log(error) 
+    } finally {
+      setLoading(false)
+    }
+  };
 
   useEffect(() => {
-    const getProviderFromCookie = async() => {
-      setLoading(true)
-      try {
-        const response = await fetch('/api/auth/get-provider', {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        })
-
-        const providerFromAPI = await response.json();
-        setProvider(providerFromAPI.provider)
-      } catch (error) {
-        console.log(error) 
-      } finally {
-        setLoading(false)
-      }
-    };
-
     getProviderFromCookie();
   }, []);
+  
   if (loading) return null;
 
   if (provider === 'google') {

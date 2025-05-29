@@ -1,25 +1,29 @@
 'use client'
-import React, { useState, useEffect } from 'react'
-import Link from 'next/link'
-import Navbar from "@/components/seperated-component/home-page/navbar"
-import Menu from '@/components/seperated-component/home-page/menu';
-import { MdArrowOutward } from "react-icons/md";
+import React, { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
 
-import { useUnifiedAuth } from '@/components/contexts/parents/authProvider';
-import LogoLoading from '@/components/loadings/logoLoading';
+import ChatSearchBar from '@/components/seperated-component/chat/searchBar'
+import ChatNavbar from '@/components/seperated-component/chat/navbar'
+import LogoLoading from '@/components/loadings/logoLoading'
+import { useUnifiedAuth } from '@/components/contexts/parents/authProvider'
 
-const Home = () => {
-  const [isProfileShown, setIsProfileShown] = useState(false)
-  const [loading, setLoading] = useState(true)
-  const auth = useUnifiedAuth()
-  const { userInfo } = auth;
+const page = () => {
+  const auth = useUnifiedAuth();
+  const [loading, setLoading] = useState<boolean>(true)
+
+  const router = useRouter()
+
+  //NOTE : PERBAIKI SETELAH LOGIN LANGSUNG GANTI PROVIDER
+
+  const { provider } = auth;
 
   useEffect(() => {
-    console.log('userInfo:', userInfo)
-    if(userInfo?.username){
+    if(provider === null) {
+      router.replace('/welcome')
+    } else if (provider === 'google' || provider === 'whatsapp') {
       setLoading(false)
     }
-  }, [userInfo])
+  }, [provider])
 
   if (loading) {
     return (
@@ -28,74 +32,19 @@ const Home = () => {
       </div>
     )
   }
-  
-  if (!auth.provider) {
-    return (
-      <>
-        <header className="w-full fixed top-0 z-10">
-          <Navbar setIsProfileShown={setIsProfileShown}/>
-        </header>
-        <main className="w-full h-full flex flex-col justify-center items-center">
-          <div className="flex flex-col items-center justify-center gap-3 pointer-default">
-            <div className="">
-              <h1 className="font-roboto font-bold text-[#EAEAEA] text-4xl">
-                Welcome to <span className="bg-[#e0e0e0] p-1 px-3 rounded-full font-sans text-[#121212] text-3xl">doChat</span>
-              </h1>
-            </div>
-            <div className="">
-              <h1 className="font-roboto font-extralight text-[#EAEAEA] text">
-                A chatting platform powered by OpenAi.
-              </h1>
-            </div>
-            <div className="">
-              <Link
-                href={'/login'}
-                className="font-roboto bg-[#e0e0e0] font-semibold text-[#121212] text-base px-3 py-2 rounded-full flex items-center cursor-pointer">
-                  <span className="mr-1">
-                    <MdArrowOutward className="text-xl"/>
-                  </span>
-                  Get Started
-              </Link>
-            </div>
-          </div>
-        </main>
-        <Menu isProfileShown={isProfileShown} setIsProfileShown={setIsProfileShown} userInfo={userInfo!}/>
-      </>
-    )
-  }
 
   return (
-    <>
-      <header className="w-full fixed top-0 z-10">
-        <Navbar setIsProfileShown={setIsProfileShown}/>
+    <div className='w-screen h-screen'>
+      <header className="w-full px-4 py-3 flex items-center justify-between border-b border-b-[#2c2c2c]">
+        <ChatNavbar />
       </header>
-      <main className="w-full h-full flex flex-col justify-center items-center">
-        <div className="flex flex-col items-center justify-center gap-3 pointer-default">
-          <div className="">
-            <h1 className="font-roboto font-bold text-[#EAEAEA] text-4xl">
-              Welcome to <span className="bg-[#e0e0e0] p-1 px-3 rounded-full font-sans text-[#121212] text-3xl">doChat</span>
-            </h1>
-          </div>
-          <div className="">
-            <h1 className="font-roboto font-extralight text-[#EAEAEA] text">
-              A chatting platform powered by OpenAi.
-            </h1>
-          </div>
-          <div className="">
-            <Link
-              href={'/login'}
-              className="font-roboto bg-[#e0e0e0] font-semibold text-[#121212] text-base px-3 py-2 rounded-full flex items-center cursor-pointer">
-                <span className="mr-1">
-                  <MdArrowOutward className="text-xl"/>
-                </span>
-                Get Started
-              </Link>
-          </div>
+      <main className="w-full">
+        <div className="w-full px-5">
+          <ChatSearchBar />
         </div>
       </main>
-      <Menu isProfileShown={isProfileShown} setIsProfileShown={setIsProfileShown} userInfo={userInfo!}/>
-    </>
+    </div>
   )
 }
 
-export default Home
+export default page
