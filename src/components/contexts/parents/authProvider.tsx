@@ -7,11 +7,19 @@ import {
 import {
   UnLoggedProvider,
   useUnlogged,
-} from '../children/unLoggedContext'
+} from '../children/unLoggedContext';
 
-import { UnifiedAuthContextType, UnLoggedContextType, DecodedToken } from '@/types/contexts';
+import { UnifiedAuthContextType } from '@/types/contexts';
 
-import { jwtDecode } from 'jwt-decode';
+const UnifiedAuthContext = createContext<UnifiedAuthContextType | null>(null);
+
+export const useUnifiedAuth = () => {
+  const context = useContext(UnifiedAuthContext);
+  if (!context) {
+    throw new Error('useUnifiedAuth must be used within a UnifiedAuthProvider');
+  }
+  return context;
+};
 
 const MergedProvider = ({
   children,
@@ -27,17 +35,6 @@ const MergedProvider = ({
   );
 };
 
-
-export const UnifiedAuthContext = createContext<UnifiedAuthContextType | null>(null);
-
-export const useUnifiedAuth = () => {
-  const context = useContext(UnifiedAuthContext);
-  if (!context) {
-    throw new Error('useUnifiedAuth must be used within a UnifiedAuthProvider');
-  }
-  return context;
-};
-
 const GoogleToUnified = ({
   children,
   setProvider,
@@ -46,17 +43,11 @@ const GoogleToUnified = ({
   setProvider: (provider: 'google' | 'whatsapp' | null) => void;
 }) => {
   const googleAuth = useGoogleAuth();
-
   const unifiedValue: UnifiedAuthContextType = {
     ...googleAuth,
     setProvider,
   };
-
-  return (
-    <MergedProvider value={unifiedValue}>
-      {children}
-    </MergedProvider>
-  );
+  return <MergedProvider value={unifiedValue}>{children}</MergedProvider>;
 };
 
 const UnLoggedToUnified = ({
@@ -67,59 +58,46 @@ const UnLoggedToUnified = ({
   setProvider: (provider: 'google' | 'whatsapp' | null) => void;
 }) => {
   const unLogged = useUnlogged();
-
   const unifiedValue: UnifiedAuthContextType = {
     ...unLogged,
     provider: null,
     setProvider,
   };
-
-  return (
-    <MergedProvider value={unifiedValue}>
-      {children}
-    </MergedProvider>
-  );
+  return <MergedProvider value={unifiedValue}>{children}</MergedProvider>;
 };
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const [provider, setProvider] = useState<'google' | 'whatsapp' | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  // useEffect(() => {
-  //   console.log(provider)
-  // }, [provider])
-
-  // useEffect(() => {
-  //   console.log('authProvdier mount')
-  // }, [])
-
-
-  //NOTE : FIX CHECK COOKIE DAN SETPROVIDER
-  const getProviderFromCookie = async() => {
-    setLoading(true)
-    try {
-      const response = await fetch('/api/auth/get-provider', {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      })
-
-      const providerFromAPI = await response.json();
-      setProvider(providerFromAPI.provider)
-    } catch (error) {
-      console.log(error) 
-    } finally {
-      setLoading(false)
-    }
-  };
+  const [provider, setProvider] = useState<'google' | 'whatsapp' | null | undefined>(undefined);
 
   useEffect(() => {
+    const getProviderFromCookie = async () => {
+      try {
+        const response = await fetch('/api/auth/get-provider', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+
+        const data = await response.json();
+        setProvider(data.provider); // 'google', 'whatsapp', or null
+      } catch (error) {
+        console.error('Failed to get provider:', error);
+        setProvider(null); // fallback
+      }
+    };
+
     getProviderFromCookie();
   }, []);
-  
-  if (loading) return null;
 
+  useEffect(() => {
+    console.log(provider)
+  }, [provider])
+
+  // Masih loading
+  if (provider === undefined) return null;
+
+  // User login via Google
   if (provider === 'google') {
     return (
       <GoogleAuthProvider>
@@ -130,6 +108,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     );
   }
 
+  // Belum login
   return (
     <UnLoggedProvider>
       <UnLoggedToUnified setProvider={setProvider}>

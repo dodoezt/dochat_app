@@ -32,10 +32,10 @@ const Home = () => {
 
   return (
     <>
-      <header className="w-full fixed top-0 z-10">
+      <header className="fixed top-0 z-10 w-full">
         <Navbar setIsProfileShown={setIsProfileShown}/>
       </header>
-      <main className="w-full h-full flex flex-col justify-center items-center">
+      <main className="flex flex-col items-center justify-center w-full h-full">
         <div className="flex flex-col items-center justify-center gap-3 pointer-default">
           <div className="">
             <h1 className="font-roboto font-bold text-[#EAEAEA] text-4xl">
@@ -49,14 +49,14 @@ const Home = () => {
           </div>
           {userInfo?.username ? (
             <div className="">
-              <Link 
-                href={'/'}
+              <button 
+                onClick={() => window.location.href = '/'}
                 className='font-roboto bg-[#e0e0e0] font-semibold text-[#121212] text-base px-3 py-2 rounded-full flex items-center cursor-pointer'>
                   <span className="mr-1">
                     <TbMessageCircle className='text-xl'/>
                   </span>
                   Go Chit Chat
-              </Link>
+              </button>
             </div>
           ) : (
             <div className="">

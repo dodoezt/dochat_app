@@ -29,7 +29,7 @@ export default function RootLayout({
       <body
         className={`bg-[#121212] h-screen`}
       >
-        <AuthProvider provider={null}>
+        <AuthProvider>
           {children}
         </AuthProvider>
       </body>

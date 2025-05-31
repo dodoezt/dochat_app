@@ -8,7 +8,7 @@ import LogoLoading from '@/components/loadings/logoLoading'
 import { useUnifiedAuth } from '@/components/contexts/parents/authProvider'
 
 import { FaRegCircleUser } from "react-icons/fa6";
-import { IoCheckmarkDoneOutline, IoCheckmark } from "react-icons/io5";
+import { BsCheckAll } from "react-icons/bs";
 
 const VALID_TABS = ['chat', 'search']
 const DEFAULT_TAB = 'chat'
@@ -20,30 +20,35 @@ const page = () => {
 
   const searchParams = useSearchParams()
   const router = useRouter()
-
   const { provider } = auth;
-
-  useEffect(() => {
-    if(provider === null) {
-      router.replace('/welcome')
-    } else if (provider === 'google' || provider === 'whatsapp') {
-      setLoading(false)
-    }
-  }, [provider])
 
   const tab = searchParams.get('tab')
 
+  // Tunggu provider selesai diambil dari cookie
   useEffect(() => {
-    if(!tab || !VALID_TABS.includes(tab)){
+    if (provider === undefined) return;
+
+    if (provider === null) {
+      router.replace('/welcome');
+    } else {
+      setLoading(false);
+    }
+  }, [provider]);
+
+  // Handle tab param & fokus search
+  useEffect(() => {
+    if (loading) return;
+
+    if (!tab || !VALID_TABS.includes(tab)) {
       const params = new URLSearchParams(searchParams)
       params.set('tab', DEFAULT_TAB)
       router.replace(`?${params.toString()}`)
     }
 
-    if(tab === 'search'){
+    if (tab === 'search') {
       setIsSearchOnFocus(true)
     }
-  }, [])
+  }, [loading, tab]);
 
   const handleSearchFocus = () => {
     const params = new URLSearchParams(searchParams)
@@ -59,9 +64,7 @@ const page = () => {
     setIsSearchOnFocus(false)
   }
 
-  //NOTE : PERBAIKI SETELAH LOGIN LANGSUNG GANTI PROVIDER
-
-  if (loading || !tab) {
+  if (loading) {
     return (
       <div className="w-screen h-screen">
         <LogoLoading />
@@ -70,59 +73,55 @@ const page = () => {
   }
 
   return (
-    <div className='w-screen h-screen relative'>
+    <div className='relative w-screen h-screen'>
       <header className={`w-full px-4 py-3 items-center justify-between border-b border-b-[#2c2c2c]
-      ${isSearchOnFocus ? 'hidden' : 'flex'}  
+        ${isSearchOnFocus ? 'hidden' : 'flex'}  
       `}>
         <ChatNavbar />
       </header>
-      <div className={`w-full px-3 
-                      ${isSearchOnFocus && 'absolute top-2 left-1/2 -translate-x-1/2'}
-                    `}>
-        <ChatSearchBar handleSearchFocus={handleSearchFocus} handleSearchBlur={handleSearchBlur} isSearchOnFocus={isSearchOnFocus}/>
-      </div>
-      <main className="w-full">
-        <div className="w-full h-16 px-3 py-2 flex items-center justify-between">
-          <div className="h-full flex items-center space-x-2">
-            <div className="aspect-square h-full rounded-full flex items-center justify-center">
-              <FaRegCircleUser className='text-5xl text-[#e0e0e0]'/>
-            </div>
-            <div className="flex flex-col h-full content-between">
-              <h1 className="font-sans font-medium text-[#e0e0e0] text-sm">dodo ganteng</h1>
-              <p className="font-sans font-normal text-[#888888] text-xs flex"><span className=""><IoCheckmarkDoneOutline className='text-lg text-[#888888]'/></span> woi jawajawa</p>
-            </div>
-          </div>
-          <div className="h-full flex items-start">
-            <p className="font-sans font-light text-[#888888] text-xs">11:24 AM</p>
-          </div>
+
+      <main className={`w-full px-2 
+        ${isSearchOnFocus && 'absolute top-2 left-1/2 -translate-x-1/2'}
+      `}>
+        <div className='w-full px-2'>
+          <ChatSearchBar
+            handleSearchFocus={handleSearchFocus}
+            handleSearchBlur={handleSearchBlur}
+            isSearchOnFocus={isSearchOnFocus}
+          />
         </div>
-        <div className="w-full h-16 px-3 py-2 flex items-center justify-between">
-          <div className="h-full flex items-center space-x-2">
-            <div className="aspect-square h-full rounded-full flex items-center justify-center">
-              <FaRegCircleUser className='text-5xl text-[#e0e0e0]'/>
+
+        <div className="flex items-center justify-between w-full h-16 px-2 py-2 chat-container">
+          <div className="flex items-center flex-1 h-full space-x-2">
+            <div className="flex items-center justify-center h-full rounded-full aspect-square">
+              <FaRegCircleUser className='text-5xl text-[#e0e0e0]' />
             </div>
-            <div className="flex flex-col h-full content-between">
-              <h1 className="font-sans font-medium text-[#e0e0e0] text-sm">sayang</h1>
-              <p className="font-sans font-normal text-[#888888] text-xs flex"><span className=""><IoCheckmarkDoneOutline className='text-lg text-cyan-400'/></span> iahh bub</p>
-            </div>
-          </div>
-          <div className="h-full flex items-start">
-            <p className="font-sans font-light text-[#888888] text-xs">11:24 AM</p>
-          </div>
-        </div>
-        <div className="w-full h-16 px-3 py-2 flex items-center justify-between">
-          <div className="h-full flex items-center space-x-2">
-            <div className="aspect-square h-full rounded-full flex items-center justify-center">
-              <FaRegCircleUser className='text-5xl text-[#e0e0e0]'/>
-            </div>
-            <div className="flex flex-col h-full content-between">
-              <h1 className="font-sans font-medium text-[#e0e0e0] text-sm">Kairi (Rival)</h1>
-              <p className="font-sans font-normal text-[#888888] text-xs">-1 jungler do </p>
+            <div className="flex-1 h-full name-n-preview-container">
+              <div className="flex items-start pt-1 h-1/2">
+                <h1 className="font-roboto font-medium text-[#e0e0e0] text-sm">dodo ganteng</h1>
+              </div>
+              <div className="flex items-end pb-1 h-1/2">
+                <div className="flex items-center">
+                  <span className="chat-status">
+                    <BsCheckAll className='text-lg text-[#888888]' />
+                  </span>
+                  <p className="font-roboto font-normal text-[#888888] text-xs">
+                    woi jawajawa
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
-          <div className="h-full flex flex-col items-start justify-end gap-2">
-            <p className="font-sans font-light text-[#888888] text-xs">11:24 AM</p>
-            <div className="aspect-square rounded-full bg-green-400 flex items-center justify-center text-xs font-medium">1</div>
+
+          <div className="flex flex-col items-end h-full">
+            <div className="items-start pt-1 h-1/2">
+              <p className="font-sans font-light text-[#888888] text-xs">11:24 AM</p>
+            </div>
+            <div className="items-end pb-1 h-1/2">
+              <div className="relative flex items-center justify-center w-4 bg-green-400 rounded-full aspect-square">
+                <span className="absolute text-[#121212] text-[0.7rem] font-sans font-semibold">1</span>
+              </div>
+            </div>
           </div>
         </div>
       </main>

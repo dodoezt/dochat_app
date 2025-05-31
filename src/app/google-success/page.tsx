@@ -23,7 +23,6 @@ const page = () => {
     const { provider } = auth    
 
     useEffect(() => {
-        console.log('provider:', provider)
         if (provider !== null) {
             router.replace('/')
         }
@@ -55,21 +54,24 @@ const page = () => {
     const checkUser = async (email: string) => {
         const isUserCreated = await handleIsUserCreated(email)
         if (isUserCreated) {
-        try {
-            await fetch('api/login/google', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ email }),
-            })
-        } catch (error) {
-            console.log('error:', error)
-        } finally {
-            router.replace('/')
-        }
+            try {
+                const response = await fetch('api/login/google', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email }),
+                })
+
+                if (response.ok) {
+                    window.location.href = '/'
+                }
+                else alert('theres a problem')
+            } catch (error) {
+                console.log('error:', error)
+            }
         } else {
-        router.replace(`/new-user/google?redirect=/`)
+            router.push(`/new-user/google?redirect=/`)
         }
     }
 

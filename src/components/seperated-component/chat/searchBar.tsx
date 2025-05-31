@@ -29,7 +29,7 @@ const ChatSearchBar:React.FC<props> =
         <div className="h-full flex-1 flex items-center">
 
           {isSearchOnFocus && (
-            <div className="aspect-square h-full flex items-center justify-center">
+            <div className="aspect-square h-2/3 flex items-center justify-center">
               <button 
               className="w-full h-full text-lg text-[#e0e0e0] flex items-center justify-center cursor-pointer"
               onClick={handleSearchBlur}
