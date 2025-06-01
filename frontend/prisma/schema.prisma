@@ -1,0 +1,73 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model users {
+  userId       Int                  @id @default(autoincrement())
+  username     String?              @unique(map: "username_UNIQUE") @db.VarChar(20)
+  provider     String               @db.VarChar(255)
+  email        String?              @unique(map: "email_UNIQUE") @db.VarChar(255)
+  email_name   String?              @db.VarChar(255)
+  phone_number String?              @unique(map: "phone_number_UNIQUE") @db.VarChar(255)
+  dial_code    String?              @db.VarChar(255)
+  createdAt    DateTime             @db.DateTime(0)
+
+  // Relasi dua arah ke conversation_members
+  conversationMembers conversation_members[] @relation("UserConversationMembers")
+  
+  // Relasi dua arah ke messages (sebagai sender)
+  sentMessages        messages[]             @relation("UserSentMessages")
+
+  @@map("users")
+}
+
+model conversation_members {
+  id             Int          @id @default(autoincrement())
+  userId         Int
+  conversationId String       @db.VarChar(36)
+  joinedAt       DateTime     @default(now())
+
+  user          users          @relation("UserConversationMembers", fields: [userId], references: [userId])
+  conversation  conversations  @relation(fields: [conversationId], references: [id])
+
+  @@unique([userId, conversationId])
+  @@map("conversation_members")
+}
+
+model messages {
+  id             Int           @id @default(autoincrement())
+  content        String        @db.Text
+  sentAt         DateTime      @default(now())
+  status         MessageStatus @default(NOT_DELIVERED)
+  senderId       Int
+  conversationId String        @db.VarChar(36)
+
+  sender         users         @relation("UserSentMessages", fields: [senderId], references: [userId])
+  conversation   conversations @relation(fields: [conversationId], references: [id])
+
+  @@map("messages")
+}
+
+enum MessageStatus {
+  NOT_DELIVERED
+  DELIVERED
+  READ
+}
+
+model conversations {
+  id        String               @id @default(cuid()) @db.VarChar(36)
+  isGroup   Boolean              @default(false)
+  name      String?              @db.VarChar(100)
+  createdAt DateTime             @default(now())
+
+  members   conversation_members[]
+  messages  messages[]
+
+  @@map("conversations")
+}
