@@ -29,14 +29,14 @@ io.on("connection", (socket) => {
     console.log('joined in', roomId)
   })
 
-  socket.on("send-message", ({conversationId, senderId, text}) => {
+  socket.on("send-message", ({id, conversationId, senderId, text, createdAt, seen}) => {
     const message = {
-      id: crypto.randomUUID(),
+      id,
       conversationId,
       senderId,
       text,
-      createdAt: new Date().toISOString(),
-      delivered: true,
+      createdAt,
+      seen
     };
     
     socket.to(conversationId).emit("receive-message", message);
@@ -57,6 +57,16 @@ io.on("connection", (socket) => {
     //   console.error("Failed to save message:", err);
     //   socket.emit("error-message", "Gagal kirim pesan");
     // }
+  });
+
+  socket.on('status-typing', ({conversationId, userId, typing}) => {
+    console.log(`user ${userId} sedang mengetik`)
+    const response = {
+      senderId: userId,
+      typing: typing,
+    }
+
+    socket.to(conversationId).emit("show-typing-status", response)
   });
 
   socket.on("disconnect", () => {

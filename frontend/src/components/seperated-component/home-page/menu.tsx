@@ -1,5 +1,7 @@
 'use client'
 import React, { useEffect, useState } from 'react'
+import {Account, Client} from 'appwrite'
+
 import { MdNoAccounts } from "react-icons/md";
 import { TbMessage } from "react-icons/tb";
 import { FaRegCircleUser } from "react-icons/fa6";
@@ -14,6 +16,12 @@ type MenuProps = {
     userInfo: userInfoByGoogle;
 }
 
+const client = new Client()
+    .setEndpoint(process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT!)
+    .setProject(process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID!);
+
+const account = new Account(client)
+
 const Menu:React.FC<MenuProps> = ({isProfileShown, setIsProfileShown, userInfo}) => {
     const [loadings, setLoadings] = useState({
         getgoogleUserInfo: false,
@@ -22,7 +30,14 @@ const Menu:React.FC<MenuProps> = ({isProfileShown, setIsProfileShown, userInfo})
     const auth = useUnifiedAuth()
     const { provider } = auth;
 
-    //NOTE : FUTURE ME, FIX TYPE TYPE INIIIIIIIIIIII!!!!!!!!!!
+    const handleLogOut = async() => {
+        try {
+            await account.deleteSession('current');
+            window.location.reload()
+        } catch (error) {
+            console.log('error:', error);
+        }
+    }
     
     return (
         <>
@@ -30,7 +45,7 @@ const Menu:React.FC<MenuProps> = ({isProfileShown, setIsProfileShown, userInfo})
             <div
             onDrag={(e) => e.preventDefault()}
             className={`w-1/2 z-[100] fixed top-0 p-5 rounded-l-xl border border-[#2c2c2c] bg-[#121212] flex flex-col gap-3 transition-all duration-300 ease-in-out ${isProfileShown ? 'right-0' : '-right-full'}`}>
-                <header className="w-full flex items-center gap-3">
+                <header className="flex items-center w-full gap-3">
                     {provider === null ? (
                         <>
                             <div className="aspect-square">
@@ -52,17 +67,22 @@ const Menu:React.FC<MenuProps> = ({isProfileShown, setIsProfileShown, userInfo})
                         </>
                     )}
                 </header>
-                <div className="w-full flex items-center justify-center">
+                <div className="flex items-center justify-center w-full">
                     <span className="h-[2px] rounded-full bg-[#2c2c2c] w-full"></span>
                 </div>
                 <main className="w-full space-y-2">
-                    <div className="w-full flex items-center gap-1">
+                    <div className="flex items-center w-full gap-1">
                         <TbMessage className="text-sm text-[#e0e0e0]"/>
                         <p className="font-sans font-medium text-xs text-[#e0e0e0]">Messages</p>
                     </div>
-                    <div className="w-full flex items-center gap-1">
+                    <div className="flex items-center w-full gap-1">
                         <TbMessage className="text-sm text-[#e0e0e0]"/>
                         <p className="font-sans font-medium text-xs text-[#e0e0e0]">Messages</p>
+                    </div>
+                    <div className="flex items-center w-full gap-1">
+                        {provider !== null && 
+                            <button onClick={handleLogOut} className="">logout</button>
+                        }
                     </div>
                 </main>
             </div>
