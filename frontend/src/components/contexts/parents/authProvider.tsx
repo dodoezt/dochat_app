@@ -90,9 +90,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     getProviderFromCookie();
   }, []);
 
-  useEffect(() => {
-    console.log(provider)
-  }, [provider])
+  // useEffect(() => {
+  //   console.log(provider)
+  // }, [provider])
 
   // Masih loading
   if (provider === undefined) return null;

@@ -28,9 +28,9 @@ export const GoogleAuthProvider = ({ children } : any) => {
         createdAt: '',
     })
 
-    useEffect(() => {
-        console.log(userInfo)
-    }, [userInfo])
+    // useEffect(() => {
+    //     console.log(userInfo)
+    // }, [userInfo])
     
     useEffect(() => {
         getUser()

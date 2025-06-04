@@ -3,24 +3,34 @@ import socket from '@/lib/socket'
 import { useSearchParams } from 'next/navigation';
 import { useEffect, useState, useMemo } from 'react';
 import { useDebounce } from 'use-debounce'
+import { useRouter } from 'next/navigation';
 
 import ExpandableText from '@/components/functions/expandableText';
 
 import { IoMdSend } from "react-icons/io";
 import { BsCheckAll } from "react-icons/bs";
+import { useUnifiedAuth } from '@/components/contexts/parents/authProvider';
 
 
 interface Props {}
 
 const page: React.FC<Props> = ({}) => {
+    const auth = useUnifiedAuth();
+    const { userInfo } = auth;
+
+    if (!userInfo) return
+
+    const userId = userInfo.userId;
+    const router = useRouter()
+
     const searchParams = useSearchParams()
     const convId = searchParams.get('convId')
-    const userId = searchParams.get('id')
 
     const [messages, setMessages] = useState<any[]>([])
     const [textInput, setTextInput] = useState<string>('')
     const [isTyping, setIsTyping] = useState(false);
     const [hasEmittedTyping, setHasEmittedTyping] = useState<boolean>(false)
+    const [loading, setLoading] = useState<boolean>(true)
     
     const [debounceInput] = useDebounce(textInput, 500)
 
