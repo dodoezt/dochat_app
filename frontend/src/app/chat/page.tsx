@@ -10,17 +10,32 @@ import ExpandableText from '@/components/functions/expandableText';
 import { IoMdSend } from "react-icons/io";
 import { BsCheckAll } from "react-icons/bs";
 import { useUnifiedAuth } from '@/components/contexts/parents/authProvider';
+import { UseBoolean } from '@/hooks/useBoolean';
 
+type members = {
+    userId: number;
+    username: string;
+    email: string;
+}
+
+type MessageType = {
+    id: string;
+    conversationId: string;
+    senderId: number;
+    content: string;
+    sentAt: string;
+    status?: 'NOT_DELIVERED' | 'DELIVERED' | 'READ';
+};
 
 interface Props {}
 
 const page: React.FC<Props> = ({}) => {
     const auth = useUnifiedAuth();
-    const { userInfo } = auth;
+    const { userInfo, loadingGetUser } = auth;
 
-    if (!userInfo) return
+    if (loadingGetUser) return null;
 
-    const userId = userInfo.userId;
+    const { userId } = userInfo!;
     const router = useRouter()
 
     const searchParams = useSearchParams()
@@ -30,7 +45,9 @@ const page: React.FC<Props> = ({}) => {
     const [textInput, setTextInput] = useState<string>('')
     const [isTyping, setIsTyping] = useState(false);
     const [hasEmittedTyping, setHasEmittedTyping] = useState<boolean>(false)
-    const [loading, setLoading] = useState<boolean>(true)
+    const [members, setMembers] = useState<members[]>([])
+
+    const getMembersLoading = UseBoolean(true)
     
     const [debounceInput] = useDebounce(textInput, 500)
 
@@ -71,7 +88,6 @@ const page: React.FC<Props> = ({}) => {
             });
     }, [debounceInput]);
 
-
     useEffect(() => {
         socket.on("show-typing-status", ({ senderId, typing }) => {
             if (senderId !== userId) {
@@ -84,6 +100,46 @@ const page: React.FC<Props> = ({}) => {
         };
     }, [userId]);
 
+    useEffect(() => {
+        if (!convId || loadingGetUser) return;
+
+        if (!loadingGetUser && userInfo?.userId) {
+            getOhterMembers()
+        }
+    }, [loadingGetUser, userInfo?.userId])
+
+    const getOhterMembers = async () => {
+        getMembersLoading.setTrue()
+        try {
+            const response = await fetch(`/api/conversations/${convId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ userId })
+            })
+
+            const data = await response.json();
+            if(data.status === 403 && data.error === 'Forbidden') {
+                router.push('/')
+                return;
+            }
+            if (!response.ok) {
+                throw new Error(data.error || 'Failed to fetch conversation members');
+            }
+
+            const { members, conversation } = data;
+            setMembers(members);
+            setMessages(conversation.messages);
+
+            console.log('Members:', members);
+        } catch (error) {
+            throw new Error('Failed to fetch conversation members');
+        } finally {
+            console.log('fungsi selesai')
+            getMembersLoading.setFalse();
+        }
+    }
 
     const sendMessage = () => {
         if (!textInput.trim()) return;
@@ -111,6 +167,45 @@ const page: React.FC<Props> = ({}) => {
         return `${hours}:${minutes}`;
     };
 
+    const dateFormat = (date: string) => {
+        const inputDate = new Date(date);
+        const now = new Date();
+
+        const inputDateYMD = inputDate.toDateString();
+        const nowYMD = now.toDateString();
+
+        const yesterday = new Date(now);
+        yesterday.setDate(now.getDate() - 1);
+        const yesterdayYMD = yesterday.toDateString();
+
+        if (inputDateYMD === nowYMD) {
+            return 'Today';
+        } else if (inputDateYMD === yesterdayYMD) {
+            return 'Yesterday';
+        } else {
+            return inputDate.toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+        }
+    }
+
+    function groupMessagesByDate(messages: MessageType[]) {
+        return messages.reduce((groups: Record<string, MessageType[]>, msg) => {
+            const date = new Date(msg.sentAt).toDateString();
+            if (!groups[date]) groups[date] = [];
+            groups[date].push(msg);
+            console.log('groups', groups)
+            return groups;
+        }, {});
+    }
+
+    const groupedMessages = useMemo(() => groupMessagesByDate(messages), [messages]);
+    console.log(groupedMessages)
+
+    if(getMembersLoading.value) return <div className="font-sans text-[#e0e0e0]">loading...</div>
+
     return (
         <div className="relative w-screen h-screen">
             <header className="fixed top-0 flex items-center justify-between w-full p-3 h-[60px] border-b border-b-[#2c2c2c] bg-[#121212] z-10">
@@ -118,7 +213,8 @@ const page: React.FC<Props> = ({}) => {
                     <div className="aspect-square w-9 rounded-full border-[1px] border-[#e0e0e0]"></div>
                     <div className="flex flex-col h-full">
                         <div className="flex items-start h-1/2">
-                            <h1 className="font-sans font-medium text-[#e0e0e0] text-sm">si Ganteng | <span className="text-[#888888] font-normal text-xs">@dodoezt</span></h1>
+                            <h1 className="font-sans font-medium text-[#e0e0e0] text-sm">{members.length === 1 && members[0].username}</h1>
+                            {/* <span className="text-[#888888] font-normal text-xs">@dodoezt</span> */}
                         </div>
                         <div className="flex items-end h-1/2">
                             <p className="font-sans text-[#888888] text-xs">{isTyping ? 'typing...' : 'online'}</p>
@@ -128,27 +224,35 @@ const page: React.FC<Props> = ({}) => {
                 <div className=""></div>
             </header>
             <main className="w-full h-full pt-[72px] pb-12 overflow-y-scroll flex flex-col">
-                {messages.map((msg) => (
-                    <div 
-                    key={msg.id} 
-                    className={`relative w-full p-1 flex
-                        ${msg.senderId != userId ? 'justify-start' : 'justify-end'}
-                    `}>
-                        <div className={`max-w-2/3 min-w-12 font-sans text-xs p-2
-                            ${msg.senderId != userId ? 'bg-[#333333] rounded-r-xl rounded-bl-xl text-[#E0E0E0]' : 'bg-[#1E88E5] rounded-l-xl rounded-br-xl text-[#ffffff]'}
-                        `}>
-                            <div className="flex flex-col space-y-1">
-                                <ExpandableText text={msg.text} maxChars={120} />
-                                <div className="flex items-center justify-end space-x-[2px]">
-                                    <p className="font-sans text-[0.7rem]">{getTime(msg.createdAt)}</p>
-                                    {
-                                        msg.senderId == userId && 
-                                        <BsCheckAll className={`text-lg ${msg.seen ? 'text-cyan-200' : 'text-[#e0e0e0]'}`}/>
-                                    }
+                {Object.entries(groupedMessages).map(([dateKey, messagesInDate]) => (
+                    <div key={dateKey}>
+                        <div className="flex items-center justify-center w-full my-2">
+                            <h1 className="px-2 py-1 bg-[#2c2c2c] font-sans text-xs text-[#e0e0e0] rounded-lg">
+                                {dateFormat(dateKey)}
+                            </h1>
+                        </div>
+                        {messagesInDate.map((msg) => (
+                        <div key={msg.id} className="w-full">
+                            <div 
+                            className={`relative w-full p-1 flex ${msg.senderId != userId ? 'justify-start' : 'justify-end'}`}
+                            >
+                            <div className={`max-w-2/3 min-w-12 font-sans text-xs p-2
+                                ${msg.senderId != userId ? 'bg-[#333333] rounded-r-xl rounded-bl-xl text-[#E0E0E0]' : 'bg-[#1E88E5] rounded-l-xl rounded-br-xl text-[#ffffff]'}`}
+                            >
+                                <div className="flex flex-col space-y-1">
+                                    <ExpandableText text={msg.content} maxChars={120} />
+                                    <div className="flex items-center justify-end space-x-[2px]">
+                                        <p className="font-sans text-[0.7rem]">{getTime(msg.sentAt)}</p>
+                                        {msg.senderId === userId &&
+                                        <BsCheckAll className={`text-lg ${msg.status === 'READ' ? 'text-cyan-200' : 'text-[#e0e0e0]'}`} />
+                                        }
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
+                    ))}
+                </div>
                 ))}
             </main>
             <div className="fixed bottom-0 w-full p-2 bg-[#121212] z-10">

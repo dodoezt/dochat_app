@@ -1,4 +1,5 @@
 import { Models } from "appwrite";
+import { UseBooleanType } from "./hooks";
 export type ProviderType = 'google' | 'whatsapp' | null;
 
 export type BaseAuthContext = {
@@ -18,6 +19,7 @@ export type GoogleAuthContextType = BaseAuthContext & {
     getUser?: () => Promise<void>;
     googleLogOut?: () => Promise<void>;
     getJwtToken?: () => Promise<Models.Jwt>;
+    loadingGetUser?: UseBooleanType;
 };
 
 export type UnLoggedContextType = BaseAuthContext & {

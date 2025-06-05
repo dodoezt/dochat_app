@@ -164,7 +164,7 @@ const page = () => {
                 router.push(`/chat?convId=${conversation.conversationId}`);
               }} 
               key={conversation.conversationId}
-              className="flex items-center justify-between w-full h-16 px-2 py-2 chat-container">
+              className="flex items-center justify-between w-full h-16 px-2 py-2 cursor-pointer chat-container">
                 <div className="flex items-center flex-1 h-full space-x-2">
                   <div className="flex items-center justify-center h-full rounded-full aspect-square">
                     <FaRegCircleUser className='text-5xl text-[#e0e0e0]' />
