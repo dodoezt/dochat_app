@@ -1,7 +1,7 @@
 'use client'
 import socket from '@/lib/socket'
 import { useSearchParams } from 'next/navigation';
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo, useRef } from 'react';
 import { useDebounce } from 'use-debounce'
 import { useRouter } from 'next/navigation';
 
@@ -38,18 +38,31 @@ const page: React.FC<Props> = ({}) => {
     const { userId } = userInfo!;
     const router = useRouter()
 
+    const bottomRef = useRef<HTMLDivElement>(null);
+
     const searchParams = useSearchParams()
     const convId = searchParams.get('convId')
 
-    const [messages, setMessages] = useState<any[]>([])
+    const [messages, setMessages] = useState<MessageType[]>([])
+    const [groupedMessages, setGroupedMessages] = useState<Record<string, MessageType[]>>({})
+    const [members, setMembers] = useState<members[]>([])
+    
     const [textInput, setTextInput] = useState<string>('')
     const [isTyping, setIsTyping] = useState(false);
     const [hasEmittedTyping, setHasEmittedTyping] = useState<boolean>(false)
-    const [members, setMembers] = useState<members[]>([])
-
+    
     const getMembersLoading = UseBoolean(true)
     
     const [debounceInput] = useDebounce(textInput, 500)
+
+    useEffect(() => {
+        if (messages) {
+            setGroupedMessages(groupMessagesByDate(messages));
+            console.log('Grouped Messages:', groupedMessages);
+        }
+
+        bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }, [messages]);
 
     useEffect(() => {
         if(!convId) return
@@ -132,6 +145,9 @@ const page: React.FC<Props> = ({}) => {
             setMembers(members);
             setMessages(conversation.messages);
 
+            const groupedMessages = groupMessagesByDate(conversation.messages);
+            setGroupedMessages(groupedMessages);
+
             console.log('Members:', members);
         } catch (error) {
             throw new Error('Failed to fetch conversation members');
@@ -144,19 +160,24 @@ const page: React.FC<Props> = ({}) => {
     const sendMessage = () => {
         if (!textInput.trim()) return;
 
-        const newMsg = {
+        const newMsg: MessageType = {
             id: crypto.randomUUID(),
-            conversationId: convId,
-            senderId: userId,
-            text: textInput,
-            createdAt: new Date().toISOString(),
-            seen: false,
+            conversationId: convId!,
+            senderId: userId!,
+            content: textInput,
+            sentAt: new Date().toISOString(),
+            status: 'NOT_DELIVERED',
         }
 
+        console.log('newMsg', newMsg)
         socket.emit("send-message", newMsg);
 
         setTextInput("");
         setMessages((prev) => [...prev, newMsg])
+        
+        setTimeout(() => {
+            bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+        }, 50)
     };
 
     const getTime = (date: string) => {
@@ -167,23 +188,21 @@ const page: React.FC<Props> = ({}) => {
         return `${hours}:${minutes}`;
     };
 
-    const dateFormat = (date: string) => {
-        const inputDate = new Date(date);
+    const dateFormat = (dateString: string) => {
         const now = new Date();
+        const todayStr = now.toDateString();
 
-        const inputDateYMD = inputDate.toDateString();
-        const nowYMD = now.toDateString();
-
-        const yesterday = new Date(now);
+        const yesterday = new Date();
         yesterday.setDate(now.getDate() - 1);
-        const yesterdayYMD = yesterday.toDateString();
+        const yesterdayStr = yesterday.toDateString();
 
-        if (inputDateYMD === nowYMD) {
+        if (dateString === todayStr) {
             return 'Today';
-        } else if (inputDateYMD === yesterdayYMD) {
+        } else if (dateString === yesterdayStr) {
             return 'Yesterday';
         } else {
-            return inputDate.toLocaleDateString('en-US', {
+            const parsedDate = new Date(dateString); // ubah kembali ke Date object
+            return parsedDate.toLocaleDateString('en-US', {
                 year: 'numeric',
                 month: 'long',
                 day: 'numeric'
@@ -200,10 +219,7 @@ const page: React.FC<Props> = ({}) => {
             return groups;
         }, {});
     }
-
-    const groupedMessages = useMemo(() => groupMessagesByDate(messages), [messages]);
-    console.log(groupedMessages)
-
+    //NOTE : PERBAIKI SISTEM MESSAGING
     if(getMembersLoading.value) return <div className="font-sans text-[#e0e0e0]">loading...</div>
 
     return (
@@ -223,7 +239,7 @@ const page: React.FC<Props> = ({}) => {
                 </div>
                 <div className=""></div>
             </header>
-            <main className="w-full h-full pt-[72px] pb-12 overflow-y-scroll flex flex-col">
+            <main className="w-full h-full pt-[72px] pb-12 overflow-y-scroll">
                 {Object.entries(groupedMessages).map(([dateKey, messagesInDate]) => (
                     <div key={dateKey}>
                         <div className="flex items-center justify-center w-full my-2">
@@ -254,6 +270,7 @@ const page: React.FC<Props> = ({}) => {
                     ))}
                 </div>
                 ))}
+                <div ref={bottomRef} className=""></div>
             </main>
             <div className="fixed bottom-0 w-full p-2 bg-[#121212] z-10">
                 <div className="w-full h-8 rounded-full bg-[#2c2c2c] flex items-center">

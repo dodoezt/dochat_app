@@ -7,7 +7,7 @@ interface ExpandableTextProps {
 
 const ExpandableText: React.FC<ExpandableTextProps> = ({ text, maxChars = 120 }) => {
   const [expanded, setExpanded] = useState(false);
-  const isLong = text.length > maxChars;
+  const isLong = text?.length > maxChars;
 
   const displayText = expanded || !isLong ? text : text.slice(0, maxChars) + '...';
 

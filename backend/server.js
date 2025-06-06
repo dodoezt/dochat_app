@@ -5,8 +5,8 @@ const { Server } = require("socket.io");
 const cors = require("cors");
 require("dotenv").config();
 
-// const { PrismaClient } = require('@prisma/client');
-// const prisma = new PrismaClient();
+const { PrismaClient } = require('./generated/prisma'); // pastikan path ini sesuai dengan struktur project kamu
+const prisma = new PrismaClient();
 
 
 const app = express();
@@ -29,34 +29,32 @@ io.on("connection", (socket) => {
     console.log('joined in', roomId)
   })
 
-  socket.on("send-message", ({id, conversationId, senderId, text, createdAt, seen}) => {
+  socket.on("send-message", async ({id, conversationId, senderId, content, sentAt, status}) => {
     const message = {
       id,
       conversationId,
       senderId,
-      text,
-      createdAt,
-      seen
+      content,
+      sentAt,
+      status
     };
     
-    socket.to(conversationId).emit("receive-message", message);
-    console.log(`Message sent in room ${conversationId}:`, text);
+    try {
+      const saved = await prisma.messages.create({
+        data: {
+          conversationId,
+          senderId,
+          content,
+          sentAt,
+          status,
+        },
+      });
 
-    // try {
-    //   const saved = await prisma.message.create({
-    //     data: {
-    //       conversationId,
-    //       senderId,
-    //       text,
-    //       delivered: true,
-    //     },
-    //   });
-
-    //   io.to(conversationId).emit("receive-message", saved);
-    // } catch (err) {
-    //   console.error("Failed to save message:", err);
-    //   socket.emit("error-message", "Gagal kirim pesan");
-    // }
+      socket.to(conversationId).emit("receive-message", message);
+    } catch (err) {
+      console.error("Failed to save message:", err);
+      socket.emit("error-message", "Gagal kirim pesan");
+    }
   });
 
   socket.on('status-typing', ({conversationId, userId, typing}) => {
