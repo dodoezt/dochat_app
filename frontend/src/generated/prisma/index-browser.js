@@ -178,6 +178,7 @@ exports.Prisma.conversation_membersOrderByRelevanceFieldEnum = {
 };
 
 exports.Prisma.messagesOrderByRelevanceFieldEnum = {
+  id: 'id',
   content: 'content',
   conversationId: 'conversationId'
 };

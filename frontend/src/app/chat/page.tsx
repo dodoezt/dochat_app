@@ -8,7 +8,7 @@ import { useRouter } from 'next/navigation';
 import ExpandableText from '@/components/functions/expandableText';
 
 import { IoMdSend } from "react-icons/io";
-import { BsCheckAll } from "react-icons/bs";
+import { BsCheckAll, BsCheck } from "react-icons/bs";
 import { useUnifiedAuth } from '@/components/contexts/parents/authProvider';
 import { UseBoolean } from '@/hooks/useBoolean';
 
@@ -26,6 +26,10 @@ type MessageType = {
     sentAt: string;
     status?: 'NOT_DELIVERED' | 'DELIVERED' | 'READ';
 };
+
+type RecievedMsgType = MessageType & {
+    temporaryId?: string;
+}
 
 interface Props {}
 
@@ -46,6 +50,7 @@ const page: React.FC<Props> = ({}) => {
     const [messages, setMessages] = useState<MessageType[]>([])
     const [groupedMessages, setGroupedMessages] = useState<Record<string, MessageType[]>>({})
     const [members, setMembers] = useState<members[]>([])
+    const [newMsg, setNewMsg] = useState<number>(0)
     
     const [textInput, setTextInput] = useState<string>('')
     const [isTyping, setIsTyping] = useState(false);
@@ -62,6 +67,7 @@ const page: React.FC<Props> = ({}) => {
         }
 
         bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+        console.dir(messages)
     }, [messages]);
 
     useEffect(() => {
@@ -70,8 +76,39 @@ const page: React.FC<Props> = ({}) => {
         if(!socket.connected) socket.connect()
             
         socket.emit('join-room', convId)
-        socket.on('receive-message', (msg: any) => {
-            setMessages((prev) => [...prev, msg]);
+        socket.on('receive-message', (msg: RecievedMsgType) => {
+            console.log('Received message:', msg);
+            setMessages((prev) => {
+                if (msg.senderId === userId) {
+                    return prev.map((m) =>
+                        m.id === msg.temporaryId
+                        ?  
+                            { 
+                                ...m,
+                                id: msg.id, 
+                                status: 'DELIVERED' 
+                            }
+                        : m
+                    );
+                } else {
+                    return [
+                        ...prev,
+                        {
+                            id: msg.id,
+                            conversationId: msg.conversationId,
+                            senderId: msg.senderId,
+                            content: msg.content,
+                            sentAt: msg.sentAt,
+                            status: 'DELIVERED',
+                        },
+                    ];
+                }
+            });
+        });
+
+
+        socket.on('message-status', (status) => {
+            
         })
 
         return () => {
@@ -115,11 +152,35 @@ const page: React.FC<Props> = ({}) => {
 
     useEffect(() => {
         if (!convId || loadingGetUser) return;
-
+        
         if (!loadingGetUser && userInfo?.userId) {
             getOhterMembers()
         }
     }, [loadingGetUser, userInfo?.userId])
+    
+    const sendMessage = () => {
+        if (!textInput.trim()) return;
+
+        const temporaryId = crypto.randomUUID();
+
+        const newMsg: MessageType = {
+            id: temporaryId,
+            conversationId: convId!,
+            senderId: userId!,
+            content: textInput,
+            sentAt: new Date().toISOString(),
+            status: 'NOT_DELIVERED',
+        }
+
+        socket.emit("send-message", newMsg);
+
+        setTextInput("");
+        setMessages((prev) => [...prev, newMsg])
+        
+        setTimeout(() => {
+            bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+        }, 50)
+    };
 
     const getOhterMembers = async () => {
         getMembersLoading.setTrue()
@@ -157,28 +218,6 @@ const page: React.FC<Props> = ({}) => {
         }
     }
 
-    const sendMessage = () => {
-        if (!textInput.trim()) return;
-
-        const newMsg: MessageType = {
-            id: crypto.randomUUID(),
-            conversationId: convId!,
-            senderId: userId!,
-            content: textInput,
-            sentAt: new Date().toISOString(),
-            status: 'NOT_DELIVERED',
-        }
-
-        console.log('newMsg', newMsg)
-        socket.emit("send-message", newMsg);
-
-        setTextInput("");
-        setMessages((prev) => [...prev, newMsg])
-        
-        setTimeout(() => {
-            bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
-        }, 50)
-    };
 
     const getTime = (date: string) => {
         const d = new Date(date); // konversi ISO string ke Date object
@@ -259,8 +298,13 @@ const page: React.FC<Props> = ({}) => {
                                     <ExpandableText text={msg.content} maxChars={120} />
                                     <div className="flex items-center justify-end space-x-[2px]">
                                         <p className="font-sans text-[0.7rem]">{getTime(msg.sentAt)}</p>
-                                        {msg.senderId === userId &&
-                                        <BsCheckAll className={`text-lg ${msg.status === 'READ' ? 'text-cyan-200' : 'text-[#e0e0e0]'}`} />
+                                        {msg.senderId === userId && (
+                                            msg.status === 'NOT_DELIVERED' ? (
+                                                <BsCheck className='text-lg text-[#e0e0e0]'/>
+                                            ) : (
+                                                <BsCheckAll className={`text-lg ${msg.status === 'READ' ? 'text-cyan-200' : 'text-[#e0e0e0]'}`} />
+                                            )
+                                        )
                                         }
                                     </div>
                                 </div>

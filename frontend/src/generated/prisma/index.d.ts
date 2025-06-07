@@ -3230,17 +3230,15 @@ export namespace Prisma {
   }
 
   export type MessagesAvgAggregateOutputType = {
-    id: number | null
     senderId: number | null
   }
 
   export type MessagesSumAggregateOutputType = {
-    id: number | null
     senderId: number | null
   }
 
   export type MessagesMinAggregateOutputType = {
-    id: number | null
+    id: string | null
     content: string | null
     sentAt: Date | null
     status: $Enums.MessageStatus | null
@@ -3249,7 +3247,7 @@ export namespace Prisma {
   }
 
   export type MessagesMaxAggregateOutputType = {
-    id: number | null
+    id: string | null
     content: string | null
     sentAt: Date | null
     status: $Enums.MessageStatus | null
@@ -3269,12 +3267,10 @@ export namespace Prisma {
 
 
   export type MessagesAvgAggregateInputType = {
-    id?: true
     senderId?: true
   }
 
   export type MessagesSumAggregateInputType = {
-    id?: true
     senderId?: true
   }
 
@@ -3393,7 +3389,7 @@ export namespace Prisma {
   }
 
   export type MessagesGroupByOutputType = {
-    id: number
+    id: string
     content: string
     sentAt: Date
     status: $Enums.MessageStatus
@@ -3455,7 +3451,7 @@ export namespace Prisma {
       conversation: Prisma.$conversationsPayload<ExtArgs>
     }
     scalars: $Extensions.GetPayloadResult<{
-      id: number
+      id: string
       content: string
       sentAt: Date
       status: $Enums.MessageStatus
@@ -3832,7 +3828,7 @@ export namespace Prisma {
    * Fields of the messages model
    */
   interface messagesFieldRefs {
-    readonly id: FieldRef<"messages", 'Int'>
+    readonly id: FieldRef<"messages", 'String'>
     readonly content: FieldRef<"messages", 'String'>
     readonly sentAt: FieldRef<"messages", 'DateTime'>
     readonly status: FieldRef<"messages", 'MessageStatus'>
@@ -5267,6 +5263,7 @@ export namespace Prisma {
 
 
   export const messagesOrderByRelevanceFieldEnum: {
+    id: 'id',
     content: 'content',
     conversationId: 'conversationId'
   };
@@ -5469,7 +5466,7 @@ export namespace Prisma {
     AND?: messagesWhereInput | messagesWhereInput[]
     OR?: messagesWhereInput[]
     NOT?: messagesWhereInput | messagesWhereInput[]
-    id?: IntFilter<"messages"> | number
+    id?: StringFilter<"messages"> | string
     content?: StringFilter<"messages"> | string
     sentAt?: DateTimeFilter<"messages"> | Date | string
     status?: EnumMessageStatusFilter<"messages"> | $Enums.MessageStatus
@@ -5492,7 +5489,7 @@ export namespace Prisma {
   }
 
   export type messagesWhereUniqueInput = Prisma.AtLeast<{
-    id?: number
+    id?: string
     AND?: messagesWhereInput | messagesWhereInput[]
     OR?: messagesWhereInput[]
     NOT?: messagesWhereInput | messagesWhereInput[]
@@ -5503,7 +5500,7 @@ export namespace Prisma {
     conversationId?: StringFilter<"messages"> | string
     sender?: XOR<UsersScalarRelationFilter, usersWhereInput>
     conversation?: XOR<ConversationsScalarRelationFilter, conversationsWhereInput>
-  }, "id">
+  }, "id" | "id">
 
   export type messagesOrderByWithAggregationInput = {
     id?: SortOrder
@@ -5523,7 +5520,7 @@ export namespace Prisma {
     AND?: messagesScalarWhereWithAggregatesInput | messagesScalarWhereWithAggregatesInput[]
     OR?: messagesScalarWhereWithAggregatesInput[]
     NOT?: messagesScalarWhereWithAggregatesInput | messagesScalarWhereWithAggregatesInput[]
-    id?: IntWithAggregatesFilter<"messages"> | number
+    id?: StringWithAggregatesFilter<"messages"> | string
     content?: StringWithAggregatesFilter<"messages"> | string
     sentAt?: DateTimeWithAggregatesFilter<"messages"> | Date | string
     status?: EnumMessageStatusWithAggregatesFilter<"messages"> | $Enums.MessageStatus
@@ -5712,6 +5709,7 @@ export namespace Prisma {
   }
 
   export type messagesCreateInput = {
+    id: string
     content: string
     sentAt?: Date | string
     status?: $Enums.MessageStatus
@@ -5720,7 +5718,7 @@ export namespace Prisma {
   }
 
   export type messagesUncheckedCreateInput = {
-    id?: number
+    id: string
     content: string
     sentAt?: Date | string
     status?: $Enums.MessageStatus
@@ -5729,6 +5727,7 @@ export namespace Prisma {
   }
 
   export type messagesUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
     content?: StringFieldUpdateOperationsInput | string
     sentAt?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: EnumMessageStatusFieldUpdateOperationsInput | $Enums.MessageStatus
@@ -5737,7 +5736,7 @@ export namespace Prisma {
   }
 
   export type messagesUncheckedUpdateInput = {
-    id?: IntFieldUpdateOperationsInput | number
+    id?: StringFieldUpdateOperationsInput | string
     content?: StringFieldUpdateOperationsInput | string
     sentAt?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: EnumMessageStatusFieldUpdateOperationsInput | $Enums.MessageStatus
@@ -5746,7 +5745,7 @@ export namespace Prisma {
   }
 
   export type messagesCreateManyInput = {
-    id?: number
+    id: string
     content: string
     sentAt?: Date | string
     status?: $Enums.MessageStatus
@@ -5755,13 +5754,14 @@ export namespace Prisma {
   }
 
   export type messagesUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
     content?: StringFieldUpdateOperationsInput | string
     sentAt?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: EnumMessageStatusFieldUpdateOperationsInput | $Enums.MessageStatus
   }
 
   export type messagesUncheckedUpdateManyInput = {
-    id?: IntFieldUpdateOperationsInput | number
+    id?: StringFieldUpdateOperationsInput | string
     content?: StringFieldUpdateOperationsInput | string
     sentAt?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: EnumMessageStatusFieldUpdateOperationsInput | $Enums.MessageStatus
@@ -6091,7 +6091,6 @@ export namespace Prisma {
   }
 
   export type messagesAvgOrderByAggregateInput = {
-    id?: SortOrder
     senderId?: SortOrder
   }
 
@@ -6114,7 +6113,6 @@ export namespace Prisma {
   }
 
   export type messagesSumOrderByAggregateInput = {
-    id?: SortOrder
     senderId?: SortOrder
   }
 
@@ -6612,6 +6610,7 @@ export namespace Prisma {
   }
 
   export type messagesCreateWithoutSenderInput = {
+    id: string
     content: string
     sentAt?: Date | string
     status?: $Enums.MessageStatus
@@ -6619,7 +6618,7 @@ export namespace Prisma {
   }
 
   export type messagesUncheckedCreateWithoutSenderInput = {
-    id?: number
+    id: string
     content: string
     sentAt?: Date | string
     status?: $Enums.MessageStatus
@@ -6682,7 +6681,7 @@ export namespace Prisma {
     AND?: messagesScalarWhereInput | messagesScalarWhereInput[]
     OR?: messagesScalarWhereInput[]
     NOT?: messagesScalarWhereInput | messagesScalarWhereInput[]
-    id?: IntFilter<"messages"> | number
+    id?: StringFilter<"messages"> | string
     content?: StringFilter<"messages"> | string
     sentAt?: DateTimeFilter<"messages"> | Date | string
     status?: EnumMessageStatusFilter<"messages"> | $Enums.MessageStatus
@@ -6932,6 +6931,7 @@ export namespace Prisma {
   }
 
   export type messagesCreateWithoutConversationInput = {
+    id: string
     content: string
     sentAt?: Date | string
     status?: $Enums.MessageStatus
@@ -6939,7 +6939,7 @@ export namespace Prisma {
   }
 
   export type messagesUncheckedCreateWithoutConversationInput = {
-    id?: number
+    id: string
     content: string
     sentAt?: Date | string
     status?: $Enums.MessageStatus
@@ -6995,7 +6995,7 @@ export namespace Prisma {
   }
 
   export type messagesCreateManySenderInput = {
-    id?: number
+    id: string
     content: string
     sentAt?: Date | string
     status?: $Enums.MessageStatus
@@ -7020,6 +7020,7 @@ export namespace Prisma {
   }
 
   export type messagesUpdateWithoutSenderInput = {
+    id?: StringFieldUpdateOperationsInput | string
     content?: StringFieldUpdateOperationsInput | string
     sentAt?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: EnumMessageStatusFieldUpdateOperationsInput | $Enums.MessageStatus
@@ -7027,7 +7028,7 @@ export namespace Prisma {
   }
 
   export type messagesUncheckedUpdateWithoutSenderInput = {
-    id?: IntFieldUpdateOperationsInput | number
+    id?: StringFieldUpdateOperationsInput | string
     content?: StringFieldUpdateOperationsInput | string
     sentAt?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: EnumMessageStatusFieldUpdateOperationsInput | $Enums.MessageStatus
@@ -7035,7 +7036,7 @@ export namespace Prisma {
   }
 
   export type messagesUncheckedUpdateManyWithoutSenderInput = {
-    id?: IntFieldUpdateOperationsInput | number
+    id?: StringFieldUpdateOperationsInput | string
     content?: StringFieldUpdateOperationsInput | string
     sentAt?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: EnumMessageStatusFieldUpdateOperationsInput | $Enums.MessageStatus
@@ -7049,7 +7050,7 @@ export namespace Prisma {
   }
 
   export type messagesCreateManyConversationInput = {
-    id?: number
+    id: string
     content: string
     sentAt?: Date | string
     status?: $Enums.MessageStatus
@@ -7074,6 +7075,7 @@ export namespace Prisma {
   }
 
   export type messagesUpdateWithoutConversationInput = {
+    id?: StringFieldUpdateOperationsInput | string
     content?: StringFieldUpdateOperationsInput | string
     sentAt?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: EnumMessageStatusFieldUpdateOperationsInput | $Enums.MessageStatus
@@ -7081,7 +7083,7 @@ export namespace Prisma {
   }
 
   export type messagesUncheckedUpdateWithoutConversationInput = {
-    id?: IntFieldUpdateOperationsInput | number
+    id?: StringFieldUpdateOperationsInput | string
     content?: StringFieldUpdateOperationsInput | string
     sentAt?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: EnumMessageStatusFieldUpdateOperationsInput | $Enums.MessageStatus
@@ -7089,7 +7091,7 @@ export namespace Prisma {
   }
 
   export type messagesUncheckedUpdateManyWithoutConversationInput = {
-    id?: IntFieldUpdateOperationsInput | number
+    id?: StringFieldUpdateOperationsInput | string
     content?: StringFieldUpdateOperationsInput | string
     sentAt?: DateTimeFieldUpdateOperationsInput | Date | string
     status?: EnumMessageStatusFieldUpdateOperationsInput | $Enums.MessageStatus

@@ -30,27 +30,27 @@ io.on("connection", (socket) => {
   })
 
   socket.on("send-message", async ({id, conversationId, senderId, content, sentAt, status}) => {
-    const message = {
-      id,
-      conversationId,
-      senderId,
-      content,
-      sentAt,
-      status
-    };
-    
     try {
       const saved = await prisma.messages.create({
         data: {
+          id: crypto.randomUUID(),
           conversationId,
           senderId,
           content,
           sentAt,
-          status,
+          status: 'DELIVERED',
         },
       });
 
-      socket.to(conversationId).emit("receive-message", message);
+      socket.to(conversationId).emit("receive-message", {
+        id: saved.id,
+        temporaryId: id,
+        conversationId: saved.conversationId,
+        senderId: saved.senderId,
+        content: saved.content,
+        sentAt: saved.sentAt,
+        status: 'DELIVERED'
+      });
     } catch (err) {
       console.error("Failed to save message:", err);
       socket.emit("error-message", "Gagal kirim pesan");
