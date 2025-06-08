@@ -1,5 +1,5 @@
 'use client'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 
 import ChatSearchBar from '@/components/seperated-component/chat/searchBar'
@@ -9,6 +9,7 @@ import { useUnifiedAuth } from '@/components/contexts/parents/authProvider'
 
 import { FaRegCircleUser } from "react-icons/fa6";
 import { BsCheckAll } from "react-icons/bs";
+import socket from '@/lib/socket'
 
 const VALID_TABS = ['chat', 'search']
 const DEFAULT_TAB = 'chat'
@@ -53,6 +54,55 @@ const page = () => {
   const { provider, userInfo } = auth;
 
   const tab = searchParams.get('tab')
+
+  useEffect(() => {
+    console.log(userInfo)
+    if (conversations.length === 0 || !userInfo?.userId) return;
+    
+    if(!socket.connected) socket.connect()
+    console.log('Joining user room:', userInfo.userId);
+    socket.emit('join-user-room', userInfo.userId)
+    
+    socket.on('new-preview-message', (msg) => {
+      console.log('New preview message received:', msg);
+
+      setConversations((prev) => {
+        const updated = [...prev];
+        const conversationIndex = updated.findIndex(
+          (conv) => conv.conversationId === msg.conversationId
+        );
+
+        if (conversationIndex !== -1) {
+          const updatedMessages = [
+            {
+              id: msg.id,
+              conversationId: msg.conversationId,
+              senderId: msg.senderId,
+              content: msg.content,
+              sentAt: msg.sentAt,
+              status: msg.status,
+            },
+            ...updated[conversationIndex].conversation.messages,
+          ];
+
+          updated[conversationIndex] = {
+            ...updated[conversationIndex],
+            conversation: {
+              ...updated[conversationIndex].conversation,
+              messages: updatedMessages,
+            },
+          };
+        }
+
+        return updated;
+      });
+    });
+
+  }, [userInfo!.userId])
+ 
+  useEffect(() => {
+    console.dir(conversations)
+  }, [conversations])
   
   useEffect(() => {
     if (provider === undefined) return;

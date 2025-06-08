@@ -37,9 +37,7 @@ const page: React.FC<Props> = ({}) => {
     const auth = useUnifiedAuth();
     const { userInfo, loadingGetUser } = auth;
 
-    if (loadingGetUser) return null;
-
-    const { userId } = userInfo!;
+    const userId = useRef<number | null>(null);
     const router = useRouter()
 
     const bottomRef = useRef<HTMLDivElement>(null);
@@ -60,14 +58,27 @@ const page: React.FC<Props> = ({}) => {
     
     const [debounceInput] = useDebounce(textInput, 500)
 
+    // useEffect(() => {
+    //     console.log('userId:', userId.current);
+    //     console.log('loadingGetUser:', loadingGetUser?.value);
+    // }, [userId.current, loadingGetUser?.value]);
+
+    useEffect(() => {
+        if (userInfo?.userId) {
+            userId.current = userInfo.userId;
+        }
+    }, [userInfo])
+
     useEffect(() => {
         if (messages) {
             setGroupedMessages(groupMessagesByDate(messages));
-            console.log('Grouped Messages:', groupedMessages);
+            // console.log('Grouped Messages:', groupedMessages);
+            console.log('Messages:', messages);
         }
 
+
         bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
-        console.dir(messages)
+        // console.dir(messages)
     }, [messages]);
 
     useEffect(() => {
@@ -77,20 +88,41 @@ const page: React.FC<Props> = ({}) => {
             
         socket.emit('join-room', convId)
         socket.on('receive-message', (msg: RecievedMsgType) => {
-            console.log('Received message:', msg);
+            // console.log('Received message:', msg);
+            // console.log('Current user ID:', userId.current);
+            // console.log('Current message senderId:', msg.senderId);
             setMessages((prev) => {
-                if (msg.senderId === userId) {
-                    return prev.map((m) =>
-                        m.id === msg.temporaryId
-                        ?  
-                            { 
-                                ...m,
-                                id: msg.id, 
-                                status: 'DELIVERED' 
-                            }
-                        : m
-                    );
+                const existingIdx = prev.findIndex((m) => 
+                    msg.senderId === userId.current
+                        ? m.id === msg.temporaryId
+                        : m.id === msg.id
+                )
+                if (msg.senderId === userId.current) {
+                    // console.log('Received message from self, updating status');
+                    if (existingIdx !== -1){
+                        const updatedMessages = [...prev]
+                        updatedMessages[existingIdx] = {
+                            ...updatedMessages[existingIdx],
+                            id: msg.id, // Ganti ID dari temporaryId ke ID yang sebenarnya
+                            status: 'DELIVERED', // Update status menjadi DELIVERED
+                        };
+                        return updatedMessages;
+                    } else {
+                        return [...prev, {
+                            id: msg.id,
+                            conversationId: msg.conversationId,
+                            senderId: msg.senderId,
+                            content: msg.content,
+                            sentAt: msg.sentAt,
+                            status: 'DELIVERED', // Set status menjadi DELIVERED
+                        }]
+                    }
+
+                    //NOTE PERBAIKI LOGIC GANTI ID SAMA STATUS
                 } else {
+                    const alreadyExists = prev.some((m) => m.id === msg.id);
+
+                    if (alreadyExists) return prev;
                     return [
                         ...prev,
                         {
@@ -122,7 +154,7 @@ const page: React.FC<Props> = ({}) => {
             setHasEmittedTyping(true)
             socket.emit('status-typing', { 
                 conversationId: convId, 
-                userId, 
+                userId: userId.current, 
                 typing: true 
             });
         }
@@ -133,14 +165,14 @@ const page: React.FC<Props> = ({}) => {
             setHasEmittedTyping(false)
             socket.emit('status-typing', { 
                 conversationId: convId,
-                userId, 
+                userId: userId.current, 
                 typing: false 
             });
     }, [debounceInput]);
 
     useEffect(() => {
         socket.on("show-typing-status", ({ senderId, typing }) => {
-            if (senderId !== userId) {
+            if (senderId !== userId.current) {
                 setIsTyping(typing);
             }
         });
@@ -148,15 +180,15 @@ const page: React.FC<Props> = ({}) => {
         return () => {
             socket.off("show-typing-status");
         };
-    }, [userId]);
+    }, [userId.current]);
 
     useEffect(() => {
-        if (!convId || loadingGetUser) return;
+        if (!convId || loadingGetUser?.value) return;
         
-        if (!loadingGetUser && userInfo?.userId) {
+        if (!loadingGetUser?.value && userId.current) {
             getOhterMembers()
         }
-    }, [loadingGetUser, userInfo?.userId])
+    }, [loadingGetUser?.value, userId.current])
     
     const sendMessage = () => {
         if (!textInput.trim()) return;
@@ -166,7 +198,7 @@ const page: React.FC<Props> = ({}) => {
         const newMsg: MessageType = {
             id: temporaryId,
             conversationId: convId!,
-            senderId: userId!,
+            senderId: userId.current!,
             content: textInput,
             sentAt: new Date().toISOString(),
             status: 'NOT_DELIVERED',
@@ -190,7 +222,7 @@ const page: React.FC<Props> = ({}) => {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ userId })
+                body: JSON.stringify({ userId: userId.current })
             })
 
             const data = await response.json();
@@ -254,12 +286,12 @@ const page: React.FC<Props> = ({}) => {
             const date = new Date(msg.sentAt).toDateString();
             if (!groups[date]) groups[date] = [];
             groups[date].push(msg);
-            console.log('groups', groups)
+            // console.log('groups', groups)
             return groups;
         }, {});
     }
     //NOTE : PERBAIKI SISTEM MESSAGING
-    if(getMembersLoading.value) return <div className="font-sans text-[#e0e0e0]">loading...</div>
+    if(getMembersLoading.value || loadingGetUser?.value) return <div className="font-sans text-[#e0e0e0]">loading...</div>
 
     return (
         <div className="relative w-screen h-screen">
@@ -289,16 +321,16 @@ const page: React.FC<Props> = ({}) => {
                         {messagesInDate.map((msg) => (
                         <div key={msg.id} className="w-full">
                             <div 
-                            className={`relative w-full p-1 flex ${msg.senderId != userId ? 'justify-start' : 'justify-end'}`}
+                            className={`relative w-full p-1 flex ${msg.senderId != userId.current ? 'justify-start' : 'justify-end'}`}
                             >
                             <div className={`max-w-2/3 min-w-12 font-sans text-xs p-2
-                                ${msg.senderId != userId ? 'bg-[#333333] rounded-r-xl rounded-bl-xl text-[#E0E0E0]' : 'bg-[#1E88E5] rounded-l-xl rounded-br-xl text-[#ffffff]'}`}
+                                ${msg.senderId != userId.current ? 'bg-[#333333] rounded-r-xl rounded-bl-xl text-[#E0E0E0]' : 'bg-[#1E88E5] rounded-l-xl rounded-br-xl text-[#ffffff]'}`}
                             >
                                 <div className="flex flex-col space-y-1">
                                     <ExpandableText text={msg.content} maxChars={120} />
                                     <div className="flex items-center justify-end space-x-[2px]">
                                         <p className="font-sans text-[0.7rem]">{getTime(msg.sentAt)}</p>
-                                        {msg.senderId === userId && (
+                                        {msg.senderId === userId.current && (
                                             msg.status === 'NOT_DELIVERED' ? (
                                                 <BsCheck className='text-lg text-[#e0e0e0]'/>
                                             ) : (

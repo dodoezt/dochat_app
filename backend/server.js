@@ -29,7 +29,29 @@ io.on("connection", (socket) => {
     console.log('joined in', roomId)
   })
 
+  socket.on("join-user-room", (userId) => {
+    socket.join(userId);
+  });
+
+  socket.on("leave-user-room", (userId) => {
+    socket.leave(userId);
+  })
+
+
   socket.on("send-message", async ({id, conversationId, senderId, content, sentAt, status}) => {
+    const memberIds = await prisma.conversations.findUnique({
+      where: {
+        id: conversationId,
+      }, 
+      include: {
+        members: {
+          select: {
+            userId: true,
+          },
+        },
+      },
+    })
+
     try {
       const saved = await prisma.messages.create({
         data: {
@@ -41,8 +63,7 @@ io.on("connection", (socket) => {
           status: 'DELIVERED',
         },
       });
-
-      socket.to(conversationId).emit("receive-message", {
+      socket.emit("receive-message", {
         id: saved.id,
         temporaryId: id,
         conversationId: saved.conversationId,
@@ -51,6 +72,28 @@ io.on("connection", (socket) => {
         sentAt: saved.sentAt,
         status: 'DELIVERED'
       });
+
+      socket.to(conversationId).emit("receive-message", {
+        id: saved.id,
+        conversationId: saved.conversationId,
+        senderId: saved.senderId,
+        content: saved.content,
+        sentAt: saved.sentAt,
+        status: 'DELIVERED'
+      });
+
+      memberIds.members.forEach(member => {
+        if (member.userId === senderId) return; // Jangan kirim ke pengirim
+        console.log('terkirim ke', member.userId)
+        io.to(member.userId).emit("new-preview-message", {
+          id: saved.id,
+          conversationId: saved.conversationId,
+          senderId: saved.senderId,
+          content: saved.content, 
+          sentAt: saved.sentAt,
+          status: 'DELIVERED'
+        })
+      })
     } catch (err) {
       console.error("Failed to save message:", err);
       socket.emit("error-message", "Gagal kirim pesan");

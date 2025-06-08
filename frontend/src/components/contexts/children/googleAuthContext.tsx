@@ -3,6 +3,7 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { Client, Account, Models } from 'appwrite';
 import { GoogleAuthContextType, userInfoByGoogle } from '@/types/contexts';
 
+import { UseBoolean } from '@/hooks/useBoolean';
 
 const client = new Client()
     .setEndpoint(process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT!)
@@ -20,6 +21,8 @@ export const GoogleAuthProvider = ({ children } : any) => {
         email: '',
     })
 
+    const loadingGetUser = UseBoolean(true)
+
     const [userInfo, setUserInfo] = useState<userInfoByGoogle>({
         userId: null,
         username: '',
@@ -28,9 +31,9 @@ export const GoogleAuthProvider = ({ children } : any) => {
         createdAt: '',
     })
 
-    // useEffect(() => {
-    //     console.log(userInfo)
-    // }, [userInfo])
+    useEffect(() => {
+        console.log(loadingGetUser.value)
+    }, [loadingGetUser.value])
     
     useEffect(() => {
         getUser()
@@ -41,6 +44,7 @@ export const GoogleAuthProvider = ({ children } : any) => {
     }, [googleUserInfo.email])
 
     const getUserFromDb = async() => {
+        loadingGetUser.setTrue()
         try {
             const response = await fetch('/api/users/get-user/google', {
                 method: 'POST',
@@ -58,6 +62,8 @@ export const GoogleAuthProvider = ({ children } : any) => {
 
         } catch (error) {
             console.log('failed to fetch user')
+        } finally {
+            loadingGetUser.setFalse();
         }
     }   
 
@@ -88,7 +94,7 @@ export const GoogleAuthProvider = ({ children } : any) => {
     }
 
     return (
-        <GoogleAuthContext.Provider value={{ provider :'google', userInfo, googleUserInfo, getUser, googleLogOut, getJwtToken }}>
+        <GoogleAuthContext.Provider value={{ provider :'google', userInfo, googleUserInfo, getUser, googleLogOut, getJwtToken, loadingGetUser }}>
             {children}
         </GoogleAuthContext.Provider>
     )

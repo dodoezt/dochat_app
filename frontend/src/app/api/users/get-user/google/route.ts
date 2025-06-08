@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server'
 
 export async function POST (req: Request) {
     const { email, provider }: {email : string, provider : 'google' | 'whatsapp'} = await req.json()
+    
     let user;
 
     if(!email || provider !== 'google') return NextResponse.json({message: 'invalid email'}, {status: 400})
