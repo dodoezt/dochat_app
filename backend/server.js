@@ -83,7 +83,7 @@ io.on("connection", (socket) => {
       });
 
       memberIds.members.forEach(member => {
-        if (member.userId === senderId) return; // Jangan kirim ke pengirim
+        if (member.userId === senderId) return;
         console.log('terkirim ke', member.userId)
         io.to(member.userId).emit("new-preview-message", {
           id: saved.id,

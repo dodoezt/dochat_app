@@ -52,7 +52,7 @@ model messages {
 }
 
 model conversations {
-  id        String                 @id @default(cuid()) @db.VarChar(36)
+  id        String                 @id @unique(map: "id_UNIQUE") @default(cuid()) @db.VarChar(36)
   isGroup   Boolean                @default(false)
   name      String?                @db.VarChar(100)
   createdAt DateTime               @default(now()) @db.DateTime(0)

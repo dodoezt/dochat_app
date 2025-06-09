@@ -56,15 +56,20 @@ const page = () => {
   const tab = searchParams.get('tab')
 
   useEffect(() => {
-    console.log(userInfo)
-    if (conversations.length === 0 || !userInfo?.userId) return;
+    console.log(conversations)
+  }, [conversations])
+  
+  useEffect(() => {
+    //NOTE : FIX BUG DAN FITUR PREVIEW MESSAGE DAN LANJUTINNNNNNNNNNNNNNNNNNNNN!!!!
+    if (conversations.length === 0 || !userInfo?.userId) {
+      console.log('No conversations or user info available, skipping socket connection.');
+      return;
+    }
     
     if(!socket.connected) socket.connect()
-    console.log('Joining user room:', userInfo.userId);
     socket.emit('join-user-room', userInfo.userId)
     
     socket.on('new-preview-message', (msg) => {
-      console.log('New preview message received:', msg);
 
       setConversations((prev) => {
         const updated = [...prev];
@@ -98,12 +103,8 @@ const page = () => {
       });
     });
 
-  }, [userInfo!.userId])
- 
-  useEffect(() => {
-    console.dir(conversations)
-  }, [conversations])
-  
+  }, [userInfo!.userId, conversations.length])
+
   useEffect(() => {
     if (provider === undefined) return;
     
@@ -151,7 +152,6 @@ const page = () => {
 
       const data = await response.json();
       setConversations(data.conversations);
-      console.log('Conversations:', data.conversations);
     } catch (error) {
       console.error('Error fetching conversations:', error);
     } finally {

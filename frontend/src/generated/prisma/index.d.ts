@@ -5560,7 +5560,7 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"conversations"> | Date | string
     members?: Conversation_membersListRelationFilter
     messages?: MessagesListRelationFilter
-  }, "id">
+  }, "id" | "id">
 
   export type conversationsOrderByWithAggregationInput = {
     id?: SortOrder
