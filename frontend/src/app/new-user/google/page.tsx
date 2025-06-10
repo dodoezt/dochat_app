@@ -3,10 +3,15 @@ import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Client, Account } from 'appwrite';
 import { useRouter } from 'next/navigation';
-import { useGoogleAuth } from '@/components/contexts/children/googleAuthContext';
 
 import ConfirmPopUp from '@/components/mini-components/confirmPopUp';
 import Overlay from '@/components/mini-components/overlay';
+import { useUnifiedAuth } from '@/components/contexts/parents/authProvider';
+
+const client = new Client()
+    .setEndpoint(process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT!)
+    .setProject(process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID!);
+const account = new Account(client);
 
 const page = () => {
     const [loadings, setLoadings] = useState({
@@ -16,18 +21,33 @@ const page = () => {
     const [buttonBlock, setButtonBlock] = useState(true);
     const [validationMsg, setValidationMsg] = useState<string | null>(null)
     const [isUsernameNotValid, setIsUsernameNotValid] = useState(false)
+
+    const [googleUserInfo, setGoogleUserInfo] = useState({
+        email_name: '',
+        email: '',
+    })
     
     const searchParams = useSearchParams();
-    const redirect = searchParams.get('redirect');
+    const redirect = searchParams.get('redirect') || '/';
     const router = useRouter();
-
-    const { googleUserInfo, getUser } = useGoogleAuth()
+    
+    const [username, setUsername] = useState(googleUserInfo.email_name || '');
 
     useEffect(() => {
-        getUser()
+        getUser();
     }, [])
-    
-    const [username, setUsername] = useState(googleUserInfo.username);
+
+    const getUser = async () => {
+        try {
+            const user = await account.get();
+            setGoogleUserInfo({
+                email_name: user.name,
+                email: user.email,
+            })
+        } catch (error) {
+            console.log('error:', error);
+        }
+    }
 
     const handleIsUsernameExists = async (username: string) => {
         if(buttonBlock) return
@@ -63,7 +83,7 @@ const page = () => {
                 body : JSON.stringify({
                     username : username,
                     email : googleUserInfo.email,
-                    email_name : googleUserInfo.username,
+                    email_name : googleUserInfo.email_name,
                 }),
             })
 
@@ -124,7 +144,7 @@ const page = () => {
                     }}
                 />
             </div>
-            <div className='w-full h-screen flex justify-center items-center'>
+            <div className='flex items-center justify-center w-full h-screen'>
                 <div className="w-3/4 p-5 border border-[#e0e0e0] rounded space-y-2">
                     <header className="w-full py-2 border-b border-b-[#2c2c2c] flex flex-col items-center justify-center gap-2">
                         <div className="flex flex-col items-center">
@@ -135,7 +155,7 @@ const page = () => {
                     <main className="w-full space-y-5">
                         <div className="w-full gap-1">
                             <label htmlFor="username" className="font-sans text-[#e0e0e0] text-[0.65rem]">What you'd like to be called?</label>
-                            <div className="w-full relative h-8">
+                            <div className="relative w-full h-8">
                                 <input 
                                 id="username"
                                 name="username"
@@ -148,7 +168,7 @@ const page = () => {
                                 transition-all ease-in-out duration-200 rounded-lg
                                 ${isUsernameNotValid ? 'border-[#FF5E5E] focus:border-[#FF5E5E]' : 'border-[#2c2c2c] focus:border-[#e0e0e0]'}
                                 `}/>
-                                <div className="absolute left-2 aspect-square w-auto h-full">
+                                <div className="absolute w-auto h-full left-2 aspect-square">
                                 </div>
                             </div>
                             <div className="w-full">

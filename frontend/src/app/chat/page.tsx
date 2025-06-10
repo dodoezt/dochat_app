@@ -4,13 +4,13 @@ import { useSearchParams } from 'next/navigation';
 import { useEffect, useState, useMemo, useRef } from 'react';
 import { useDebounce } from 'use-debounce'
 import { useRouter } from 'next/navigation';
-
-import ExpandableText from '@/components/functions/expandableText';
-
-import { IoMdSend } from "react-icons/io";
 import { BsCheckAll, BsCheck } from "react-icons/bs";
 import { useUnifiedAuth } from '@/components/contexts/parents/authProvider';
 import { UseBoolean } from '@/hooks/useBoolean';
+
+import ExpandableText from '@/components/functions/expandableText';
+
+import { IoMdSend, IoMdArrowBack } from "react-icons/io";
 
 type members = {
     userId: number;
@@ -297,6 +297,11 @@ const page: React.FC<Props> = ({}) => {
         <div className="relative w-screen h-screen">
             <header className="fixed top-0 flex items-center justify-between w-full p-3 h-[60px] border-b border-b-[#2c2c2c] bg-[#121212] z-10">
                 <div className="flex items-center flex-1 h-full space-x-2">
+                    <button 
+                    onClick={() => router.replace('/')}
+                    className="flex items-center justify-center h-full cursor-pointer aspect-square ">
+                        <IoMdArrowBack className='text-[#e0e0e0] text-lg'/>
+                    </button>
                     <div className="aspect-square w-9 rounded-full border-[1px] border-[#e0e0e0]"></div>
                     <div className="flex flex-col h-full">
                         <div className="flex items-start h-1/2">

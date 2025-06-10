@@ -40,6 +40,14 @@ type ConversationListItem = {
   joinedAt: Date;
 };
 
+type ConversationMessages = {
+  id: number;
+  content: string;
+  sentAt: Date;
+  status: 'NOT_DELIVERED' | 'DELIVERED' | 'READ';
+  senderId: number;
+  conversationId: string;
+}
 
 const page = () => {
   const auth = useUnifiedAuth();
@@ -60,50 +68,54 @@ const page = () => {
   }, [conversations])
   
   useEffect(() => {
-    //NOTE : FIX BUG DAN FITUR PREVIEW MESSAGE DAN LANJUTINNNNNNNNNNNNNNNNNNNNN!!!!
-    if (conversations.length === 0 || !userInfo?.userId) {
-      console.log('No conversations or user info available, skipping socket connection.');
-      return;
-    }
-    
-    if(!socket.connected) socket.connect()
-    socket.emit('join-user-room', userInfo.userId)
-    
-    socket.on('new-preview-message', (msg) => {
+  if (!userInfo?.userId) {
+    console.log('No user info available, skipping socket connection.');
+    return;
+  }
 
-      setConversations((prev) => {
-        const updated = [...prev];
-        const conversationIndex = updated.findIndex(
-          (conv) => conv.conversationId === msg.conversationId
-        );
+  if (!socket.connected) socket.connect();
+  socket.emit('join-user-room', userInfo.userId);
 
-        if (conversationIndex !== -1) {
-          const updatedMessages = [
-            {
-              id: msg.id,
-              conversationId: msg.conversationId,
-              senderId: msg.senderId,
-              content: msg.content,
-              sentAt: msg.sentAt,
-              status: msg.status,
-            },
-            ...updated[conversationIndex].conversation.messages,
-          ];
+  const handleNewPreviewMessage = (msg: ConversationMessages) => {
+    setConversations((prev) => {
+      const updated = [...prev];
+      const conversationIndex = updated.findIndex(
+        (conv) => conv.conversationId === msg.conversationId
+      );
 
-          updated[conversationIndex] = {
-            ...updated[conversationIndex],
-            conversation: {
-              ...updated[conversationIndex].conversation,
-              messages: updatedMessages,
-            },
-          };
-        }
+      if (conversationIndex !== -1) {
+        const updatedMessages = [
+          {
+            id: msg.id,
+            conversationId: msg.conversationId,
+            senderId: msg.senderId,
+            content: msg.content,
+            sentAt: msg.sentAt,
+            status: msg.status,
+          },
+          ...updated[conversationIndex].conversation.messages,
+        ];
 
-        return updated;
-      });
+        updated[conversationIndex] = {
+          ...updated[conversationIndex],
+          conversation: {
+            ...updated[conversationIndex].conversation,
+            messages: updatedMessages,
+          },
+        };
+      }
+
+      return updated;
     });
+  };
 
-  }, [userInfo!.userId, conversations.length])
+  socket.on('new-preview-message', handleNewPreviewMessage);
+
+  return () => {
+    socket.off('new-preview-message', handleNewPreviewMessage);
+  };
+}, [userInfo?.userId]);
+
 
   useEffect(() => {
     if (provider === undefined) return;
