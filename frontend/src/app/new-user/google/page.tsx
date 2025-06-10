@@ -49,6 +49,8 @@ const page = () => {
         }
     }
 
+    //NOTE : LANJUTIN UNTUK HAPUS OAUTH JIKA COOKIE DIHAPUS SECARA MANUAL ATAU COOKIE MENGHILANG
+
     const handleIsUsernameExists = async (username: string) => {
         if(buttonBlock) return
         try {

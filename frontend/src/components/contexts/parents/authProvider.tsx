@@ -81,11 +81,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
         if(response.ok) {
           const data = await response.json();
-          setProvider(data.provider); // 'google', 'whatsapp', or null
+          setProvider(data.provider);
         }
       } catch (error) {
         console.error('Failed to get provider:', error);
-        setProvider(null); // fallback
+        setProvider(null);
       }
     };
 

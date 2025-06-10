@@ -12,24 +12,23 @@ export async function POST(req: Request) {
             },
             include: {
                 conversation: {
-                include: {
-                    members: {
                     include: {
-                        user: {
-                        select: {
-                            username: true,
-                            email: true,
+                        members: {
+                            include: {
+                                user: {
+                                    select: {
+                                        username: true,
+                                        email: true,
+                                    },
+                                },
+                            },
                         },
+                        messages: {
+                            orderBy: {
+                                sentAt: 'desc',
+                            },
                         },
                     },
-                    },
-                    messages: {
-                    orderBy: {
-                        sentAt: 'desc',
-                    },
-                    take: 1,
-                    },
-                },
                 },
             },
         });

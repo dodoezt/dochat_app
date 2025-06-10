@@ -24,9 +24,14 @@ const io = new Server(server, {
 io.on("connection", (socket) => {
   console.log("Client connected:", socket.id);
 
-  socket.on("join-room", (roomId) => {
-    socket.join(roomId)
-    console.log('joined in', roomId)
+  socket.on("join-room", ({userId, conversationId}) => {
+    socket.join(conversationId)
+    console.log(`User ${userId} joined room: ${conversationId}`)
+  })
+
+  socket.on("leave-room", ({userId, conversationId}) => {
+    socket.leave(conversationId)
+    console.log(`User ${userId} left room: ${conversationId}`)
   })
 
   socket.on("join-user-room", (userId) => {

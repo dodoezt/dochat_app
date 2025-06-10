@@ -187,10 +187,10 @@ exports.Prisma.conversationsOrderByRelevanceFieldEnum = {
   id: 'id',
   name: 'name'
 };
-exports.MessageStatus = exports.$Enums.MessageStatus = {
+exports.messages_status = exports.$Enums.messages_status = {
   NOT_DELIVERED: 'NOT_DELIVERED',
   DELIVERED: 'DELIVERED',
-  READ: 'READ'
+  SEEN: 'SEEN'
 };
 
 exports.Prisma.ModelName = {

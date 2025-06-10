@@ -30,7 +30,7 @@ type ConversationListItem = {
       id: number;
       content: string;
       sentAt: Date;
-      status: 'NOT_DELIVERED' | 'DELIVERED' | 'READ';
+      status: 'NOT_DELIVERED' | 'DELIVERED' | 'SEEN';
       senderId: number;
       conversationId: string;
     }[];
@@ -44,7 +44,7 @@ type ConversationMessages = {
   id: number;
   content: string;
   sentAt: Date;
-  status: 'NOT_DELIVERED' | 'DELIVERED' | 'READ';
+  status: 'NOT_DELIVERED' | 'DELIVERED' | 'SEEN';
   senderId: number;
   conversationId: string;
 }
@@ -62,10 +62,6 @@ const page = () => {
   const { provider, userInfo } = auth;
 
   const tab = searchParams.get('tab')
-
-  useEffect(() => {
-    console.log(conversations)
-  }, [conversations])
   
   useEffect(() => {
   if (!userInfo?.userId) {
@@ -163,6 +159,7 @@ const page = () => {
       }
 
       const data = await response.json();
+      console.log(data.conversations)
       setConversations(data.conversations);
     } catch (error) {
       console.error('Error fetching conversations:', error);
@@ -217,6 +214,8 @@ const page = () => {
             const oppUsername = conversation.conversation.members
               .find(member => member.user.username !== userInfo!.username)?.user.username || 'Unknown User';
 
+            const oppMessages = conversation.conversation.messages.filter(msg => msg.senderId !== userInfo!.userId);
+
             const lastMessage = conversation.conversation.messages[0];
             const lastMessageTime = lastMessage ? new Date(lastMessage.sentAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Unknown Time';
 
@@ -256,7 +255,7 @@ const page = () => {
                   <div className="flex items-end pb-1 h-1/2">
                     {lastMessage.senderId !== userInfo!.userId && (
                       <div className="relative flex items-center justify-center w-4 bg-green-400 rounded-full aspect-square">
-                        <span className="absolute text-[#121212] text-[0.7rem] font-sans font-semibold">{conversation.conversation.messages.length}</span>
+                        <span className="absolute text-[#121212] text-[0.7rem] font-sans font-semibold">{oppMessages.length}</span>
                       </div>
                     )}
                   </div>
@@ -267,7 +266,6 @@ const page = () => {
         ) : (
           <div className=""></div>
         )}
-        
       </main>
     </div>
   )

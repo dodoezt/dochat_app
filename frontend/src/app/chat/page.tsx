@@ -24,7 +24,7 @@ type MessageType = {
     senderId: number;
     content: string;
     sentAt: string;
-    status?: 'NOT_DELIVERED' | 'DELIVERED' | 'READ';
+    status?: 'NOT_DELIVERED' | 'DELIVERED' | 'SEEN';
 };
 
 type RecievedMsgType = MessageType & {
@@ -70,6 +70,10 @@ const page: React.FC<Props> = ({}) => {
     }, [userInfo])
 
     useEffect(() => {
+        console.log('User ID:', userId.current);
+    }, [userId]);
+
+    useEffect(() => {
         if (messages) {
             setGroupedMessages(groupMessagesByDate(messages));
             // console.log('Grouped Messages:', groupedMessages);
@@ -83,10 +87,14 @@ const page: React.FC<Props> = ({}) => {
 
     useEffect(() => {
         if(!convId) return
+        console.log(convId, userId.current)
 
         if(!socket.connected) socket.connect()
             
-        socket.emit('join-room', convId)
+        socket.emit('join-room', {
+            userId: userId.current,
+            conversationId: convId
+        })
         socket.on('receive-message', (msg: RecievedMsgType) => {
             // console.log('Received message:', msg);
             // console.log('Current user ID:', userId.current);
@@ -147,7 +155,7 @@ const page: React.FC<Props> = ({}) => {
             socket.off("receive-message");
             socket.disconnect();
         };
-    }, [convId])
+    }, [convId, userId.current]);
 
     useEffect(() => {
         if (textInput.length > 0 && !hasEmittedTyping) {
@@ -250,6 +258,13 @@ const page: React.FC<Props> = ({}) => {
         }
     }
 
+    const handleBack = () => {
+        router.replace('/');
+        socket.emit('leave-room', {
+            userId: userId.current,
+            conversationId: convId
+        });
+    }
 
     const getTime = (date: string) => {
         const d = new Date(date); // konversi ISO string ke Date object
@@ -298,7 +313,7 @@ const page: React.FC<Props> = ({}) => {
             <header className="fixed top-0 flex items-center justify-between w-full p-3 h-[60px] border-b border-b-[#2c2c2c] bg-[#121212] z-10">
                 <div className="flex items-center flex-1 h-full space-x-2">
                     <button 
-                    onClick={() => router.replace('/')}
+                    onClick={handleBack}
                     className="flex items-center justify-center h-full cursor-pointer aspect-square ">
                         <IoMdArrowBack className='text-[#e0e0e0] text-lg'/>
                     </button>
@@ -339,7 +354,7 @@ const page: React.FC<Props> = ({}) => {
                                             msg.status === 'NOT_DELIVERED' ? (
                                                 <BsCheck className='text-lg text-[#e0e0e0]'/>
                                             ) : (
-                                                <BsCheckAll className={`text-lg ${msg.status === 'READ' ? 'text-cyan-200' : 'text-[#e0e0e0]'}`} />
+                                                <BsCheckAll className={`text-lg ${msg.status === 'SEEN' ? 'text-cyan-200' : 'text-[#e0e0e0]'}`} />
                                             )
                                         )
                                         }
