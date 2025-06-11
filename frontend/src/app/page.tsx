@@ -114,6 +114,7 @@ const page = () => {
 
 
   useEffect(() => {
+    console.log(provider)
     if (provider === undefined) return;
     
     if (provider === null) {

@@ -40,7 +40,8 @@ const page: React.FC<Props> = ({}) => {
     const userId = useRef<number | null>(null);
     const router = useRouter()
 
-    const bottomRef = useRef<HTMLDivElement>(null);
+    const SeenBottomRef = useRef<HTMLDivElement>(null);
+    const UnSeenBottomRef = useRef<HTMLDivElement>(null);
 
     const searchParams = useSearchParams()
     const convId = searchParams.get('convId')
@@ -58,14 +59,11 @@ const page: React.FC<Props> = ({}) => {
     
     const [debounceInput] = useDebounce(textInput, 500)
 
-    // useEffect(() => {
-    //     console.log('userId:', userId.current);
-    //     console.log('loadingGetUser:', loadingGetUser?.value);
-    // }, [userId.current, loadingGetUser?.value]);
-
     useEffect(() => {
+        console.log('user info mounted')
         if (userInfo?.userId) {
             userId.current = userInfo.userId;
+            console.log('userId set:', userId.current)
         }
     }, [userInfo])
 
@@ -76,18 +74,18 @@ const page: React.FC<Props> = ({}) => {
     useEffect(() => {
         if (messages) {
             setGroupedMessages(groupMessagesByDate(messages));
-            // console.log('Grouped Messages:', groupedMessages);
             console.log('Messages:', messages);
         }
 
-
-        bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
-        // console.dir(messages)
     }, [messages]);
+    
+    useEffect(() => {
+        SeenBottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }, [])
+
 
     useEffect(() => {
-        if(!convId) return
-        console.log(convId, userId.current)
+        if(!convId || !userId.current) return
 
         if(!socket.connected) socket.connect()
             
@@ -96,9 +94,6 @@ const page: React.FC<Props> = ({}) => {
             conversationId: convId
         })
         socket.on('receive-message', (msg: RecievedMsgType) => {
-            // console.log('Received message:', msg);
-            // console.log('Current user ID:', userId.current);
-            // console.log('Current message senderId:', msg.senderId);
             setMessages((prev) => {
                 const existingIdx = prev.findIndex((m) => 
                     msg.senderId === userId.current
@@ -126,7 +121,6 @@ const page: React.FC<Props> = ({}) => {
                         }]
                     }
 
-                    //NOTE PERBAIKI LOGIC GANTI ID SAMA STATUS
                 } else {
                     const alreadyExists = prev.some((m) => m.id === msg.id);
 
@@ -155,7 +149,7 @@ const page: React.FC<Props> = ({}) => {
             socket.off("receive-message");
             socket.disconnect();
         };
-    }, [convId, userId.current]);
+    }, [convId, userInfo?.userId]);
 
     useEffect(() => {
         if (textInput.length > 0 && !hasEmittedTyping) {
@@ -188,7 +182,7 @@ const page: React.FC<Props> = ({}) => {
         return () => {
             socket.off("show-typing-status");
         };
-    }, [userId.current]);
+    }, [userInfo?.userId]);
 
     useEffect(() => {
         if (!convId || loadingGetUser?.value) return;
@@ -217,9 +211,9 @@ const page: React.FC<Props> = ({}) => {
         setTextInput("");
         setMessages((prev) => [...prev, newMsg])
         
-        setTimeout(() => {
-            bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
-        }, 50)
+        // setTimeout(() => {
+        //     UnSeenBottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+        // }, 50)
     };
 
     const getOhterMembers = async () => {
@@ -331,42 +325,86 @@ const page: React.FC<Props> = ({}) => {
                 <div className=""></div>
             </header>
             <main className="w-full h-full pt-[72px] pb-12 overflow-y-scroll">
-                {Object.entries(groupedMessages).map(([dateKey, messagesInDate]) => (
-                    <div key={dateKey}>
-                        <div className="flex items-center justify-center w-full my-2">
-                            <h1 className="px-2 py-1 bg-[#2c2c2c] font-sans text-xs text-[#e0e0e0] rounded-lg">
-                                {dateFormat(dateKey)}
-                            </h1>
-                        </div>
-                        {messagesInDate.map((msg) => (
-                        <div key={msg.id} className="w-full">
-                            <div 
-                            className={`relative w-full p-1 flex ${msg.senderId != userId.current ? 'justify-start' : 'justify-end'}`}
-                            >
-                            <div className={`max-w-2/3 min-w-12 font-sans text-xs p-2
-                                ${msg.senderId != userId.current ? 'bg-[#333333] rounded-r-xl rounded-bl-xl text-[#E0E0E0]' : 'bg-[#1E88E5] rounded-l-xl rounded-br-xl text-[#ffffff]'}`}
-                            >
-                                <div className="flex flex-col space-y-1">
-                                    <ExpandableText text={msg.content} maxChars={120} />
-                                    <div className="flex items-center justify-end space-x-[2px]">
-                                        <p className="font-sans text-[0.7rem]">{getTime(msg.sentAt)}</p>
-                                        {msg.senderId === userId.current && (
-                                            msg.status === 'NOT_DELIVERED' ? (
-                                                <BsCheck className='text-lg text-[#e0e0e0]'/>
-                                            ) : (
-                                                <BsCheckAll className={`text-lg ${msg.status === 'SEEN' ? 'text-cyan-200' : 'text-[#e0e0e0]'}`} />
-                                            )
-                                        )
-                                        }
+                <div className="w-full">
+                    {Object.entries(groupedMessages)
+                    .filter(([_, message]) => message
+                    .some(msg => msg.senderId !== userId.current && msg.status === 'SEEN'))
+                    .map(([dateKey, messagesInDate]) => (
+                        <div key={dateKey}>
+                            <div className="flex items-center justify-center w-full my-2">
+                                <h1 className="px-2 py-1 bg-[#2c2c2c] font-sans text-xs text-[#e0e0e0] rounded-lg">
+                                    {dateFormat(dateKey)}
+                                </h1>
+                            </div>
+                            {messagesInDate.map((msg) => (
+                            <div key={msg.id} className="w-full">
+                                <div 
+                                className={`relative w-full p-1 flex ${msg.senderId != userId.current ? 'justify-start' : 'justify-end'}`}
+                                >
+                                <div className={`max-w-2/3 min-w-12 font-sans text-xs p-2
+                                    ${msg.senderId != userId.current ? 'bg-[#333333] rounded-r-xl rounded-bl-xl text-[#E0E0E0]' : 'bg-[#1E88E5] rounded-l-xl rounded-br-xl text-[#ffffff]'}`}
+                                >
+                                    <div className="flex flex-col space-y-1">
+                                        <ExpandableText text={msg.content} maxChars={120} />
+                                        <div className="flex items-center justify-end space-x-[2px]">
+                                            <p className="font-sans text-[0.7rem]">{getTime(msg.sentAt)} s</p>
+                                            {msg.senderId === userId.current && (
+                                                msg.status === 'NOT_DELIVERED' ? (
+                                                    <BsCheck className='text-lg text-[#e0e0e0]'/>
+                                                ) : (
+                                                    <BsCheckAll className={`text-lg ${msg.status === 'SEEN' ? 'text-cyan-200' : 'text-[#e0e0e0]'}`} />
+                                                )
+                                            )}
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
+                        ))}
                     </div>
                     ))}
+                    <div ref={SeenBottomRef} className=""></div>
                 </div>
-                ))}
-                <div ref={bottomRef} className=""></div>
+                <div className="w-full">
+                    {Object.entries(groupedMessages)
+                    .filter(([_, message]) => message
+                    .some(msg => msg.senderId !== userId.current && msg.status !== 'SEEN'))
+                    .map(([dateKey, messagesInDate]) => (
+                        <div key={dateKey}>
+                            <div className="flex items-center justify-center w-full my-2">
+                                <h1 className="px-2 py-1 bg-[#2c2c2c] font-sans text-xs text-[#e0e0e0] rounded-lg">
+                                    {dateFormat(dateKey)}
+                                </h1>
+                            </div>
+                            {messagesInDate.map((msg) => (
+                            <div key={msg.id} className="w-full">
+                                <div 
+                                className={`relative w-full p-1 flex ${msg.senderId != userId.current ? 'justify-start' : 'justify-end'}`}
+                                >
+                                <div className={`max-w-2/3 min-w-12 font-sans text-xs p-2
+                                    ${msg.senderId != userId.current ? 'bg-[#333333] rounded-r-xl rounded-bl-xl text-[#E0E0E0]' : 'bg-[#1E88E5] rounded-l-xl rounded-br-xl text-[#ffffff]'}`}
+                                >
+                                    <div className="flex flex-col space-y-1">
+                                        <ExpandableText text={msg.content} maxChars={120} />
+                                        <div className="flex items-center justify-end space-x-[2px]">
+                                            <p className="font-sans text-[0.7rem]">{getTime(msg.sentAt)} u</p>
+                                            {msg.senderId === userId.current && (
+                                                msg.status === 'NOT_DELIVERED' ? (
+                                                    <BsCheck className='text-lg text-[#e0e0e0]'/>
+                                                ) : (
+                                                    <BsCheckAll className={`text-lg ${msg.status === 'SEEN' ? 'text-cyan-200' : 'text-[#e0e0e0]'}`} />
+                                                )
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        ))}
+                    </div>
+                    ))}
+                    <div ref={UnSeenBottomRef} className=""></div>
+                </div>
             </main>
             <div className="fixed bottom-0 w-full p-2 bg-[#121212] z-10">
                 <div className="w-full h-8 rounded-full bg-[#2c2c2c] flex items-center">
