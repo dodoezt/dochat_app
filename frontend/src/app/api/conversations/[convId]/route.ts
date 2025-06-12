@@ -1,3 +1,4 @@
+import { GetUserIdFromCookie } from '@/lib/auth/getUserIdFromCookie';
 import { prisma } from '@/lib/prisma';
 import { NextResponse } from 'next/server';
 
@@ -8,11 +9,13 @@ type Context = {
 export async function POST(req: Request, context: Context) {
   try {
     const { convId } = await context.params;
-    const { userId } = await req.json();
+    const userId = await GetUserIdFromCookie()
 
-    if (!convId || !userId) {
+    if (!convId) {
       return NextResponse.json({ error: 'Conversation ID and User ID are required' }, { status: 400 });
     }
+
+    if (!userId) return NextResponse.json({message: 'invalid token or userId'}, {status:400})
 
     const conversation = await prisma.conversations.findUnique({
       where: { id: convId },
