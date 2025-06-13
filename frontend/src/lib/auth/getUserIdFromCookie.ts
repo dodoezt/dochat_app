@@ -1,17 +1,18 @@
 import { cookies } from "next/headers";
 import { verify } from 'jsonwebtoken'
 
-export const GetUserIdFromCookie = async (): Promise<number | null> => {
+export async function GetUserIdFromCookie (): Promise<number | null> {
     const cookieStore = await cookies()
     const token = cookieStore.get('log-session')?.value
+    const secret = process.env.JWT_SECRET
 
-    if(!token) return null
-
-    try {
-        const { userId } = verify(token, process.env.JWT_SECRET!) as {userId: number}
-        return userId
-    } catch (error) {
-        console.error('invalid token', error)
+    if(!token) {
+        console.log('token is empty')
         return null;
     }
+
+    const { userId } = verify(token, secret!) as {userId: number}
+    if(!userId) return null
+
+    return userId;
 }

@@ -23,25 +23,19 @@ export const GoogleAuthProvider = ({ children } : any) => {
 
     const loadingGetUser = UseBoolean(true)
 
-    const [userInfo, setUserInfo] = useState<userInfoByGoogle>({
-        userId: null,
-        username: '',
-        email: '',
-        email_name: '',
-        createdAt: '',
-    })
+    const [userInfo, setUserInfo] = useState<userInfoByGoogle | null>(null)
 
     useEffect(() => {
         console.log(loadingGetUser.value)
     }, [loadingGetUser.value])
     
     useEffect(() => {
-        getUser()
+        getUserFromDb()
     }, [])
 
-    useEffect(() => {
-        if(googleUserInfo.email) getUserFromDb()
-    }, [googleUserInfo.email])
+    // useEffect(() => {
+    //     if(googleUserInfo.email) getUserFromDb()
+    // }, [googleUserInfo.email])
 
     const getUserFromDb = async() => {
         loadingGetUser.setTrue()
@@ -52,9 +46,9 @@ export const GoogleAuthProvider = ({ children } : any) => {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    email: googleUserInfo.email,
                     provider: 'google',
-                })
+                }),
+                credentials: 'include'
             })
 
             const { user } = await response.json()
@@ -66,7 +60,6 @@ export const GoogleAuthProvider = ({ children } : any) => {
             loadingGetUser.setFalse();
         }
     }   
-
 
     const getUser = async () => {
         try {
@@ -94,7 +87,7 @@ export const GoogleAuthProvider = ({ children } : any) => {
     }
 
     return (
-        <GoogleAuthContext.Provider value={{ provider :'google', userInfo, googleUserInfo, getUser, googleLogOut, getJwtToken, loadingGetUser }}>
+        <GoogleAuthContext.Provider value={{ provider :'google', userInfo: userInfo!, googleUserInfo, getUser, googleLogOut, getJwtToken, loadingGetUser }}>
             {children}
         </GoogleAuthContext.Provider>
     )

@@ -1,16 +1,14 @@
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
-import { verify } from 'jsonwebtoken'
+
 
 import { userInfoByGoogle } from '@/types/contexts'
 import { GetUserIdFromCookie } from "@/lib/auth/getUserIdFromCookie";
 
 export async function POST(req: Request) {
     const userId = await GetUserIdFromCookie()
-
+    
     if(!userId) return NextResponse.json({message: 'invalid token'}, {status: 400})
-
     console.log(userId)
     
     try {

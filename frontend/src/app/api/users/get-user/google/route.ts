@@ -1,9 +1,14 @@
+import { GetUserInfoFromCookie } from '@/lib/auth/getUserInfoFromCookie';
 import { prisma } from '@/lib/prisma'
 import { NextResponse } from 'next/server'
 
 export async function POST (req: Request) {
-    const { email, provider }: {email : string, provider : 'google' | 'whatsapp'} = await req.json()
-    
+    const userInfo = await GetUserInfoFromCookie()
+    const { provider }: {provider : 'google' | 'whatsapp'} = await req.json()
+
+    const email = userInfo?.email;
+    console.log(email)
+
     let user;
 
     if(!email || provider !== 'google') return NextResponse.json({message: 'invalid email'}, {status: 400})

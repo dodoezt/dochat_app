@@ -38,6 +38,8 @@ const page: React.FC<Props> = ({}) => {
     const auth = useUnifiedAuth();
     const { userInfo, loadingGetUser } = auth;
 
+    if(!userInfo) return null;
+
     const userId = useRef<number | null>(null);
     const router = useRouter()
 
@@ -65,7 +67,7 @@ const page: React.FC<Props> = ({}) => {
 
     useEffect(() => {
         console.log('user info mounted')
-        if (userInfo?.userId) {
+        if (userInfo) {
             userId.current = userInfo.userId;
             console.log('userId set:', userId.current)
         }
@@ -322,6 +324,7 @@ const page: React.FC<Props> = ({}) => {
     
     if(getConversationLoading.value || loadingGetUser?.value) return <div className="font-sans text-[#e0e0e0]">loading...</div>
 
+    //NOTE PERBAIKI SISTEM SEEN 
     
     return (
         <div className="relative w-screen h-screen">

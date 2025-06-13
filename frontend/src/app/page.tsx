@@ -64,53 +64,53 @@ const page = () => {
   const tab = searchParams.get('tab')
   
   useEffect(() => {
-  if (!userInfo?.userId) {
-    console.log('No user info available, skipping socket connection.');
-    return;
-  }
+    if (!userInfo) {
+      console.log('No user info available, skipping socket connection.');
+      return;
+    }
 
-  if (!socket.connected) socket.connect();
-  socket.emit('join-user-room', userInfo.userId);
+    if (!socket.connected) socket.connect();
+    socket.emit('join-user-room', userInfo.userId);
 
-  const handleNewPreviewMessage = (msg: ConversationMessages) => {
-    setConversations((prev) => {
-      const updated = [...prev];
-      const conversationIndex = updated.findIndex(
-        (conv) => conv.conversationId === msg.conversationId
-      );
+    const handleNewPreviewMessage = (msg: ConversationMessages) => {
+      setConversations((prev) => {
+        const updated = [...prev];
+        const conversationIndex = updated.findIndex(
+          (conv) => conv.conversationId === msg.conversationId
+        );
 
-      if (conversationIndex !== -1) {
-        const updatedMessages = [
-          {
-            id: msg.id,
-            conversationId: msg.conversationId,
-            senderId: msg.senderId,
-            content: msg.content,
-            sentAt: msg.sentAt,
-            status: msg.status,
-          },
-          ...updated[conversationIndex].conversation.messages,
-        ];
+        if (conversationIndex !== -1) {
+          const updatedMessages = [
+            {
+              id: msg.id,
+              conversationId: msg.conversationId,
+              senderId: msg.senderId,
+              content: msg.content,
+              sentAt: msg.sentAt,
+              status: msg.status,
+            },
+            ...updated[conversationIndex].conversation.messages,
+          ];
 
-        updated[conversationIndex] = {
-          ...updated[conversationIndex],
-          conversation: {
-            ...updated[conversationIndex].conversation,
-            messages: updatedMessages,
-          },
-        };
-      }
+          updated[conversationIndex] = {
+            ...updated[conversationIndex],
+            conversation: {
+              ...updated[conversationIndex].conversation,
+              messages: updatedMessages,
+            },
+          };
+        }
 
-      return updated;
-    });
-  };
+        return updated;
+      });
+    };
 
-  socket.on('new-preview-message', handleNewPreviewMessage);
+    socket.on('new-preview-message', handleNewPreviewMessage);
 
-  return () => {
-    socket.off('new-preview-message', handleNewPreviewMessage);
-  };
-}, [userInfo?.userId]);
+    return () => {
+      socket.off('new-preview-message', handleNewPreviewMessage);
+    };
+  }, [userInfo]);
 
 
   useEffect(() => {
@@ -125,10 +125,10 @@ const page = () => {
   }, [provider]);
   
   useEffect(() => {
-    if(userInfo?.userId) {
+    if(userInfo) {
       getConversations()
     }
-  }, [userInfo!.userId]);
+  }, [userInfo]);
 
   useEffect(() => {
     if (loading) return;
@@ -152,7 +152,7 @@ const page = () => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ userId: userInfo!.userId }),
+        credentials: 'include',
       });
 
       if (!response.ok) {
