@@ -7,8 +7,9 @@ import './animations.css';
 import { AuthProvider } from "@/components/contexts/parents/authProvider";
 
 export const metadata: Metadata = {
-  title: "doChat | Conversations",
+  title: "YipYap | Conversations",
   description: "doChat is a modern chat application that allows you to connect with friends and family seamlessly.",
+  icons: '/favicon.ico'
 };
 
 export default async function RootLayout({
