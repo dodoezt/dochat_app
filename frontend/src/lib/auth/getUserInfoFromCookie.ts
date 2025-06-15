@@ -15,12 +15,10 @@ export async function GetUserInfoFromCookie (): Promise<UserInfoFromCookieType |
     const secret = process.env.JWT_SECRET
 
     if(!token) {
-        console.log('token is empty')
         return null;
     }
 
     const decode = verify(token, secret!) as UserInfoFromCookieType
-    console.log(decode)
     if(!decode) return null
 
     const userInfo = {

@@ -7,7 +7,6 @@ export async function GetUserIdFromCookie (): Promise<number | null> {
     const secret = process.env.JWT_SECRET
 
     if(!token) {
-        console.log('token is empty')
         return null;
     }
 
