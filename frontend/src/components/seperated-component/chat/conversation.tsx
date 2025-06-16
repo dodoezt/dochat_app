@@ -39,7 +39,6 @@ type props = {
 }
 
 const Conversation: React.FC<props> = ({convId, userInfo}) => {
-    const userId = useRef<number | null>(null);
     const router = useRouter()
 
     const SeenBottomRef = useRef<HTMLDivElement>(null);
@@ -61,16 +60,8 @@ const Conversation: React.FC<props> = ({convId, userInfo}) => {
     
     const [debounceInput] = useDebounce(textInput, 500)
 
-    useEffect(() => {
-        console.log('user info mounted')
-        if (userInfo) {
-            userId.current = userInfo.userId;
-            // console.log('userId set:', userId.current)
-        }
-    }, [userInfo])
-
     // useEffect(() => {
-    //     console.log('User ID:', userId.current);
+    //     console.log('User ID:', userInfo.userId);
     // }, [userId]);
 
     useEffect(() => {
@@ -89,22 +80,21 @@ const Conversation: React.FC<props> = ({convId, userInfo}) => {
 
 
     useEffect(() => {
-        if(!convId || !userId.current) return
-
-        if(!socket.connected) socket.connect()
+        if(!convId || !userInfo) return
             
         socket.emit('join-room', {
-            userId: userId.current,
+            userId: userInfo.userId,
             conversationId: convId
         })
+
         socket.on('receive-message', (msg: RecievedMsgType) => {
             setMessages((prev) => {
                 const existingIdx = prev.findIndex((m) => 
-                    msg.senderId === userId.current
+                    msg.senderId === userInfo.userId
                         ? m.id === msg.temporaryId
                         : m.id === msg.id
                 )
-                if (msg.senderId === userId.current) {
+                if (msg.senderId === userInfo.userId) {
                     // console.log('Received message from self, updating status');
                     if (existingIdx !== -1){
                         const updatedMessages = [...prev]
@@ -151,16 +141,19 @@ const Conversation: React.FC<props> = ({convId, userInfo}) => {
 
         return () => {
             socket.off("receive-message");
-            socket.disconnect();
+            socket.emit("leave-room", {
+                userId: userInfo.userId,
+                conversationId: convId
+            })
         };
-    }, [convId, userInfo?.userId]);
+    }, []);
 
     useEffect(() => {
         if (textInput.length > 0 && !hasEmittedTyping) {
             setHasEmittedTyping(true)
             socket.emit('status-typing', { 
                 conversationId: convId, 
-                userId: userId.current, 
+                userId: userInfo.userId, 
                 typing: true 
             });
         }
@@ -171,14 +164,14 @@ const Conversation: React.FC<props> = ({convId, userInfo}) => {
             setHasEmittedTyping(false)
             socket.emit('status-typing', { 
                 conversationId: convId,
-                userId: userId.current, 
+                userId: userInfo.userId, 
                 typing: false 
             });
     }, [debounceInput]);
 
     useEffect(() => {
         socket.on("show-typing-status", ({ senderId, typing }) => {
-            if (senderId !== userId.current) {
+            if (senderId !== userInfo.userId) {
                 setIsTyping(typing);
             }
         });
@@ -186,15 +179,15 @@ const Conversation: React.FC<props> = ({convId, userInfo}) => {
         return () => {
             socket.off("show-typing-status");
         };
-    }, [userInfo?.userId]);
+    }, [userInfo]);
 
     useEffect(() => {
         if (!convId || !userInfo) return;
         
-        if (userInfo && userId.current) {
+        if (userInfo && userInfo.userId) {
             getConversation()
         }
-    }, [userInfo, userId.current, convId])
+    }, [userInfo, convId])
     
     const sendMessage = () => {
         if (!textInput.trim()) return;
@@ -204,7 +197,7 @@ const Conversation: React.FC<props> = ({convId, userInfo}) => {
         const newMsg: MessageType = {
             id: temporaryId,
             conversationId: convId!,
-            senderId: userId.current!,
+            senderId: userInfo.userId!,
             content: textInput,
             sentAt: new Date().toISOString(),
             status: 'NOT_DELIVERED',
@@ -263,7 +256,7 @@ const Conversation: React.FC<props> = ({convId, userInfo}) => {
     const handleBack = () => {
         router.back();
         socket.emit('leave-room', {
-            userId: userId.current,
+            userId: userInfo.userId,
             conversationId: convId
         });
     }
@@ -311,7 +304,7 @@ const Conversation: React.FC<props> = ({convId, userInfo}) => {
     const unSeenMessages = useMemo(() => {
         return Object.values(groupedMessages)
         .flat()
-        .filter(message => message.senderId !== userId.current && message.status !== 'SEEN')
+        .filter(message => message.senderId !== userInfo.userId && message.status !== 'SEEN')
     }, [groupedMessages])
 
     const firstUnSeenMessage = useMemo(() => {return unSeenMessages[0]?.id}, [groupedMessages]) 
@@ -357,13 +350,13 @@ const Conversation: React.FC<props> = ({convId, userInfo}) => {
                         >
                             <div
                             className={`relative w-full p-1 flex ${
-                                msg.senderId != userId.current ? 'justify-start' : 'justify-end'
+                                msg.senderId != userInfo.userId ? 'justify-start' : 'justify-end'
                             }`}
                             >
                                 <div
                                     className={`max-w-2/3 min-w-12 font-sans text-xs p-2
                                     ${
-                                        msg.senderId != userId.current
+                                        msg.senderId != userInfo.userId
                                         ? 'bg-[#333333] rounded-r-xl rounded-bl-xl text-[#E0E0E0]'
                                         : 'bg-[#1E88E5] rounded-l-xl rounded-br-xl text-[#ffffff]'
                                     }`}
@@ -374,7 +367,7 @@ const Conversation: React.FC<props> = ({convId, userInfo}) => {
                                             <p className="font-sans text-[0.7rem]">
                                                 {getTime(msg.sentAt)}
                                             </p>
-                                            {msg.senderId === userId.current && (
+                                            {msg.senderId === userInfo.userId && (
                                                 msg.status === 'NOT_DELIVERED' ? (
                                                     <BsCheck className="text-lg text-[#e0e0e0]" />
                                                 ) : (

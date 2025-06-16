@@ -4,6 +4,7 @@ import { Client, Account, Models } from 'appwrite';
 import { GoogleAuthContextType, userInfoByGoogle } from '@/types/contexts';
 
 import { UseBoolean } from '@/hooks/useBoolean';
+import socket from '@/lib/socket';
 
 const client = new Client()
     .setEndpoint(process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT!)
@@ -31,6 +32,14 @@ export const GoogleAuthProvider = ({ children } : any) => {
     
     useEffect(() => {
         getUserFromDb()
+    }, [])
+
+    useEffect(() => {
+        if(!socket.connected) socket.connect();
+
+        return () => {
+            socket.disconnect();
+        }
     }, [])
 
     // useEffect(() => {

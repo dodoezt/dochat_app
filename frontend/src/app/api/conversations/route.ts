@@ -9,7 +9,6 @@ export async function POST(req: Request) {
     const userId = await GetUserIdFromCookie()
     
     if(!userId) return NextResponse.json({message: 'invalid token'}, {status: 400})
-    console.log(userId)
     
     try {
         const conversations = await prisma.conversation_members.findMany({
