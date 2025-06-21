@@ -17,6 +17,8 @@ model users {
   phone_number        String?                @unique(map: "phone_number_UNIQUE") @db.VarChar(255)
   dial_code           String?                @db.VarChar(255)
   createdAt           DateTime               @db.DateTime(0)
+  special_tags        Json?
+  tags_used           Json?
   conversationMembers conversation_members[] @relation("UserConversationMembers")
   sentMessages        messages[]             @relation("UserSentMessages")
 
@@ -62,8 +64,20 @@ model conversations {
   @@map("conversations")
 }
 
+model tags {
+  id   Int       @id @default(autoincrement())
+  name String    @unique(map: "name_UNIQUE") @db.VarChar(100)
+  tier tags_tier @default(Common)
+}
+
 enum messages_status {
   NOT_DELIVERED
   DELIVERED
   SEEN
+}
+
+enum tags_tier {
+  Common
+  Kinda_Cool  @map("Kinda Cool")
+  Absolute_OG @map("Absolute OG")
 }

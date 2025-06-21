@@ -26,12 +26,10 @@ io.on("connection", (socket) => {
 
   socket.on("join-room", ({userId, conversationId}) => {
     socket.join(conversationId)
-    console.log(`User ${userId} joined room: ${conversationId}`)
   })
 
   socket.on("leave-room", ({userId, conversationId}) => {
     socket.leave(conversationId)
-    console.log(`User ${userId} left room: ${conversationId}`)
   })
 
   socket.on("join-user-room", (userId) => {

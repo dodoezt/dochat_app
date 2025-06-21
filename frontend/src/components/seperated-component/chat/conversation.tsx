@@ -56,7 +56,7 @@ const Conversation: React.FC<props> = ({convId, userInfo}) => {
     const [isTyping, setIsTyping] = useState(false);
     const [hasEmittedTyping, setHasEmittedTyping] = useState<boolean>(false)
     
-    const getConversationLoading = UseBoolean(false)
+    const getConversationLoading = UseBoolean(true)
     
     const [debounceInput] = useDebounce(textInput, 500)
 
@@ -73,15 +73,16 @@ const Conversation: React.FC<props> = ({convId, userInfo}) => {
     }, [messages]);
     
     useEffect(() => {
+        console.log(getConversationLoading.value)
         if(!getConversationLoading.value){
-            LastOrSeenMessageRef.current?.scrollIntoView({ behavior: 'smooth' });
+            SeenBottomRef.current?.scrollIntoView({ behavior: 'smooth' });
         }
     }, [getConversationLoading.value])
 
 
     useEffect(() => {
         if(!convId || !userInfo) return
-            
+
         socket.emit('join-room', {
             userId: userInfo.userId,
             conversationId: convId
@@ -100,8 +101,8 @@ const Conversation: React.FC<props> = ({convId, userInfo}) => {
                         const updatedMessages = [...prev]
                         updatedMessages[existingIdx] = {
                             ...updatedMessages[existingIdx],
-                            id: msg.id, // Ganti ID dari temporaryId ke ID yang sebenarnya
-                            status: 'DELIVERED', // Update status menjadi DELIVERED
+                            id: msg.id,
+                            status: 'DELIVERED', 
                         };
                         return updatedMessages;
                     } else {
@@ -111,7 +112,7 @@ const Conversation: React.FC<props> = ({convId, userInfo}) => {
                             senderId: msg.senderId,
                             content: msg.content,
                             sentAt: msg.sentAt,
-                            status: 'DELIVERED', // Set status menjadi DELIVERED
+                            status: 'DELIVERED',
                         }]
                     }
 
@@ -134,11 +135,6 @@ const Conversation: React.FC<props> = ({convId, userInfo}) => {
             });
         });
 
-
-        socket.on('message-status', (status) => {
-            
-        })
-
         return () => {
             socket.off("receive-message");
             socket.emit("leave-room", {
@@ -146,7 +142,9 @@ const Conversation: React.FC<props> = ({convId, userInfo}) => {
                 conversationId: convId
             })
         };
-    }, []);
+    }, [convId, userInfo]);
+
+    //NOTE: FIX JOIN DAN LEAVE ROOM PADA SOCKETNYA
 
     useEffect(() => {
         if (textInput.length > 0 && !hasEmittedTyping) {
@@ -262,7 +260,7 @@ const Conversation: React.FC<props> = ({convId, userInfo}) => {
     }
 
     const getTime = (date: string) => {
-        const d = new Date(date); // konversi ISO string ke Date object
+        const d = new Date(date); 
         const hours = d.getHours().toString().padStart(2, '0');
         const minutes = d.getMinutes().toString().padStart(2, '0');
 
@@ -282,7 +280,7 @@ const Conversation: React.FC<props> = ({convId, userInfo}) => {
         } else if (dateString === yesterdayStr) {
             return 'Yesterday';
         } else {
-            const parsedDate = new Date(dateString); // ubah kembali ke Date object
+            const parsedDate = new Date(dateString); 
             return parsedDate.toLocaleDateString('en-US', {
                 year: 'numeric',
                 month: 'long',

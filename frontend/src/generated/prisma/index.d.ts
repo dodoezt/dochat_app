@@ -33,6 +33,11 @@ export type messages = $Result.DefaultSelection<Prisma.$messagesPayload>
  * 
  */
 export type conversations = $Result.DefaultSelection<Prisma.$conversationsPayload>
+/**
+ * Model tags
+ * 
+ */
+export type tags = $Result.DefaultSelection<Prisma.$tagsPayload>
 
 /**
  * Enums
@@ -46,11 +51,24 @@ export namespace $Enums {
 
 export type messages_status = (typeof messages_status)[keyof typeof messages_status]
 
+
+export const tags_tier: {
+  Common: 'Common',
+  Kinda_Cool: 'Kinda_Cool',
+  Absolute_OG: 'Absolute_OG'
+};
+
+export type tags_tier = (typeof tags_tier)[keyof typeof tags_tier]
+
 }
 
 export type messages_status = $Enums.messages_status
 
 export const messages_status: typeof $Enums.messages_status
+
+export type tags_tier = $Enums.tags_tier
+
+export const tags_tier: typeof $Enums.tags_tier
 
 /**
  * ##  Prisma Client ʲˢ
@@ -216,6 +234,16 @@ export class PrismaClient<
     * ```
     */
   get conversations(): Prisma.conversationsDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.tags`: Exposes CRUD operations for the **tags** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Tags
+    * const tags = await prisma.tags.findMany()
+    * ```
+    */
+  get tags(): Prisma.tagsDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -659,7 +687,8 @@ export namespace Prisma {
     users: 'users',
     conversation_members: 'conversation_members',
     messages: 'messages',
-    conversations: 'conversations'
+    conversations: 'conversations',
+    tags: 'tags'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -678,7 +707,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "users" | "conversation_members" | "messages" | "conversations"
+      modelProps: "users" | "conversation_members" | "messages" | "conversations" | "tags"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -946,6 +975,72 @@ export namespace Prisma {
           }
         }
       }
+      tags: {
+        payload: Prisma.$tagsPayload<ExtArgs>
+        fields: Prisma.tagsFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.tagsFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$tagsPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.tagsFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$tagsPayload>
+          }
+          findFirst: {
+            args: Prisma.tagsFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$tagsPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.tagsFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$tagsPayload>
+          }
+          findMany: {
+            args: Prisma.tagsFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$tagsPayload>[]
+          }
+          create: {
+            args: Prisma.tagsCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$tagsPayload>
+          }
+          createMany: {
+            args: Prisma.tagsCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          delete: {
+            args: Prisma.tagsDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$tagsPayload>
+          }
+          update: {
+            args: Prisma.tagsUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$tagsPayload>
+          }
+          deleteMany: {
+            args: Prisma.tagsDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.tagsUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.tagsUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$tagsPayload>
+          }
+          aggregate: {
+            args: Prisma.TagsAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateTags>
+          }
+          groupBy: {
+            args: Prisma.tagsGroupByArgs<ExtArgs>
+            result: $Utils.Optional<TagsGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.tagsCountArgs<ExtArgs>
+            result: $Utils.Optional<TagsCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -1034,6 +1129,7 @@ export namespace Prisma {
     conversation_members?: conversation_membersOmit
     messages?: messagesOmit
     conversations?: conversationsOmit
+    tags?: tagsOmit
   }
 
   /* Types for Logging */
@@ -1258,6 +1354,8 @@ export namespace Prisma {
     phone_number: number
     dial_code: number
     createdAt: number
+    special_tags: number
+    tags_used: number
     _all: number
   }
 
@@ -1301,6 +1399,8 @@ export namespace Prisma {
     phone_number?: true
     dial_code?: true
     createdAt?: true
+    special_tags?: true
+    tags_used?: true
     _all?: true
   }
 
@@ -1399,6 +1499,8 @@ export namespace Prisma {
     phone_number: string | null
     dial_code: string | null
     createdAt: Date
+    special_tags: JsonValue | null
+    tags_used: JsonValue | null
     _count: UsersCountAggregateOutputType | null
     _avg: UsersAvgAggregateOutputType | null
     _sum: UsersSumAggregateOutputType | null
@@ -1429,6 +1531,8 @@ export namespace Prisma {
     phone_number?: boolean
     dial_code?: boolean
     createdAt?: boolean
+    special_tags?: boolean
+    tags_used?: boolean
     conversationMembers?: boolean | users$conversationMembersArgs<ExtArgs>
     sentMessages?: boolean | users$sentMessagesArgs<ExtArgs>
     _count?: boolean | UsersCountOutputTypeDefaultArgs<ExtArgs>
@@ -1445,9 +1549,11 @@ export namespace Prisma {
     phone_number?: boolean
     dial_code?: boolean
     createdAt?: boolean
+    special_tags?: boolean
+    tags_used?: boolean
   }
 
-  export type usersOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"userId" | "username" | "provider" | "email" | "email_name" | "phone_number" | "dial_code" | "createdAt", ExtArgs["result"]["users"]>
+  export type usersOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"userId" | "username" | "provider" | "email" | "email_name" | "phone_number" | "dial_code" | "createdAt" | "special_tags" | "tags_used", ExtArgs["result"]["users"]>
   export type usersInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     conversationMembers?: boolean | users$conversationMembersArgs<ExtArgs>
     sentMessages?: boolean | users$sentMessagesArgs<ExtArgs>
@@ -1469,6 +1575,8 @@ export namespace Prisma {
       phone_number: string | null
       dial_code: string | null
       createdAt: Date
+      special_tags: Prisma.JsonValue | null
+      tags_used: Prisma.JsonValue | null
     }, ExtArgs["result"]["users"]>
     composites: {}
   }
@@ -1848,6 +1956,8 @@ export namespace Prisma {
     readonly phone_number: FieldRef<"users", 'String'>
     readonly dial_code: FieldRef<"users", 'String'>
     readonly createdAt: FieldRef<"users", 'DateTime'>
+    readonly special_tags: FieldRef<"users", 'Json'>
+    readonly tags_used: FieldRef<"users", 'Json'>
   }
     
 
@@ -5168,6 +5278,900 @@ export namespace Prisma {
 
 
   /**
+   * Model tags
+   */
+
+  export type AggregateTags = {
+    _count: TagsCountAggregateOutputType | null
+    _avg: TagsAvgAggregateOutputType | null
+    _sum: TagsSumAggregateOutputType | null
+    _min: TagsMinAggregateOutputType | null
+    _max: TagsMaxAggregateOutputType | null
+  }
+
+  export type TagsAvgAggregateOutputType = {
+    id: number | null
+  }
+
+  export type TagsSumAggregateOutputType = {
+    id: number | null
+  }
+
+  export type TagsMinAggregateOutputType = {
+    id: number | null
+    name: string | null
+    tier: $Enums.tags_tier | null
+  }
+
+  export type TagsMaxAggregateOutputType = {
+    id: number | null
+    name: string | null
+    tier: $Enums.tags_tier | null
+  }
+
+  export type TagsCountAggregateOutputType = {
+    id: number
+    name: number
+    tier: number
+    _all: number
+  }
+
+
+  export type TagsAvgAggregateInputType = {
+    id?: true
+  }
+
+  export type TagsSumAggregateInputType = {
+    id?: true
+  }
+
+  export type TagsMinAggregateInputType = {
+    id?: true
+    name?: true
+    tier?: true
+  }
+
+  export type TagsMaxAggregateInputType = {
+    id?: true
+    name?: true
+    tier?: true
+  }
+
+  export type TagsCountAggregateInputType = {
+    id?: true
+    name?: true
+    tier?: true
+    _all?: true
+  }
+
+  export type TagsAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which tags to aggregate.
+     */
+    where?: tagsWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of tags to fetch.
+     */
+    orderBy?: tagsOrderByWithRelationInput | tagsOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: tagsWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` tags from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` tags.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned tags
+    **/
+    _count?: true | TagsCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: TagsAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: TagsSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: TagsMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: TagsMaxAggregateInputType
+  }
+
+  export type GetTagsAggregateType<T extends TagsAggregateArgs> = {
+        [P in keyof T & keyof AggregateTags]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateTags[P]>
+      : GetScalarType<T[P], AggregateTags[P]>
+  }
+
+
+
+
+  export type tagsGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: tagsWhereInput
+    orderBy?: tagsOrderByWithAggregationInput | tagsOrderByWithAggregationInput[]
+    by: TagsScalarFieldEnum[] | TagsScalarFieldEnum
+    having?: tagsScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: TagsCountAggregateInputType | true
+    _avg?: TagsAvgAggregateInputType
+    _sum?: TagsSumAggregateInputType
+    _min?: TagsMinAggregateInputType
+    _max?: TagsMaxAggregateInputType
+  }
+
+  export type TagsGroupByOutputType = {
+    id: number
+    name: string
+    tier: $Enums.tags_tier
+    _count: TagsCountAggregateOutputType | null
+    _avg: TagsAvgAggregateOutputType | null
+    _sum: TagsSumAggregateOutputType | null
+    _min: TagsMinAggregateOutputType | null
+    _max: TagsMaxAggregateOutputType | null
+  }
+
+  type GetTagsGroupByPayload<T extends tagsGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<TagsGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof TagsGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], TagsGroupByOutputType[P]>
+            : GetScalarType<T[P], TagsGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type tagsSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    name?: boolean
+    tier?: boolean
+  }, ExtArgs["result"]["tags"]>
+
+
+
+  export type tagsSelectScalar = {
+    id?: boolean
+    name?: boolean
+    tier?: boolean
+  }
+
+  export type tagsOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "tier", ExtArgs["result"]["tags"]>
+
+  export type $tagsPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "tags"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: number
+      name: string
+      tier: $Enums.tags_tier
+    }, ExtArgs["result"]["tags"]>
+    composites: {}
+  }
+
+  type tagsGetPayload<S extends boolean | null | undefined | tagsDefaultArgs> = $Result.GetResult<Prisma.$tagsPayload, S>
+
+  type tagsCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<tagsFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: TagsCountAggregateInputType | true
+    }
+
+  export interface tagsDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['tags'], meta: { name: 'tags' } }
+    /**
+     * Find zero or one Tags that matches the filter.
+     * @param {tagsFindUniqueArgs} args - Arguments to find a Tags
+     * @example
+     * // Get one Tags
+     * const tags = await prisma.tags.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends tagsFindUniqueArgs>(args: SelectSubset<T, tagsFindUniqueArgs<ExtArgs>>): Prisma__tagsClient<$Result.GetResult<Prisma.$tagsPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one Tags that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {tagsFindUniqueOrThrowArgs} args - Arguments to find a Tags
+     * @example
+     * // Get one Tags
+     * const tags = await prisma.tags.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends tagsFindUniqueOrThrowArgs>(args: SelectSubset<T, tagsFindUniqueOrThrowArgs<ExtArgs>>): Prisma__tagsClient<$Result.GetResult<Prisma.$tagsPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Tags that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {tagsFindFirstArgs} args - Arguments to find a Tags
+     * @example
+     * // Get one Tags
+     * const tags = await prisma.tags.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends tagsFindFirstArgs>(args?: SelectSubset<T, tagsFindFirstArgs<ExtArgs>>): Prisma__tagsClient<$Result.GetResult<Prisma.$tagsPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Tags that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {tagsFindFirstOrThrowArgs} args - Arguments to find a Tags
+     * @example
+     * // Get one Tags
+     * const tags = await prisma.tags.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends tagsFindFirstOrThrowArgs>(args?: SelectSubset<T, tagsFindFirstOrThrowArgs<ExtArgs>>): Prisma__tagsClient<$Result.GetResult<Prisma.$tagsPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more Tags that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {tagsFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all Tags
+     * const tags = await prisma.tags.findMany()
+     * 
+     * // Get first 10 Tags
+     * const tags = await prisma.tags.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const tagsWithIdOnly = await prisma.tags.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends tagsFindManyArgs>(args?: SelectSubset<T, tagsFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$tagsPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a Tags.
+     * @param {tagsCreateArgs} args - Arguments to create a Tags.
+     * @example
+     * // Create one Tags
+     * const Tags = await prisma.tags.create({
+     *   data: {
+     *     // ... data to create a Tags
+     *   }
+     * })
+     * 
+     */
+    create<T extends tagsCreateArgs>(args: SelectSubset<T, tagsCreateArgs<ExtArgs>>): Prisma__tagsClient<$Result.GetResult<Prisma.$tagsPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many Tags.
+     * @param {tagsCreateManyArgs} args - Arguments to create many Tags.
+     * @example
+     * // Create many Tags
+     * const tags = await prisma.tags.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends tagsCreateManyArgs>(args?: SelectSubset<T, tagsCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Delete a Tags.
+     * @param {tagsDeleteArgs} args - Arguments to delete one Tags.
+     * @example
+     * // Delete one Tags
+     * const Tags = await prisma.tags.delete({
+     *   where: {
+     *     // ... filter to delete one Tags
+     *   }
+     * })
+     * 
+     */
+    delete<T extends tagsDeleteArgs>(args: SelectSubset<T, tagsDeleteArgs<ExtArgs>>): Prisma__tagsClient<$Result.GetResult<Prisma.$tagsPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one Tags.
+     * @param {tagsUpdateArgs} args - Arguments to update one Tags.
+     * @example
+     * // Update one Tags
+     * const tags = await prisma.tags.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends tagsUpdateArgs>(args: SelectSubset<T, tagsUpdateArgs<ExtArgs>>): Prisma__tagsClient<$Result.GetResult<Prisma.$tagsPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more Tags.
+     * @param {tagsDeleteManyArgs} args - Arguments to filter Tags to delete.
+     * @example
+     * // Delete a few Tags
+     * const { count } = await prisma.tags.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends tagsDeleteManyArgs>(args?: SelectSubset<T, tagsDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Tags.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {tagsUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many Tags
+     * const tags = await prisma.tags.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends tagsUpdateManyArgs>(args: SelectSubset<T, tagsUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one Tags.
+     * @param {tagsUpsertArgs} args - Arguments to update or create a Tags.
+     * @example
+     * // Update or create a Tags
+     * const tags = await prisma.tags.upsert({
+     *   create: {
+     *     // ... data to create a Tags
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the Tags we want to update
+     *   }
+     * })
+     */
+    upsert<T extends tagsUpsertArgs>(args: SelectSubset<T, tagsUpsertArgs<ExtArgs>>): Prisma__tagsClient<$Result.GetResult<Prisma.$tagsPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of Tags.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {tagsCountArgs} args - Arguments to filter Tags to count.
+     * @example
+     * // Count the number of Tags
+     * const count = await prisma.tags.count({
+     *   where: {
+     *     // ... the filter for the Tags we want to count
+     *   }
+     * })
+    **/
+    count<T extends tagsCountArgs>(
+      args?: Subset<T, tagsCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], TagsCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a Tags.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TagsAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends TagsAggregateArgs>(args: Subset<T, TagsAggregateArgs>): Prisma.PrismaPromise<GetTagsAggregateType<T>>
+
+    /**
+     * Group by Tags.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {tagsGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends tagsGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: tagsGroupByArgs['orderBy'] }
+        : { orderBy?: tagsGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, tagsGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetTagsGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the tags model
+   */
+  readonly fields: tagsFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for tags.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__tagsClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the tags model
+   */
+  interface tagsFieldRefs {
+    readonly id: FieldRef<"tags", 'Int'>
+    readonly name: FieldRef<"tags", 'String'>
+    readonly tier: FieldRef<"tags", 'tags_tier'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * tags findUnique
+   */
+  export type tagsFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the tags
+     */
+    select?: tagsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the tags
+     */
+    omit?: tagsOmit<ExtArgs> | null
+    /**
+     * Filter, which tags to fetch.
+     */
+    where: tagsWhereUniqueInput
+  }
+
+  /**
+   * tags findUniqueOrThrow
+   */
+  export type tagsFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the tags
+     */
+    select?: tagsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the tags
+     */
+    omit?: tagsOmit<ExtArgs> | null
+    /**
+     * Filter, which tags to fetch.
+     */
+    where: tagsWhereUniqueInput
+  }
+
+  /**
+   * tags findFirst
+   */
+  export type tagsFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the tags
+     */
+    select?: tagsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the tags
+     */
+    omit?: tagsOmit<ExtArgs> | null
+    /**
+     * Filter, which tags to fetch.
+     */
+    where?: tagsWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of tags to fetch.
+     */
+    orderBy?: tagsOrderByWithRelationInput | tagsOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for tags.
+     */
+    cursor?: tagsWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` tags from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` tags.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of tags.
+     */
+    distinct?: TagsScalarFieldEnum | TagsScalarFieldEnum[]
+  }
+
+  /**
+   * tags findFirstOrThrow
+   */
+  export type tagsFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the tags
+     */
+    select?: tagsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the tags
+     */
+    omit?: tagsOmit<ExtArgs> | null
+    /**
+     * Filter, which tags to fetch.
+     */
+    where?: tagsWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of tags to fetch.
+     */
+    orderBy?: tagsOrderByWithRelationInput | tagsOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for tags.
+     */
+    cursor?: tagsWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` tags from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` tags.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of tags.
+     */
+    distinct?: TagsScalarFieldEnum | TagsScalarFieldEnum[]
+  }
+
+  /**
+   * tags findMany
+   */
+  export type tagsFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the tags
+     */
+    select?: tagsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the tags
+     */
+    omit?: tagsOmit<ExtArgs> | null
+    /**
+     * Filter, which tags to fetch.
+     */
+    where?: tagsWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of tags to fetch.
+     */
+    orderBy?: tagsOrderByWithRelationInput | tagsOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing tags.
+     */
+    cursor?: tagsWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` tags from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` tags.
+     */
+    skip?: number
+    distinct?: TagsScalarFieldEnum | TagsScalarFieldEnum[]
+  }
+
+  /**
+   * tags create
+   */
+  export type tagsCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the tags
+     */
+    select?: tagsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the tags
+     */
+    omit?: tagsOmit<ExtArgs> | null
+    /**
+     * The data needed to create a tags.
+     */
+    data: XOR<tagsCreateInput, tagsUncheckedCreateInput>
+  }
+
+  /**
+   * tags createMany
+   */
+  export type tagsCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many tags.
+     */
+    data: tagsCreateManyInput | tagsCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * tags update
+   */
+  export type tagsUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the tags
+     */
+    select?: tagsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the tags
+     */
+    omit?: tagsOmit<ExtArgs> | null
+    /**
+     * The data needed to update a tags.
+     */
+    data: XOR<tagsUpdateInput, tagsUncheckedUpdateInput>
+    /**
+     * Choose, which tags to update.
+     */
+    where: tagsWhereUniqueInput
+  }
+
+  /**
+   * tags updateMany
+   */
+  export type tagsUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update tags.
+     */
+    data: XOR<tagsUpdateManyMutationInput, tagsUncheckedUpdateManyInput>
+    /**
+     * Filter which tags to update
+     */
+    where?: tagsWhereInput
+    /**
+     * Limit how many tags to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * tags upsert
+   */
+  export type tagsUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the tags
+     */
+    select?: tagsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the tags
+     */
+    omit?: tagsOmit<ExtArgs> | null
+    /**
+     * The filter to search for the tags to update in case it exists.
+     */
+    where: tagsWhereUniqueInput
+    /**
+     * In case the tags found by the `where` argument doesn't exist, create a new tags with this data.
+     */
+    create: XOR<tagsCreateInput, tagsUncheckedCreateInput>
+    /**
+     * In case the tags was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<tagsUpdateInput, tagsUncheckedUpdateInput>
+  }
+
+  /**
+   * tags delete
+   */
+  export type tagsDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the tags
+     */
+    select?: tagsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the tags
+     */
+    omit?: tagsOmit<ExtArgs> | null
+    /**
+     * Filter which tags to delete.
+     */
+    where: tagsWhereUniqueInput
+  }
+
+  /**
+   * tags deleteMany
+   */
+  export type tagsDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which tags to delete
+     */
+    where?: tagsWhereInput
+    /**
+     * Limit how many tags to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * tags without action
+   */
+  export type tagsDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the tags
+     */
+    select?: tagsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the tags
+     */
+    omit?: tagsOmit<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -5189,7 +6193,9 @@ export namespace Prisma {
     email_name: 'email_name',
     phone_number: 'phone_number',
     dial_code: 'dial_code',
-    createdAt: 'createdAt'
+    createdAt: 'createdAt',
+    special_tags: 'special_tags',
+    tags_used: 'tags_used'
   };
 
   export type UsersScalarFieldEnum = (typeof UsersScalarFieldEnum)[keyof typeof UsersScalarFieldEnum]
@@ -5227,12 +6233,46 @@ export namespace Prisma {
   export type ConversationsScalarFieldEnum = (typeof ConversationsScalarFieldEnum)[keyof typeof ConversationsScalarFieldEnum]
 
 
+  export const TagsScalarFieldEnum: {
+    id: 'id',
+    name: 'name',
+    tier: 'tier'
+  };
+
+  export type TagsScalarFieldEnum = (typeof TagsScalarFieldEnum)[keyof typeof TagsScalarFieldEnum]
+
+
   export const SortOrder: {
     asc: 'asc',
     desc: 'desc'
   };
 
   export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
+
+
+  export const NullableJsonNullValueInput: {
+    DbNull: typeof DbNull,
+    JsonNull: typeof JsonNull
+  };
+
+  export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
+
+
+  export const JsonNullValueFilter: {
+    DbNull: typeof DbNull,
+    JsonNull: typeof JsonNull,
+    AnyNull: typeof AnyNull
+  };
+
+  export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter]
+
+
+  export const QueryMode: {
+    default: 'default',
+    insensitive: 'insensitive'
+  };
+
+  export type QueryMode = (typeof QueryMode)[keyof typeof QueryMode]
 
 
   export const NullsOrder: {
@@ -5279,6 +6319,13 @@ export namespace Prisma {
   export type conversationsOrderByRelevanceFieldEnum = (typeof conversationsOrderByRelevanceFieldEnum)[keyof typeof conversationsOrderByRelevanceFieldEnum]
 
 
+  export const tagsOrderByRelevanceFieldEnum: {
+    name: 'name'
+  };
+
+  export type tagsOrderByRelevanceFieldEnum = (typeof tagsOrderByRelevanceFieldEnum)[keyof typeof tagsOrderByRelevanceFieldEnum]
+
+
   /**
    * Field references
    */
@@ -5306,6 +6353,20 @@ export namespace Prisma {
 
 
   /**
+   * Reference to a field of type 'Json'
+   */
+  export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>
+    
+
+
+  /**
+   * Reference to a field of type 'QueryMode'
+   */
+  export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
+    
+
+
+  /**
    * Reference to a field of type 'messages_status'
    */
   export type Enummessages_statusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'messages_status'>
@@ -5316,6 +6377,13 @@ export namespace Prisma {
    * Reference to a field of type 'Boolean'
    */
   export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
+    
+
+
+  /**
+   * Reference to a field of type 'tags_tier'
+   */
+  export type Enumtags_tierFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'tags_tier'>
     
 
 
@@ -5341,6 +6409,8 @@ export namespace Prisma {
     phone_number?: StringNullableFilter<"users"> | string | null
     dial_code?: StringNullableFilter<"users"> | string | null
     createdAt?: DateTimeFilter<"users"> | Date | string
+    special_tags?: JsonNullableFilter<"users">
+    tags_used?: JsonNullableFilter<"users">
     conversationMembers?: Conversation_membersListRelationFilter
     sentMessages?: MessagesListRelationFilter
   }
@@ -5354,6 +6424,8 @@ export namespace Prisma {
     phone_number?: SortOrderInput | SortOrder
     dial_code?: SortOrderInput | SortOrder
     createdAt?: SortOrder
+    special_tags?: SortOrderInput | SortOrder
+    tags_used?: SortOrderInput | SortOrder
     conversationMembers?: conversation_membersOrderByRelationAggregateInput
     sentMessages?: messagesOrderByRelationAggregateInput
     _relevance?: usersOrderByRelevanceInput
@@ -5371,6 +6443,8 @@ export namespace Prisma {
     email_name?: StringNullableFilter<"users"> | string | null
     dial_code?: StringNullableFilter<"users"> | string | null
     createdAt?: DateTimeFilter<"users"> | Date | string
+    special_tags?: JsonNullableFilter<"users">
+    tags_used?: JsonNullableFilter<"users">
     conversationMembers?: Conversation_membersListRelationFilter
     sentMessages?: MessagesListRelationFilter
   }, "userId" | "username" | "email" | "phone_number">
@@ -5384,6 +6458,8 @@ export namespace Prisma {
     phone_number?: SortOrderInput | SortOrder
     dial_code?: SortOrderInput | SortOrder
     createdAt?: SortOrder
+    special_tags?: SortOrderInput | SortOrder
+    tags_used?: SortOrderInput | SortOrder
     _count?: usersCountOrderByAggregateInput
     _avg?: usersAvgOrderByAggregateInput
     _max?: usersMaxOrderByAggregateInput
@@ -5403,6 +6479,8 @@ export namespace Prisma {
     phone_number?: StringNullableWithAggregatesFilter<"users"> | string | null
     dial_code?: StringNullableWithAggregatesFilter<"users"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"users"> | Date | string
+    special_tags?: JsonNullableWithAggregatesFilter<"users">
+    tags_used?: JsonNullableWithAggregatesFilter<"users">
   }
 
   export type conversation_membersWhereInput = {
@@ -5582,6 +6660,51 @@ export namespace Prisma {
     createdAt?: DateTimeWithAggregatesFilter<"conversations"> | Date | string
   }
 
+  export type tagsWhereInput = {
+    AND?: tagsWhereInput | tagsWhereInput[]
+    OR?: tagsWhereInput[]
+    NOT?: tagsWhereInput | tagsWhereInput[]
+    id?: IntFilter<"tags"> | number
+    name?: StringFilter<"tags"> | string
+    tier?: Enumtags_tierFilter<"tags"> | $Enums.tags_tier
+  }
+
+  export type tagsOrderByWithRelationInput = {
+    id?: SortOrder
+    name?: SortOrder
+    tier?: SortOrder
+    _relevance?: tagsOrderByRelevanceInput
+  }
+
+  export type tagsWhereUniqueInput = Prisma.AtLeast<{
+    id?: number
+    name?: string
+    AND?: tagsWhereInput | tagsWhereInput[]
+    OR?: tagsWhereInput[]
+    NOT?: tagsWhereInput | tagsWhereInput[]
+    tier?: Enumtags_tierFilter<"tags"> | $Enums.tags_tier
+  }, "id" | "name">
+
+  export type tagsOrderByWithAggregationInput = {
+    id?: SortOrder
+    name?: SortOrder
+    tier?: SortOrder
+    _count?: tagsCountOrderByAggregateInput
+    _avg?: tagsAvgOrderByAggregateInput
+    _max?: tagsMaxOrderByAggregateInput
+    _min?: tagsMinOrderByAggregateInput
+    _sum?: tagsSumOrderByAggregateInput
+  }
+
+  export type tagsScalarWhereWithAggregatesInput = {
+    AND?: tagsScalarWhereWithAggregatesInput | tagsScalarWhereWithAggregatesInput[]
+    OR?: tagsScalarWhereWithAggregatesInput[]
+    NOT?: tagsScalarWhereWithAggregatesInput | tagsScalarWhereWithAggregatesInput[]
+    id?: IntWithAggregatesFilter<"tags"> | number
+    name?: StringWithAggregatesFilter<"tags"> | string
+    tier?: Enumtags_tierWithAggregatesFilter<"tags"> | $Enums.tags_tier
+  }
+
   export type usersCreateInput = {
     username?: string | null
     provider: string
@@ -5590,6 +6713,8 @@ export namespace Prisma {
     phone_number?: string | null
     dial_code?: string | null
     createdAt: Date | string
+    special_tags?: NullableJsonNullValueInput | InputJsonValue
+    tags_used?: NullableJsonNullValueInput | InputJsonValue
     conversationMembers?: conversation_membersCreateNestedManyWithoutUserInput
     sentMessages?: messagesCreateNestedManyWithoutSenderInput
   }
@@ -5603,6 +6728,8 @@ export namespace Prisma {
     phone_number?: string | null
     dial_code?: string | null
     createdAt: Date | string
+    special_tags?: NullableJsonNullValueInput | InputJsonValue
+    tags_used?: NullableJsonNullValueInput | InputJsonValue
     conversationMembers?: conversation_membersUncheckedCreateNestedManyWithoutUserInput
     sentMessages?: messagesUncheckedCreateNestedManyWithoutSenderInput
   }
@@ -5615,6 +6742,8 @@ export namespace Prisma {
     phone_number?: NullableStringFieldUpdateOperationsInput | string | null
     dial_code?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    special_tags?: NullableJsonNullValueInput | InputJsonValue
+    tags_used?: NullableJsonNullValueInput | InputJsonValue
     conversationMembers?: conversation_membersUpdateManyWithoutUserNestedInput
     sentMessages?: messagesUpdateManyWithoutSenderNestedInput
   }
@@ -5628,6 +6757,8 @@ export namespace Prisma {
     phone_number?: NullableStringFieldUpdateOperationsInput | string | null
     dial_code?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    special_tags?: NullableJsonNullValueInput | InputJsonValue
+    tags_used?: NullableJsonNullValueInput | InputJsonValue
     conversationMembers?: conversation_membersUncheckedUpdateManyWithoutUserNestedInput
     sentMessages?: messagesUncheckedUpdateManyWithoutSenderNestedInput
   }
@@ -5641,6 +6772,8 @@ export namespace Prisma {
     phone_number?: string | null
     dial_code?: string | null
     createdAt: Date | string
+    special_tags?: NullableJsonNullValueInput | InputJsonValue
+    tags_used?: NullableJsonNullValueInput | InputJsonValue
   }
 
   export type usersUpdateManyMutationInput = {
@@ -5651,6 +6784,8 @@ export namespace Prisma {
     phone_number?: NullableStringFieldUpdateOperationsInput | string | null
     dial_code?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    special_tags?: NullableJsonNullValueInput | InputJsonValue
+    tags_used?: NullableJsonNullValueInput | InputJsonValue
   }
 
   export type usersUncheckedUpdateManyInput = {
@@ -5662,6 +6797,8 @@ export namespace Prisma {
     phone_number?: NullableStringFieldUpdateOperationsInput | string | null
     dial_code?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    special_tags?: NullableJsonNullValueInput | InputJsonValue
+    tags_used?: NullableJsonNullValueInput | InputJsonValue
   }
 
   export type conversation_membersCreateInput = {
@@ -5826,6 +6963,45 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type tagsCreateInput = {
+    name: string
+    tier?: $Enums.tags_tier
+  }
+
+  export type tagsUncheckedCreateInput = {
+    id?: number
+    name: string
+    tier?: $Enums.tags_tier
+  }
+
+  export type tagsUpdateInput = {
+    name?: StringFieldUpdateOperationsInput | string
+    tier?: Enumtags_tierFieldUpdateOperationsInput | $Enums.tags_tier
+  }
+
+  export type tagsUncheckedUpdateInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    name?: StringFieldUpdateOperationsInput | string
+    tier?: Enumtags_tierFieldUpdateOperationsInput | $Enums.tags_tier
+  }
+
+  export type tagsCreateManyInput = {
+    id?: number
+    name: string
+    tier?: $Enums.tags_tier
+  }
+
+  export type tagsUpdateManyMutationInput = {
+    name?: StringFieldUpdateOperationsInput | string
+    tier?: Enumtags_tierFieldUpdateOperationsInput | $Enums.tags_tier
+  }
+
+  export type tagsUncheckedUpdateManyInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    name?: StringFieldUpdateOperationsInput | string
+    tier?: Enumtags_tierFieldUpdateOperationsInput | $Enums.tags_tier
+  }
+
   export type IntFilter<$PrismaModel = never> = {
     equals?: number | IntFieldRefInput<$PrismaModel>
     in?: number[]
@@ -5877,6 +7053,29 @@ export namespace Prisma {
     gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     not?: NestedDateTimeFilter<$PrismaModel> | Date | string
   }
+  export type JsonNullableFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<JsonNullableFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonNullableFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonNullableFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonNullableFilterBase<$PrismaModel>>, 'path'>>
+
+  export type JsonNullableFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue
+    lte?: InputJsonValue
+    gt?: InputJsonValue
+    gte?: InputJsonValue
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+  }
 
   export type Conversation_membersListRelationFilter = {
     every?: conversation_membersWhereInput
@@ -5918,6 +7117,8 @@ export namespace Prisma {
     phone_number?: SortOrder
     dial_code?: SortOrder
     createdAt?: SortOrder
+    special_tags?: SortOrder
+    tags_used?: SortOrder
   }
 
   export type usersAvgOrderByAggregateInput = {
@@ -6014,6 +7215,32 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedDateTimeFilter<$PrismaModel>
     _max?: NestedDateTimeFilter<$PrismaModel>
+  }
+  export type JsonNullableWithAggregatesFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, 'path'>>
+
+  export type JsonNullableWithAggregatesFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue
+    lte?: InputJsonValue
+    gt?: InputJsonValue
+    gte?: InputJsonValue
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedJsonNullableFilter<$PrismaModel>
+    _max?: NestedJsonNullableFilter<$PrismaModel>
   }
 
   export type UsersScalarRelationFilter = {
@@ -6164,6 +7391,55 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedBoolFilter<$PrismaModel>
     _max?: NestedBoolFilter<$PrismaModel>
+  }
+
+  export type Enumtags_tierFilter<$PrismaModel = never> = {
+    equals?: $Enums.tags_tier | Enumtags_tierFieldRefInput<$PrismaModel>
+    in?: $Enums.tags_tier[]
+    notIn?: $Enums.tags_tier[]
+    not?: NestedEnumtags_tierFilter<$PrismaModel> | $Enums.tags_tier
+  }
+
+  export type tagsOrderByRelevanceInput = {
+    fields: tagsOrderByRelevanceFieldEnum | tagsOrderByRelevanceFieldEnum[]
+    sort: SortOrder
+    search: string
+  }
+
+  export type tagsCountOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    tier?: SortOrder
+  }
+
+  export type tagsAvgOrderByAggregateInput = {
+    id?: SortOrder
+  }
+
+  export type tagsMaxOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    tier?: SortOrder
+  }
+
+  export type tagsMinOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    tier?: SortOrder
+  }
+
+  export type tagsSumOrderByAggregateInput = {
+    id?: SortOrder
+  }
+
+  export type Enumtags_tierWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.tags_tier | Enumtags_tierFieldRefInput<$PrismaModel>
+    in?: $Enums.tags_tier[]
+    notIn?: $Enums.tags_tier[]
+    not?: NestedEnumtags_tierWithAggregatesFilter<$PrismaModel> | $Enums.tags_tier
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumtags_tierFilter<$PrismaModel>
+    _max?: NestedEnumtags_tierFilter<$PrismaModel>
   }
 
   export type conversation_membersCreateNestedManyWithoutUserInput = {
@@ -6418,6 +7694,10 @@ export namespace Prisma {
     deleteMany?: messagesScalarWhereInput | messagesScalarWhereInput[]
   }
 
+  export type Enumtags_tierFieldUpdateOperationsInput = {
+    set?: $Enums.tags_tier
+  }
+
   export type NestedIntFilter<$PrismaModel = never> = {
     equals?: number | IntFieldRefInput<$PrismaModel>
     in?: number[]
@@ -6557,6 +7837,29 @@ export namespace Prisma {
     _min?: NestedDateTimeFilter<$PrismaModel>
     _max?: NestedDateTimeFilter<$PrismaModel>
   }
+  export type NestedJsonNullableFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<NestedJsonNullableFilterBase<$PrismaModel>>, Exclude<keyof Required<NestedJsonNullableFilterBase<$PrismaModel>>, 'path'>>,
+        Required<NestedJsonNullableFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<NestedJsonNullableFilterBase<$PrismaModel>>, 'path'>>
+
+  export type NestedJsonNullableFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue
+    lte?: InputJsonValue
+    gt?: InputJsonValue
+    gte?: InputJsonValue
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+  }
 
   export type NestedEnummessages_statusFilter<$PrismaModel = never> = {
     equals?: $Enums.messages_status | Enummessages_statusFieldRefInput<$PrismaModel>
@@ -6586,6 +7889,23 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedBoolFilter<$PrismaModel>
     _max?: NestedBoolFilter<$PrismaModel>
+  }
+
+  export type NestedEnumtags_tierFilter<$PrismaModel = never> = {
+    equals?: $Enums.tags_tier | Enumtags_tierFieldRefInput<$PrismaModel>
+    in?: $Enums.tags_tier[]
+    notIn?: $Enums.tags_tier[]
+    not?: NestedEnumtags_tierFilter<$PrismaModel> | $Enums.tags_tier
+  }
+
+  export type NestedEnumtags_tierWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.tags_tier | Enumtags_tierFieldRefInput<$PrismaModel>
+    in?: $Enums.tags_tier[]
+    notIn?: $Enums.tags_tier[]
+    not?: NestedEnumtags_tierWithAggregatesFilter<$PrismaModel> | $Enums.tags_tier
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumtags_tierFilter<$PrismaModel>
+    _max?: NestedEnumtags_tierFilter<$PrismaModel>
   }
 
   export type conversation_membersCreateWithoutUserInput = {
@@ -6697,6 +8017,8 @@ export namespace Prisma {
     phone_number?: string | null
     dial_code?: string | null
     createdAt: Date | string
+    special_tags?: NullableJsonNullValueInput | InputJsonValue
+    tags_used?: NullableJsonNullValueInput | InputJsonValue
     sentMessages?: messagesCreateNestedManyWithoutSenderInput
   }
 
@@ -6709,6 +8031,8 @@ export namespace Prisma {
     phone_number?: string | null
     dial_code?: string | null
     createdAt: Date | string
+    special_tags?: NullableJsonNullValueInput | InputJsonValue
+    tags_used?: NullableJsonNullValueInput | InputJsonValue
     sentMessages?: messagesUncheckedCreateNestedManyWithoutSenderInput
   }
 
@@ -6757,6 +8081,8 @@ export namespace Prisma {
     phone_number?: NullableStringFieldUpdateOperationsInput | string | null
     dial_code?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    special_tags?: NullableJsonNullValueInput | InputJsonValue
+    tags_used?: NullableJsonNullValueInput | InputJsonValue
     sentMessages?: messagesUpdateManyWithoutSenderNestedInput
   }
 
@@ -6769,6 +8095,8 @@ export namespace Prisma {
     phone_number?: NullableStringFieldUpdateOperationsInput | string | null
     dial_code?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    special_tags?: NullableJsonNullValueInput | InputJsonValue
+    tags_used?: NullableJsonNullValueInput | InputJsonValue
     sentMessages?: messagesUncheckedUpdateManyWithoutSenderNestedInput
   }
 
@@ -6807,6 +8135,8 @@ export namespace Prisma {
     phone_number?: string | null
     dial_code?: string | null
     createdAt: Date | string
+    special_tags?: NullableJsonNullValueInput | InputJsonValue
+    tags_used?: NullableJsonNullValueInput | InputJsonValue
     conversationMembers?: conversation_membersCreateNestedManyWithoutUserInput
   }
 
@@ -6819,6 +8149,8 @@ export namespace Prisma {
     phone_number?: string | null
     dial_code?: string | null
     createdAt: Date | string
+    special_tags?: NullableJsonNullValueInput | InputJsonValue
+    tags_used?: NullableJsonNullValueInput | InputJsonValue
     conversationMembers?: conversation_membersUncheckedCreateNestedManyWithoutUserInput
   }
 
@@ -6867,6 +8199,8 @@ export namespace Prisma {
     phone_number?: NullableStringFieldUpdateOperationsInput | string | null
     dial_code?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    special_tags?: NullableJsonNullValueInput | InputJsonValue
+    tags_used?: NullableJsonNullValueInput | InputJsonValue
     conversationMembers?: conversation_membersUpdateManyWithoutUserNestedInput
   }
 
@@ -6879,6 +8213,8 @@ export namespace Prisma {
     phone_number?: NullableStringFieldUpdateOperationsInput | string | null
     dial_code?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    special_tags?: NullableJsonNullValueInput | InputJsonValue
+    tags_used?: NullableJsonNullValueInput | InputJsonValue
     conversationMembers?: conversation_membersUncheckedUpdateManyWithoutUserNestedInput
   }
 

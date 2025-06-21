@@ -66,8 +66,6 @@ const Conversations:React.FC<props> = ({userInfo}) => {
       console.log('No user info available, skipping socket connection.');
       return;
     }
-
-    if (!socket.connected) socket.connect();
     socket.emit('join-user-room', userInfo.userId);
 
     const handleNewPreviewMessage = (msg: ConversationMessages) => {
@@ -107,6 +105,7 @@ const Conversations:React.FC<props> = ({userInfo}) => {
 
     return () => {
       socket.off('new-preview-message', handleNewPreviewMessage);
+      socket.emit('leave-user-room', userInfo.userId)
     };
   }, [userInfo]);
   
@@ -226,7 +225,7 @@ const Conversations:React.FC<props> = ({userInfo}) => {
                   <div className="flex items-end pb-1 h-1/2">
                     {lastMessage.senderId !== userInfo!.userId && (
                       <div className="relative flex items-center justify-center w-4 bg-green-400 rounded-full aspect-square">
-                        <span className="absolute text-[#121212] text-[0.7rem] font-sans font-semibold">{oppMessages.length}</span>
+                        <span className="absolute text-[#121212] text-[0.7rem] font-sans font-semibold">{oppMessages.filter(msg => msg.status !== 'SEEN').length}</span>
                       </div>
                     )}
                   </div>

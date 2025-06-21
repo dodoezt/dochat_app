@@ -128,7 +128,9 @@ exports.Prisma.UsersScalarFieldEnum = {
   email_name: 'email_name',
   phone_number: 'phone_number',
   dial_code: 'dial_code',
-  createdAt: 'createdAt'
+  createdAt: 'createdAt',
+  special_tags: 'special_tags',
+  tags_used: 'tags_used'
 };
 
 exports.Prisma.Conversation_membersScalarFieldEnum = {
@@ -154,9 +156,31 @@ exports.Prisma.ConversationsScalarFieldEnum = {
   createdAt: 'createdAt'
 };
 
+exports.Prisma.TagsScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  tier: 'tier'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
+};
+
+exports.Prisma.NullableJsonNullValueInput = {
+  DbNull: Prisma.DbNull,
+  JsonNull: Prisma.JsonNull
+};
+
+exports.Prisma.JsonNullValueFilter = {
+  DbNull: Prisma.DbNull,
+  JsonNull: Prisma.JsonNull,
+  AnyNull: Prisma.AnyNull
+};
+
+exports.Prisma.QueryMode = {
+  default: 'default',
+  insensitive: 'insensitive'
 };
 
 exports.Prisma.NullsOrder = {
@@ -187,17 +211,28 @@ exports.Prisma.conversationsOrderByRelevanceFieldEnum = {
   id: 'id',
   name: 'name'
 };
+
+exports.Prisma.tagsOrderByRelevanceFieldEnum = {
+  name: 'name'
+};
 exports.messages_status = exports.$Enums.messages_status = {
   NOT_DELIVERED: 'NOT_DELIVERED',
   DELIVERED: 'DELIVERED',
   SEEN: 'SEEN'
 };
 
+exports.tags_tier = exports.$Enums.tags_tier = {
+  Common: 'Common',
+  Kinda_Cool: 'Kinda_Cool',
+  Absolute_OG: 'Absolute_OG'
+};
+
 exports.Prisma.ModelName = {
   users: 'users',
   conversation_members: 'conversation_members',
   messages: 'messages',
-  conversations: 'conversations'
+  conversations: 'conversations',
+  tags: 'tags'
 };
 
 /**
