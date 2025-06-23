@@ -9,7 +9,7 @@ export type UserType = {
 export async function GET(req: Request) {
     const { searchParams } = new URL(req.url)
     const username = searchParams.get('username')
-
+//NOTE LANJUTIN PROFILE
     console.log('username: ', username)
 
     if(!username) return NextResponse.json({message: 'username needed'}, {status: 401})
