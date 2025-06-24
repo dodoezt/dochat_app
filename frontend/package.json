@@ -42,6 +42,8 @@
     "jose": "^6.0.11",
     "node-cache": "^5.1.2",
     "prisma": "^6.7.0",
+    "react-dropzone": "^14.3.8",
+    "react-easy-crop": "^5.4.2",
     "tailwindcss": "^4.1.6",
     "typescript": "^5"
   }

@@ -3,7 +3,13 @@ import { prisma } from "@/lib/prisma"
 
 export type UserType = {
     username: string
-    tags_used: number[],
+    user_atribut: {
+        id: number,
+        userId: number,
+        pfp_id: string,
+        tags_used: number[],
+        special_tags: number[]
+    },
 }
 
 export async function GET(req: Request) {
@@ -20,8 +26,10 @@ export async function GET(req: Request) {
                 username: username!,
             },
             select : {
+                userId: true,
                 username: true,
-                tags_used: true,
+                createdAt: true,
+                user_atribut: true,
             }
         }) as UserType | null
 

@@ -128,9 +128,7 @@ exports.Prisma.UsersScalarFieldEnum = {
   email_name: 'email_name',
   phone_number: 'phone_number',
   dial_code: 'dial_code',
-  createdAt: 'createdAt',
-  special_tags: 'special_tags',
-  tags_used: 'tags_used'
+  createdAt: 'createdAt'
 };
 
 exports.Prisma.Conversation_membersScalarFieldEnum = {
@@ -162,6 +160,14 @@ exports.Prisma.TagsScalarFieldEnum = {
   tier: 'tier'
 };
 
+exports.Prisma.User_atributScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  pfp_id: 'pfp_id',
+  tags_used: 'tags_used',
+  special_tags: 'special_tags'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -170,17 +176,6 @@ exports.Prisma.SortOrder = {
 exports.Prisma.NullableJsonNullValueInput = {
   DbNull: Prisma.DbNull,
   JsonNull: Prisma.JsonNull
-};
-
-exports.Prisma.JsonNullValueFilter = {
-  DbNull: Prisma.DbNull,
-  JsonNull: Prisma.JsonNull,
-  AnyNull: Prisma.AnyNull
-};
-
-exports.Prisma.QueryMode = {
-  default: 'default',
-  insensitive: 'insensitive'
 };
 
 exports.Prisma.NullsOrder = {
@@ -215,6 +210,21 @@ exports.Prisma.conversationsOrderByRelevanceFieldEnum = {
 exports.Prisma.tagsOrderByRelevanceFieldEnum = {
   name: 'name'
 };
+
+exports.Prisma.JsonNullValueFilter = {
+  DbNull: Prisma.DbNull,
+  JsonNull: Prisma.JsonNull,
+  AnyNull: Prisma.AnyNull
+};
+
+exports.Prisma.QueryMode = {
+  default: 'default',
+  insensitive: 'insensitive'
+};
+
+exports.Prisma.user_atributOrderByRelevanceFieldEnum = {
+  pfp_id: 'pfp_id'
+};
 exports.messages_status = exports.$Enums.messages_status = {
   NOT_DELIVERED: 'NOT_DELIVERED',
   DELIVERED: 'DELIVERED',
@@ -232,7 +242,8 @@ exports.Prisma.ModelName = {
   conversation_members: 'conversation_members',
   messages: 'messages',
   conversations: 'conversations',
-  tags: 'tags'
+  tags: 'tags',
+  user_atribut: 'user_atribut'
 };
 
 /**

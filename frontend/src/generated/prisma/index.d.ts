@@ -38,6 +38,11 @@ export type conversations = $Result.DefaultSelection<Prisma.$conversationsPayloa
  * 
  */
 export type tags = $Result.DefaultSelection<Prisma.$tagsPayload>
+/**
+ * Model user_atribut
+ * 
+ */
+export type user_atribut = $Result.DefaultSelection<Prisma.$user_atributPayload>
 
 /**
  * Enums
@@ -244,6 +249,16 @@ export class PrismaClient<
     * ```
     */
   get tags(): Prisma.tagsDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.user_atribut`: Exposes CRUD operations for the **user_atribut** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more User_atributs
+    * const user_atributs = await prisma.user_atribut.findMany()
+    * ```
+    */
+  get user_atribut(): Prisma.user_atributDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -688,7 +703,8 @@ export namespace Prisma {
     conversation_members: 'conversation_members',
     messages: 'messages',
     conversations: 'conversations',
-    tags: 'tags'
+    tags: 'tags',
+    user_atribut: 'user_atribut'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -707,7 +723,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "users" | "conversation_members" | "messages" | "conversations" | "tags"
+      modelProps: "users" | "conversation_members" | "messages" | "conversations" | "tags" | "user_atribut"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1041,6 +1057,72 @@ export namespace Prisma {
           }
         }
       }
+      user_atribut: {
+        payload: Prisma.$user_atributPayload<ExtArgs>
+        fields: Prisma.user_atributFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.user_atributFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$user_atributPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.user_atributFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$user_atributPayload>
+          }
+          findFirst: {
+            args: Prisma.user_atributFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$user_atributPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.user_atributFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$user_atributPayload>
+          }
+          findMany: {
+            args: Prisma.user_atributFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$user_atributPayload>[]
+          }
+          create: {
+            args: Prisma.user_atributCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$user_atributPayload>
+          }
+          createMany: {
+            args: Prisma.user_atributCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          delete: {
+            args: Prisma.user_atributDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$user_atributPayload>
+          }
+          update: {
+            args: Prisma.user_atributUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$user_atributPayload>
+          }
+          deleteMany: {
+            args: Prisma.user_atributDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.user_atributUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.user_atributUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$user_atributPayload>
+          }
+          aggregate: {
+            args: Prisma.User_atributAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateUser_atribut>
+          }
+          groupBy: {
+            args: Prisma.user_atributGroupByArgs<ExtArgs>
+            result: $Utils.Optional<User_atributGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.user_atributCountArgs<ExtArgs>
+            result: $Utils.Optional<User_atributCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -1130,6 +1212,7 @@ export namespace Prisma {
     messages?: messagesOmit
     conversations?: conversationsOmit
     tags?: tagsOmit
+    user_atribut?: user_atributOmit
   }
 
   /* Types for Logging */
@@ -1354,8 +1437,6 @@ export namespace Prisma {
     phone_number: number
     dial_code: number
     createdAt: number
-    special_tags: number
-    tags_used: number
     _all: number
   }
 
@@ -1399,8 +1480,6 @@ export namespace Prisma {
     phone_number?: true
     dial_code?: true
     createdAt?: true
-    special_tags?: true
-    tags_used?: true
     _all?: true
   }
 
@@ -1499,8 +1578,6 @@ export namespace Prisma {
     phone_number: string | null
     dial_code: string | null
     createdAt: Date
-    special_tags: JsonValue | null
-    tags_used: JsonValue | null
     _count: UsersCountAggregateOutputType | null
     _avg: UsersAvgAggregateOutputType | null
     _sum: UsersSumAggregateOutputType | null
@@ -1531,10 +1608,9 @@ export namespace Prisma {
     phone_number?: boolean
     dial_code?: boolean
     createdAt?: boolean
-    special_tags?: boolean
-    tags_used?: boolean
     conversationMembers?: boolean | users$conversationMembersArgs<ExtArgs>
     sentMessages?: boolean | users$sentMessagesArgs<ExtArgs>
+    user_atribut?: boolean | users$user_atributArgs<ExtArgs>
     _count?: boolean | UsersCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["users"]>
 
@@ -1549,14 +1625,13 @@ export namespace Prisma {
     phone_number?: boolean
     dial_code?: boolean
     createdAt?: boolean
-    special_tags?: boolean
-    tags_used?: boolean
   }
 
-  export type usersOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"userId" | "username" | "provider" | "email" | "email_name" | "phone_number" | "dial_code" | "createdAt" | "special_tags" | "tags_used", ExtArgs["result"]["users"]>
+  export type usersOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"userId" | "username" | "provider" | "email" | "email_name" | "phone_number" | "dial_code" | "createdAt", ExtArgs["result"]["users"]>
   export type usersInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     conversationMembers?: boolean | users$conversationMembersArgs<ExtArgs>
     sentMessages?: boolean | users$sentMessagesArgs<ExtArgs>
+    user_atribut?: boolean | users$user_atributArgs<ExtArgs>
     _count?: boolean | UsersCountOutputTypeDefaultArgs<ExtArgs>
   }
 
@@ -1565,6 +1640,7 @@ export namespace Prisma {
     objects: {
       conversationMembers: Prisma.$conversation_membersPayload<ExtArgs>[]
       sentMessages: Prisma.$messagesPayload<ExtArgs>[]
+      user_atribut: Prisma.$user_atributPayload<ExtArgs> | null
     }
     scalars: $Extensions.GetPayloadResult<{
       userId: number
@@ -1575,8 +1651,6 @@ export namespace Prisma {
       phone_number: string | null
       dial_code: string | null
       createdAt: Date
-      special_tags: Prisma.JsonValue | null
-      tags_used: Prisma.JsonValue | null
     }, ExtArgs["result"]["users"]>
     composites: {}
   }
@@ -1919,6 +1993,7 @@ export namespace Prisma {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     conversationMembers<T extends users$conversationMembersArgs<ExtArgs> = {}>(args?: Subset<T, users$conversationMembersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$conversation_membersPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     sentMessages<T extends users$sentMessagesArgs<ExtArgs> = {}>(args?: Subset<T, users$sentMessagesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$messagesPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    user_atribut<T extends users$user_atributArgs<ExtArgs> = {}>(args?: Subset<T, users$user_atributArgs<ExtArgs>>): Prisma__user_atributClient<$Result.GetResult<Prisma.$user_atributPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1956,8 +2031,6 @@ export namespace Prisma {
     readonly phone_number: FieldRef<"users", 'String'>
     readonly dial_code: FieldRef<"users", 'String'>
     readonly createdAt: FieldRef<"users", 'DateTime'>
-    readonly special_tags: FieldRef<"users", 'Json'>
-    readonly tags_used: FieldRef<"users", 'Json'>
   }
     
 
@@ -2346,6 +2419,25 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: MessagesScalarFieldEnum | MessagesScalarFieldEnum[]
+  }
+
+  /**
+   * users.user_atribut
+   */
+  export type users$user_atributArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the user_atribut
+     */
+    select?: user_atributSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the user_atribut
+     */
+    omit?: user_atributOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: user_atributInclude<ExtArgs> | null
+    where?: user_atributWhereInput
   }
 
   /**
@@ -6172,6 +6264,965 @@ export namespace Prisma {
 
 
   /**
+   * Model user_atribut
+   */
+
+  export type AggregateUser_atribut = {
+    _count: User_atributCountAggregateOutputType | null
+    _avg: User_atributAvgAggregateOutputType | null
+    _sum: User_atributSumAggregateOutputType | null
+    _min: User_atributMinAggregateOutputType | null
+    _max: User_atributMaxAggregateOutputType | null
+  }
+
+  export type User_atributAvgAggregateOutputType = {
+    id: number | null
+    userId: number | null
+  }
+
+  export type User_atributSumAggregateOutputType = {
+    id: number | null
+    userId: number | null
+  }
+
+  export type User_atributMinAggregateOutputType = {
+    id: number | null
+    userId: number | null
+    pfp_id: string | null
+  }
+
+  export type User_atributMaxAggregateOutputType = {
+    id: number | null
+    userId: number | null
+    pfp_id: string | null
+  }
+
+  export type User_atributCountAggregateOutputType = {
+    id: number
+    userId: number
+    pfp_id: number
+    tags_used: number
+    special_tags: number
+    _all: number
+  }
+
+
+  export type User_atributAvgAggregateInputType = {
+    id?: true
+    userId?: true
+  }
+
+  export type User_atributSumAggregateInputType = {
+    id?: true
+    userId?: true
+  }
+
+  export type User_atributMinAggregateInputType = {
+    id?: true
+    userId?: true
+    pfp_id?: true
+  }
+
+  export type User_atributMaxAggregateInputType = {
+    id?: true
+    userId?: true
+    pfp_id?: true
+  }
+
+  export type User_atributCountAggregateInputType = {
+    id?: true
+    userId?: true
+    pfp_id?: true
+    tags_used?: true
+    special_tags?: true
+    _all?: true
+  }
+
+  export type User_atributAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which user_atribut to aggregate.
+     */
+    where?: user_atributWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of user_atributs to fetch.
+     */
+    orderBy?: user_atributOrderByWithRelationInput | user_atributOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: user_atributWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` user_atributs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` user_atributs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned user_atributs
+    **/
+    _count?: true | User_atributCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: User_atributAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: User_atributSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: User_atributMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: User_atributMaxAggregateInputType
+  }
+
+  export type GetUser_atributAggregateType<T extends User_atributAggregateArgs> = {
+        [P in keyof T & keyof AggregateUser_atribut]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateUser_atribut[P]>
+      : GetScalarType<T[P], AggregateUser_atribut[P]>
+  }
+
+
+
+
+  export type user_atributGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: user_atributWhereInput
+    orderBy?: user_atributOrderByWithAggregationInput | user_atributOrderByWithAggregationInput[]
+    by: User_atributScalarFieldEnum[] | User_atributScalarFieldEnum
+    having?: user_atributScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: User_atributCountAggregateInputType | true
+    _avg?: User_atributAvgAggregateInputType
+    _sum?: User_atributSumAggregateInputType
+    _min?: User_atributMinAggregateInputType
+    _max?: User_atributMaxAggregateInputType
+  }
+
+  export type User_atributGroupByOutputType = {
+    id: number
+    userId: number
+    pfp_id: string | null
+    tags_used: JsonValue | null
+    special_tags: JsonValue | null
+    _count: User_atributCountAggregateOutputType | null
+    _avg: User_atributAvgAggregateOutputType | null
+    _sum: User_atributSumAggregateOutputType | null
+    _min: User_atributMinAggregateOutputType | null
+    _max: User_atributMaxAggregateOutputType | null
+  }
+
+  type GetUser_atributGroupByPayload<T extends user_atributGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<User_atributGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof User_atributGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], User_atributGroupByOutputType[P]>
+            : GetScalarType<T[P], User_atributGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type user_atributSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    pfp_id?: boolean
+    tags_used?: boolean
+    special_tags?: boolean
+    users?: boolean | usersDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["user_atribut"]>
+
+
+
+  export type user_atributSelectScalar = {
+    id?: boolean
+    userId?: boolean
+    pfp_id?: boolean
+    tags_used?: boolean
+    special_tags?: boolean
+  }
+
+  export type user_atributOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "pfp_id" | "tags_used" | "special_tags", ExtArgs["result"]["user_atribut"]>
+  export type user_atributInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    users?: boolean | usersDefaultArgs<ExtArgs>
+  }
+
+  export type $user_atributPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "user_atribut"
+    objects: {
+      users: Prisma.$usersPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: number
+      userId: number
+      pfp_id: string | null
+      tags_used: Prisma.JsonValue | null
+      special_tags: Prisma.JsonValue | null
+    }, ExtArgs["result"]["user_atribut"]>
+    composites: {}
+  }
+
+  type user_atributGetPayload<S extends boolean | null | undefined | user_atributDefaultArgs> = $Result.GetResult<Prisma.$user_atributPayload, S>
+
+  type user_atributCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<user_atributFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: User_atributCountAggregateInputType | true
+    }
+
+  export interface user_atributDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['user_atribut'], meta: { name: 'user_atribut' } }
+    /**
+     * Find zero or one User_atribut that matches the filter.
+     * @param {user_atributFindUniqueArgs} args - Arguments to find a User_atribut
+     * @example
+     * // Get one User_atribut
+     * const user_atribut = await prisma.user_atribut.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends user_atributFindUniqueArgs>(args: SelectSubset<T, user_atributFindUniqueArgs<ExtArgs>>): Prisma__user_atributClient<$Result.GetResult<Prisma.$user_atributPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one User_atribut that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {user_atributFindUniqueOrThrowArgs} args - Arguments to find a User_atribut
+     * @example
+     * // Get one User_atribut
+     * const user_atribut = await prisma.user_atribut.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends user_atributFindUniqueOrThrowArgs>(args: SelectSubset<T, user_atributFindUniqueOrThrowArgs<ExtArgs>>): Prisma__user_atributClient<$Result.GetResult<Prisma.$user_atributPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first User_atribut that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {user_atributFindFirstArgs} args - Arguments to find a User_atribut
+     * @example
+     * // Get one User_atribut
+     * const user_atribut = await prisma.user_atribut.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends user_atributFindFirstArgs>(args?: SelectSubset<T, user_atributFindFirstArgs<ExtArgs>>): Prisma__user_atributClient<$Result.GetResult<Prisma.$user_atributPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first User_atribut that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {user_atributFindFirstOrThrowArgs} args - Arguments to find a User_atribut
+     * @example
+     * // Get one User_atribut
+     * const user_atribut = await prisma.user_atribut.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends user_atributFindFirstOrThrowArgs>(args?: SelectSubset<T, user_atributFindFirstOrThrowArgs<ExtArgs>>): Prisma__user_atributClient<$Result.GetResult<Prisma.$user_atributPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more User_atributs that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {user_atributFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all User_atributs
+     * const user_atributs = await prisma.user_atribut.findMany()
+     * 
+     * // Get first 10 User_atributs
+     * const user_atributs = await prisma.user_atribut.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const user_atributWithIdOnly = await prisma.user_atribut.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends user_atributFindManyArgs>(args?: SelectSubset<T, user_atributFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$user_atributPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a User_atribut.
+     * @param {user_atributCreateArgs} args - Arguments to create a User_atribut.
+     * @example
+     * // Create one User_atribut
+     * const User_atribut = await prisma.user_atribut.create({
+     *   data: {
+     *     // ... data to create a User_atribut
+     *   }
+     * })
+     * 
+     */
+    create<T extends user_atributCreateArgs>(args: SelectSubset<T, user_atributCreateArgs<ExtArgs>>): Prisma__user_atributClient<$Result.GetResult<Prisma.$user_atributPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many User_atributs.
+     * @param {user_atributCreateManyArgs} args - Arguments to create many User_atributs.
+     * @example
+     * // Create many User_atributs
+     * const user_atribut = await prisma.user_atribut.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends user_atributCreateManyArgs>(args?: SelectSubset<T, user_atributCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Delete a User_atribut.
+     * @param {user_atributDeleteArgs} args - Arguments to delete one User_atribut.
+     * @example
+     * // Delete one User_atribut
+     * const User_atribut = await prisma.user_atribut.delete({
+     *   where: {
+     *     // ... filter to delete one User_atribut
+     *   }
+     * })
+     * 
+     */
+    delete<T extends user_atributDeleteArgs>(args: SelectSubset<T, user_atributDeleteArgs<ExtArgs>>): Prisma__user_atributClient<$Result.GetResult<Prisma.$user_atributPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one User_atribut.
+     * @param {user_atributUpdateArgs} args - Arguments to update one User_atribut.
+     * @example
+     * // Update one User_atribut
+     * const user_atribut = await prisma.user_atribut.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends user_atributUpdateArgs>(args: SelectSubset<T, user_atributUpdateArgs<ExtArgs>>): Prisma__user_atributClient<$Result.GetResult<Prisma.$user_atributPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more User_atributs.
+     * @param {user_atributDeleteManyArgs} args - Arguments to filter User_atributs to delete.
+     * @example
+     * // Delete a few User_atributs
+     * const { count } = await prisma.user_atribut.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends user_atributDeleteManyArgs>(args?: SelectSubset<T, user_atributDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more User_atributs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {user_atributUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many User_atributs
+     * const user_atribut = await prisma.user_atribut.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends user_atributUpdateManyArgs>(args: SelectSubset<T, user_atributUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one User_atribut.
+     * @param {user_atributUpsertArgs} args - Arguments to update or create a User_atribut.
+     * @example
+     * // Update or create a User_atribut
+     * const user_atribut = await prisma.user_atribut.upsert({
+     *   create: {
+     *     // ... data to create a User_atribut
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the User_atribut we want to update
+     *   }
+     * })
+     */
+    upsert<T extends user_atributUpsertArgs>(args: SelectSubset<T, user_atributUpsertArgs<ExtArgs>>): Prisma__user_atributClient<$Result.GetResult<Prisma.$user_atributPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of User_atributs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {user_atributCountArgs} args - Arguments to filter User_atributs to count.
+     * @example
+     * // Count the number of User_atributs
+     * const count = await prisma.user_atribut.count({
+     *   where: {
+     *     // ... the filter for the User_atributs we want to count
+     *   }
+     * })
+    **/
+    count<T extends user_atributCountArgs>(
+      args?: Subset<T, user_atributCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], User_atributCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a User_atribut.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {User_atributAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends User_atributAggregateArgs>(args: Subset<T, User_atributAggregateArgs>): Prisma.PrismaPromise<GetUser_atributAggregateType<T>>
+
+    /**
+     * Group by User_atribut.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {user_atributGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends user_atributGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: user_atributGroupByArgs['orderBy'] }
+        : { orderBy?: user_atributGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, user_atributGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetUser_atributGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the user_atribut model
+   */
+  readonly fields: user_atributFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for user_atribut.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__user_atributClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    users<T extends usersDefaultArgs<ExtArgs> = {}>(args?: Subset<T, usersDefaultArgs<ExtArgs>>): Prisma__usersClient<$Result.GetResult<Prisma.$usersPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the user_atribut model
+   */
+  interface user_atributFieldRefs {
+    readonly id: FieldRef<"user_atribut", 'Int'>
+    readonly userId: FieldRef<"user_atribut", 'Int'>
+    readonly pfp_id: FieldRef<"user_atribut", 'String'>
+    readonly tags_used: FieldRef<"user_atribut", 'Json'>
+    readonly special_tags: FieldRef<"user_atribut", 'Json'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * user_atribut findUnique
+   */
+  export type user_atributFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the user_atribut
+     */
+    select?: user_atributSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the user_atribut
+     */
+    omit?: user_atributOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: user_atributInclude<ExtArgs> | null
+    /**
+     * Filter, which user_atribut to fetch.
+     */
+    where: user_atributWhereUniqueInput
+  }
+
+  /**
+   * user_atribut findUniqueOrThrow
+   */
+  export type user_atributFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the user_atribut
+     */
+    select?: user_atributSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the user_atribut
+     */
+    omit?: user_atributOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: user_atributInclude<ExtArgs> | null
+    /**
+     * Filter, which user_atribut to fetch.
+     */
+    where: user_atributWhereUniqueInput
+  }
+
+  /**
+   * user_atribut findFirst
+   */
+  export type user_atributFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the user_atribut
+     */
+    select?: user_atributSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the user_atribut
+     */
+    omit?: user_atributOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: user_atributInclude<ExtArgs> | null
+    /**
+     * Filter, which user_atribut to fetch.
+     */
+    where?: user_atributWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of user_atributs to fetch.
+     */
+    orderBy?: user_atributOrderByWithRelationInput | user_atributOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for user_atributs.
+     */
+    cursor?: user_atributWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` user_atributs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` user_atributs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of user_atributs.
+     */
+    distinct?: User_atributScalarFieldEnum | User_atributScalarFieldEnum[]
+  }
+
+  /**
+   * user_atribut findFirstOrThrow
+   */
+  export type user_atributFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the user_atribut
+     */
+    select?: user_atributSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the user_atribut
+     */
+    omit?: user_atributOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: user_atributInclude<ExtArgs> | null
+    /**
+     * Filter, which user_atribut to fetch.
+     */
+    where?: user_atributWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of user_atributs to fetch.
+     */
+    orderBy?: user_atributOrderByWithRelationInput | user_atributOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for user_atributs.
+     */
+    cursor?: user_atributWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` user_atributs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` user_atributs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of user_atributs.
+     */
+    distinct?: User_atributScalarFieldEnum | User_atributScalarFieldEnum[]
+  }
+
+  /**
+   * user_atribut findMany
+   */
+  export type user_atributFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the user_atribut
+     */
+    select?: user_atributSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the user_atribut
+     */
+    omit?: user_atributOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: user_atributInclude<ExtArgs> | null
+    /**
+     * Filter, which user_atributs to fetch.
+     */
+    where?: user_atributWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of user_atributs to fetch.
+     */
+    orderBy?: user_atributOrderByWithRelationInput | user_atributOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing user_atributs.
+     */
+    cursor?: user_atributWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` user_atributs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` user_atributs.
+     */
+    skip?: number
+    distinct?: User_atributScalarFieldEnum | User_atributScalarFieldEnum[]
+  }
+
+  /**
+   * user_atribut create
+   */
+  export type user_atributCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the user_atribut
+     */
+    select?: user_atributSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the user_atribut
+     */
+    omit?: user_atributOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: user_atributInclude<ExtArgs> | null
+    /**
+     * The data needed to create a user_atribut.
+     */
+    data: XOR<user_atributCreateInput, user_atributUncheckedCreateInput>
+  }
+
+  /**
+   * user_atribut createMany
+   */
+  export type user_atributCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many user_atributs.
+     */
+    data: user_atributCreateManyInput | user_atributCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * user_atribut update
+   */
+  export type user_atributUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the user_atribut
+     */
+    select?: user_atributSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the user_atribut
+     */
+    omit?: user_atributOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: user_atributInclude<ExtArgs> | null
+    /**
+     * The data needed to update a user_atribut.
+     */
+    data: XOR<user_atributUpdateInput, user_atributUncheckedUpdateInput>
+    /**
+     * Choose, which user_atribut to update.
+     */
+    where: user_atributWhereUniqueInput
+  }
+
+  /**
+   * user_atribut updateMany
+   */
+  export type user_atributUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update user_atributs.
+     */
+    data: XOR<user_atributUpdateManyMutationInput, user_atributUncheckedUpdateManyInput>
+    /**
+     * Filter which user_atributs to update
+     */
+    where?: user_atributWhereInput
+    /**
+     * Limit how many user_atributs to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * user_atribut upsert
+   */
+  export type user_atributUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the user_atribut
+     */
+    select?: user_atributSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the user_atribut
+     */
+    omit?: user_atributOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: user_atributInclude<ExtArgs> | null
+    /**
+     * The filter to search for the user_atribut to update in case it exists.
+     */
+    where: user_atributWhereUniqueInput
+    /**
+     * In case the user_atribut found by the `where` argument doesn't exist, create a new user_atribut with this data.
+     */
+    create: XOR<user_atributCreateInput, user_atributUncheckedCreateInput>
+    /**
+     * In case the user_atribut was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<user_atributUpdateInput, user_atributUncheckedUpdateInput>
+  }
+
+  /**
+   * user_atribut delete
+   */
+  export type user_atributDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the user_atribut
+     */
+    select?: user_atributSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the user_atribut
+     */
+    omit?: user_atributOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: user_atributInclude<ExtArgs> | null
+    /**
+     * Filter which user_atribut to delete.
+     */
+    where: user_atributWhereUniqueInput
+  }
+
+  /**
+   * user_atribut deleteMany
+   */
+  export type user_atributDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which user_atributs to delete
+     */
+    where?: user_atributWhereInput
+    /**
+     * Limit how many user_atributs to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * user_atribut without action
+   */
+  export type user_atributDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the user_atribut
+     */
+    select?: user_atributSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the user_atribut
+     */
+    omit?: user_atributOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: user_atributInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -6193,9 +7244,7 @@ export namespace Prisma {
     email_name: 'email_name',
     phone_number: 'phone_number',
     dial_code: 'dial_code',
-    createdAt: 'createdAt',
-    special_tags: 'special_tags',
-    tags_used: 'tags_used'
+    createdAt: 'createdAt'
   };
 
   export type UsersScalarFieldEnum = (typeof UsersScalarFieldEnum)[keyof typeof UsersScalarFieldEnum]
@@ -6242,6 +7291,17 @@ export namespace Prisma {
   export type TagsScalarFieldEnum = (typeof TagsScalarFieldEnum)[keyof typeof TagsScalarFieldEnum]
 
 
+  export const User_atributScalarFieldEnum: {
+    id: 'id',
+    userId: 'userId',
+    pfp_id: 'pfp_id',
+    tags_used: 'tags_used',
+    special_tags: 'special_tags'
+  };
+
+  export type User_atributScalarFieldEnum = (typeof User_atributScalarFieldEnum)[keyof typeof User_atributScalarFieldEnum]
+
+
   export const SortOrder: {
     asc: 'asc',
     desc: 'desc'
@@ -6256,23 +7316,6 @@ export namespace Prisma {
   };
 
   export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
-
-
-  export const JsonNullValueFilter: {
-    DbNull: typeof DbNull,
-    JsonNull: typeof JsonNull,
-    AnyNull: typeof AnyNull
-  };
-
-  export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter]
-
-
-  export const QueryMode: {
-    default: 'default',
-    insensitive: 'insensitive'
-  };
-
-  export type QueryMode = (typeof QueryMode)[keyof typeof QueryMode]
 
 
   export const NullsOrder: {
@@ -6326,6 +7369,30 @@ export namespace Prisma {
   export type tagsOrderByRelevanceFieldEnum = (typeof tagsOrderByRelevanceFieldEnum)[keyof typeof tagsOrderByRelevanceFieldEnum]
 
 
+  export const JsonNullValueFilter: {
+    DbNull: typeof DbNull,
+    JsonNull: typeof JsonNull,
+    AnyNull: typeof AnyNull
+  };
+
+  export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter]
+
+
+  export const QueryMode: {
+    default: 'default',
+    insensitive: 'insensitive'
+  };
+
+  export type QueryMode = (typeof QueryMode)[keyof typeof QueryMode]
+
+
+  export const user_atributOrderByRelevanceFieldEnum: {
+    pfp_id: 'pfp_id'
+  };
+
+  export type user_atributOrderByRelevanceFieldEnum = (typeof user_atributOrderByRelevanceFieldEnum)[keyof typeof user_atributOrderByRelevanceFieldEnum]
+
+
   /**
    * Field references
    */
@@ -6353,20 +7420,6 @@ export namespace Prisma {
 
 
   /**
-   * Reference to a field of type 'Json'
-   */
-  export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>
-    
-
-
-  /**
-   * Reference to a field of type 'QueryMode'
-   */
-  export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
-    
-
-
-  /**
    * Reference to a field of type 'messages_status'
    */
   export type Enummessages_statusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'messages_status'>
@@ -6384,6 +7437,20 @@ export namespace Prisma {
    * Reference to a field of type 'tags_tier'
    */
   export type Enumtags_tierFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'tags_tier'>
+    
+
+
+  /**
+   * Reference to a field of type 'Json'
+   */
+  export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>
+    
+
+
+  /**
+   * Reference to a field of type 'QueryMode'
+   */
+  export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
     
 
 
@@ -6409,10 +7476,9 @@ export namespace Prisma {
     phone_number?: StringNullableFilter<"users"> | string | null
     dial_code?: StringNullableFilter<"users"> | string | null
     createdAt?: DateTimeFilter<"users"> | Date | string
-    special_tags?: JsonNullableFilter<"users">
-    tags_used?: JsonNullableFilter<"users">
     conversationMembers?: Conversation_membersListRelationFilter
     sentMessages?: MessagesListRelationFilter
+    user_atribut?: XOR<User_atributNullableScalarRelationFilter, user_atributWhereInput> | null
   }
 
   export type usersOrderByWithRelationInput = {
@@ -6424,10 +7490,9 @@ export namespace Prisma {
     phone_number?: SortOrderInput | SortOrder
     dial_code?: SortOrderInput | SortOrder
     createdAt?: SortOrder
-    special_tags?: SortOrderInput | SortOrder
-    tags_used?: SortOrderInput | SortOrder
     conversationMembers?: conversation_membersOrderByRelationAggregateInput
     sentMessages?: messagesOrderByRelationAggregateInput
+    user_atribut?: user_atributOrderByWithRelationInput
     _relevance?: usersOrderByRelevanceInput
   }
 
@@ -6443,10 +7508,9 @@ export namespace Prisma {
     email_name?: StringNullableFilter<"users"> | string | null
     dial_code?: StringNullableFilter<"users"> | string | null
     createdAt?: DateTimeFilter<"users"> | Date | string
-    special_tags?: JsonNullableFilter<"users">
-    tags_used?: JsonNullableFilter<"users">
     conversationMembers?: Conversation_membersListRelationFilter
     sentMessages?: MessagesListRelationFilter
+    user_atribut?: XOR<User_atributNullableScalarRelationFilter, user_atributWhereInput> | null
   }, "userId" | "username" | "email" | "phone_number">
 
   export type usersOrderByWithAggregationInput = {
@@ -6458,8 +7522,6 @@ export namespace Prisma {
     phone_number?: SortOrderInput | SortOrder
     dial_code?: SortOrderInput | SortOrder
     createdAt?: SortOrder
-    special_tags?: SortOrderInput | SortOrder
-    tags_used?: SortOrderInput | SortOrder
     _count?: usersCountOrderByAggregateInput
     _avg?: usersAvgOrderByAggregateInput
     _max?: usersMaxOrderByAggregateInput
@@ -6479,8 +7541,6 @@ export namespace Prisma {
     phone_number?: StringNullableWithAggregatesFilter<"users"> | string | null
     dial_code?: StringNullableWithAggregatesFilter<"users"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"users"> | Date | string
-    special_tags?: JsonNullableWithAggregatesFilter<"users">
-    tags_used?: JsonNullableWithAggregatesFilter<"users">
   }
 
   export type conversation_membersWhereInput = {
@@ -6705,6 +7765,64 @@ export namespace Prisma {
     tier?: Enumtags_tierWithAggregatesFilter<"tags"> | $Enums.tags_tier
   }
 
+  export type user_atributWhereInput = {
+    AND?: user_atributWhereInput | user_atributWhereInput[]
+    OR?: user_atributWhereInput[]
+    NOT?: user_atributWhereInput | user_atributWhereInput[]
+    id?: IntFilter<"user_atribut"> | number
+    userId?: IntFilter<"user_atribut"> | number
+    pfp_id?: StringNullableFilter<"user_atribut"> | string | null
+    tags_used?: JsonNullableFilter<"user_atribut">
+    special_tags?: JsonNullableFilter<"user_atribut">
+    users?: XOR<UsersScalarRelationFilter, usersWhereInput>
+  }
+
+  export type user_atributOrderByWithRelationInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    pfp_id?: SortOrderInput | SortOrder
+    tags_used?: SortOrderInput | SortOrder
+    special_tags?: SortOrderInput | SortOrder
+    users?: usersOrderByWithRelationInput
+    _relevance?: user_atributOrderByRelevanceInput
+  }
+
+  export type user_atributWhereUniqueInput = Prisma.AtLeast<{
+    id?: number
+    userId?: number
+    AND?: user_atributWhereInput | user_atributWhereInput[]
+    OR?: user_atributWhereInput[]
+    NOT?: user_atributWhereInput | user_atributWhereInput[]
+    pfp_id?: StringNullableFilter<"user_atribut"> | string | null
+    tags_used?: JsonNullableFilter<"user_atribut">
+    special_tags?: JsonNullableFilter<"user_atribut">
+    users?: XOR<UsersScalarRelationFilter, usersWhereInput>
+  }, "id" | "userId">
+
+  export type user_atributOrderByWithAggregationInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    pfp_id?: SortOrderInput | SortOrder
+    tags_used?: SortOrderInput | SortOrder
+    special_tags?: SortOrderInput | SortOrder
+    _count?: user_atributCountOrderByAggregateInput
+    _avg?: user_atributAvgOrderByAggregateInput
+    _max?: user_atributMaxOrderByAggregateInput
+    _min?: user_atributMinOrderByAggregateInput
+    _sum?: user_atributSumOrderByAggregateInput
+  }
+
+  export type user_atributScalarWhereWithAggregatesInput = {
+    AND?: user_atributScalarWhereWithAggregatesInput | user_atributScalarWhereWithAggregatesInput[]
+    OR?: user_atributScalarWhereWithAggregatesInput[]
+    NOT?: user_atributScalarWhereWithAggregatesInput | user_atributScalarWhereWithAggregatesInput[]
+    id?: IntWithAggregatesFilter<"user_atribut"> | number
+    userId?: IntWithAggregatesFilter<"user_atribut"> | number
+    pfp_id?: StringNullableWithAggregatesFilter<"user_atribut"> | string | null
+    tags_used?: JsonNullableWithAggregatesFilter<"user_atribut">
+    special_tags?: JsonNullableWithAggregatesFilter<"user_atribut">
+  }
+
   export type usersCreateInput = {
     username?: string | null
     provider: string
@@ -6713,10 +7831,9 @@ export namespace Prisma {
     phone_number?: string | null
     dial_code?: string | null
     createdAt: Date | string
-    special_tags?: NullableJsonNullValueInput | InputJsonValue
-    tags_used?: NullableJsonNullValueInput | InputJsonValue
     conversationMembers?: conversation_membersCreateNestedManyWithoutUserInput
     sentMessages?: messagesCreateNestedManyWithoutSenderInput
+    user_atribut?: user_atributCreateNestedOneWithoutUsersInput
   }
 
   export type usersUncheckedCreateInput = {
@@ -6728,10 +7845,9 @@ export namespace Prisma {
     phone_number?: string | null
     dial_code?: string | null
     createdAt: Date | string
-    special_tags?: NullableJsonNullValueInput | InputJsonValue
-    tags_used?: NullableJsonNullValueInput | InputJsonValue
     conversationMembers?: conversation_membersUncheckedCreateNestedManyWithoutUserInput
     sentMessages?: messagesUncheckedCreateNestedManyWithoutSenderInput
+    user_atribut?: user_atributUncheckedCreateNestedOneWithoutUsersInput
   }
 
   export type usersUpdateInput = {
@@ -6742,10 +7858,9 @@ export namespace Prisma {
     phone_number?: NullableStringFieldUpdateOperationsInput | string | null
     dial_code?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    special_tags?: NullableJsonNullValueInput | InputJsonValue
-    tags_used?: NullableJsonNullValueInput | InputJsonValue
     conversationMembers?: conversation_membersUpdateManyWithoutUserNestedInput
     sentMessages?: messagesUpdateManyWithoutSenderNestedInput
+    user_atribut?: user_atributUpdateOneWithoutUsersNestedInput
   }
 
   export type usersUncheckedUpdateInput = {
@@ -6757,10 +7872,9 @@ export namespace Prisma {
     phone_number?: NullableStringFieldUpdateOperationsInput | string | null
     dial_code?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    special_tags?: NullableJsonNullValueInput | InputJsonValue
-    tags_used?: NullableJsonNullValueInput | InputJsonValue
     conversationMembers?: conversation_membersUncheckedUpdateManyWithoutUserNestedInput
     sentMessages?: messagesUncheckedUpdateManyWithoutSenderNestedInput
+    user_atribut?: user_atributUncheckedUpdateOneWithoutUsersNestedInput
   }
 
   export type usersCreateManyInput = {
@@ -6772,8 +7886,6 @@ export namespace Prisma {
     phone_number?: string | null
     dial_code?: string | null
     createdAt: Date | string
-    special_tags?: NullableJsonNullValueInput | InputJsonValue
-    tags_used?: NullableJsonNullValueInput | InputJsonValue
   }
 
   export type usersUpdateManyMutationInput = {
@@ -6784,8 +7896,6 @@ export namespace Prisma {
     phone_number?: NullableStringFieldUpdateOperationsInput | string | null
     dial_code?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    special_tags?: NullableJsonNullValueInput | InputJsonValue
-    tags_used?: NullableJsonNullValueInput | InputJsonValue
   }
 
   export type usersUncheckedUpdateManyInput = {
@@ -6797,8 +7907,6 @@ export namespace Prisma {
     phone_number?: NullableStringFieldUpdateOperationsInput | string | null
     dial_code?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    special_tags?: NullableJsonNullValueInput | InputJsonValue
-    tags_used?: NullableJsonNullValueInput | InputJsonValue
   }
 
   export type conversation_membersCreateInput = {
@@ -7002,6 +8110,58 @@ export namespace Prisma {
     tier?: Enumtags_tierFieldUpdateOperationsInput | $Enums.tags_tier
   }
 
+  export type user_atributCreateInput = {
+    pfp_id?: string | null
+    tags_used?: NullableJsonNullValueInput | InputJsonValue
+    special_tags?: NullableJsonNullValueInput | InputJsonValue
+    users: usersCreateNestedOneWithoutUser_atributInput
+  }
+
+  export type user_atributUncheckedCreateInput = {
+    id?: number
+    userId: number
+    pfp_id?: string | null
+    tags_used?: NullableJsonNullValueInput | InputJsonValue
+    special_tags?: NullableJsonNullValueInput | InputJsonValue
+  }
+
+  export type user_atributUpdateInput = {
+    pfp_id?: NullableStringFieldUpdateOperationsInput | string | null
+    tags_used?: NullableJsonNullValueInput | InputJsonValue
+    special_tags?: NullableJsonNullValueInput | InputJsonValue
+    users?: usersUpdateOneRequiredWithoutUser_atributNestedInput
+  }
+
+  export type user_atributUncheckedUpdateInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    userId?: IntFieldUpdateOperationsInput | number
+    pfp_id?: NullableStringFieldUpdateOperationsInput | string | null
+    tags_used?: NullableJsonNullValueInput | InputJsonValue
+    special_tags?: NullableJsonNullValueInput | InputJsonValue
+  }
+
+  export type user_atributCreateManyInput = {
+    id?: number
+    userId: number
+    pfp_id?: string | null
+    tags_used?: NullableJsonNullValueInput | InputJsonValue
+    special_tags?: NullableJsonNullValueInput | InputJsonValue
+  }
+
+  export type user_atributUpdateManyMutationInput = {
+    pfp_id?: NullableStringFieldUpdateOperationsInput | string | null
+    tags_used?: NullableJsonNullValueInput | InputJsonValue
+    special_tags?: NullableJsonNullValueInput | InputJsonValue
+  }
+
+  export type user_atributUncheckedUpdateManyInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    userId?: IntFieldUpdateOperationsInput | number
+    pfp_id?: NullableStringFieldUpdateOperationsInput | string | null
+    tags_used?: NullableJsonNullValueInput | InputJsonValue
+    special_tags?: NullableJsonNullValueInput | InputJsonValue
+  }
+
   export type IntFilter<$PrismaModel = never> = {
     equals?: number | IntFieldRefInput<$PrismaModel>
     in?: number[]
@@ -7053,29 +8213,6 @@ export namespace Prisma {
     gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     not?: NestedDateTimeFilter<$PrismaModel> | Date | string
   }
-  export type JsonNullableFilter<$PrismaModel = never> =
-    | PatchUndefined<
-        Either<Required<JsonNullableFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonNullableFilterBase<$PrismaModel>>, 'path'>>,
-        Required<JsonNullableFilterBase<$PrismaModel>>
-      >
-    | OptionalFlat<Omit<Required<JsonNullableFilterBase<$PrismaModel>>, 'path'>>
-
-  export type JsonNullableFilterBase<$PrismaModel = never> = {
-    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-    path?: string
-    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
-    string_contains?: string | StringFieldRefInput<$PrismaModel>
-    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
-    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
-    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    lt?: InputJsonValue
-    lte?: InputJsonValue
-    gt?: InputJsonValue
-    gte?: InputJsonValue
-    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-  }
 
   export type Conversation_membersListRelationFilter = {
     every?: conversation_membersWhereInput
@@ -7087,6 +8224,11 @@ export namespace Prisma {
     every?: messagesWhereInput
     some?: messagesWhereInput
     none?: messagesWhereInput
+  }
+
+  export type User_atributNullableScalarRelationFilter = {
+    is?: user_atributWhereInput | null
+    isNot?: user_atributWhereInput | null
   }
 
   export type SortOrderInput = {
@@ -7117,8 +8259,6 @@ export namespace Prisma {
     phone_number?: SortOrder
     dial_code?: SortOrder
     createdAt?: SortOrder
-    special_tags?: SortOrder
-    tags_used?: SortOrder
   }
 
   export type usersAvgOrderByAggregateInput = {
@@ -7215,32 +8355,6 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedDateTimeFilter<$PrismaModel>
     _max?: NestedDateTimeFilter<$PrismaModel>
-  }
-  export type JsonNullableWithAggregatesFilter<$PrismaModel = never> =
-    | PatchUndefined<
-        Either<Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, 'path'>>,
-        Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>
-      >
-    | OptionalFlat<Omit<Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, 'path'>>
-
-  export type JsonNullableWithAggregatesFilterBase<$PrismaModel = never> = {
-    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-    path?: string
-    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
-    string_contains?: string | StringFieldRefInput<$PrismaModel>
-    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
-    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
-    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    lt?: InputJsonValue
-    lte?: InputJsonValue
-    gt?: InputJsonValue
-    gte?: InputJsonValue
-    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _min?: NestedJsonNullableFilter<$PrismaModel>
-    _max?: NestedJsonNullableFilter<$PrismaModel>
   }
 
   export type UsersScalarRelationFilter = {
@@ -7441,6 +8555,91 @@ export namespace Prisma {
     _min?: NestedEnumtags_tierFilter<$PrismaModel>
     _max?: NestedEnumtags_tierFilter<$PrismaModel>
   }
+  export type JsonNullableFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<JsonNullableFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonNullableFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonNullableFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonNullableFilterBase<$PrismaModel>>, 'path'>>
+
+  export type JsonNullableFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue
+    lte?: InputJsonValue
+    gt?: InputJsonValue
+    gte?: InputJsonValue
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+  }
+
+  export type user_atributOrderByRelevanceInput = {
+    fields: user_atributOrderByRelevanceFieldEnum | user_atributOrderByRelevanceFieldEnum[]
+    sort: SortOrder
+    search: string
+  }
+
+  export type user_atributCountOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    pfp_id?: SortOrder
+    tags_used?: SortOrder
+    special_tags?: SortOrder
+  }
+
+  export type user_atributAvgOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+  }
+
+  export type user_atributMaxOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    pfp_id?: SortOrder
+  }
+
+  export type user_atributMinOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    pfp_id?: SortOrder
+  }
+
+  export type user_atributSumOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+  }
+  export type JsonNullableWithAggregatesFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, 'path'>>
+
+  export type JsonNullableWithAggregatesFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue
+    lte?: InputJsonValue
+    gt?: InputJsonValue
+    gte?: InputJsonValue
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedJsonNullableFilter<$PrismaModel>
+    _max?: NestedJsonNullableFilter<$PrismaModel>
+  }
 
   export type conversation_membersCreateNestedManyWithoutUserInput = {
     create?: XOR<conversation_membersCreateWithoutUserInput, conversation_membersUncheckedCreateWithoutUserInput> | conversation_membersCreateWithoutUserInput[] | conversation_membersUncheckedCreateWithoutUserInput[]
@@ -7456,6 +8655,12 @@ export namespace Prisma {
     connect?: messagesWhereUniqueInput | messagesWhereUniqueInput[]
   }
 
+  export type user_atributCreateNestedOneWithoutUsersInput = {
+    create?: XOR<user_atributCreateWithoutUsersInput, user_atributUncheckedCreateWithoutUsersInput>
+    connectOrCreate?: user_atributCreateOrConnectWithoutUsersInput
+    connect?: user_atributWhereUniqueInput
+  }
+
   export type conversation_membersUncheckedCreateNestedManyWithoutUserInput = {
     create?: XOR<conversation_membersCreateWithoutUserInput, conversation_membersUncheckedCreateWithoutUserInput> | conversation_membersCreateWithoutUserInput[] | conversation_membersUncheckedCreateWithoutUserInput[]
     connectOrCreate?: conversation_membersCreateOrConnectWithoutUserInput | conversation_membersCreateOrConnectWithoutUserInput[]
@@ -7468,6 +8673,12 @@ export namespace Prisma {
     connectOrCreate?: messagesCreateOrConnectWithoutSenderInput | messagesCreateOrConnectWithoutSenderInput[]
     createMany?: messagesCreateManySenderInputEnvelope
     connect?: messagesWhereUniqueInput | messagesWhereUniqueInput[]
+  }
+
+  export type user_atributUncheckedCreateNestedOneWithoutUsersInput = {
+    create?: XOR<user_atributCreateWithoutUsersInput, user_atributUncheckedCreateWithoutUsersInput>
+    connectOrCreate?: user_atributCreateOrConnectWithoutUsersInput
+    connect?: user_atributWhereUniqueInput
   }
 
   export type NullableStringFieldUpdateOperationsInput = {
@@ -7510,6 +8721,16 @@ export namespace Prisma {
     deleteMany?: messagesScalarWhereInput | messagesScalarWhereInput[]
   }
 
+  export type user_atributUpdateOneWithoutUsersNestedInput = {
+    create?: XOR<user_atributCreateWithoutUsersInput, user_atributUncheckedCreateWithoutUsersInput>
+    connectOrCreate?: user_atributCreateOrConnectWithoutUsersInput
+    upsert?: user_atributUpsertWithoutUsersInput
+    disconnect?: user_atributWhereInput | boolean
+    delete?: user_atributWhereInput | boolean
+    connect?: user_atributWhereUniqueInput
+    update?: XOR<XOR<user_atributUpdateToOneWithWhereWithoutUsersInput, user_atributUpdateWithoutUsersInput>, user_atributUncheckedUpdateWithoutUsersInput>
+  }
+
   export type IntFieldUpdateOperationsInput = {
     set?: number
     increment?: number
@@ -7544,6 +8765,16 @@ export namespace Prisma {
     update?: messagesUpdateWithWhereUniqueWithoutSenderInput | messagesUpdateWithWhereUniqueWithoutSenderInput[]
     updateMany?: messagesUpdateManyWithWhereWithoutSenderInput | messagesUpdateManyWithWhereWithoutSenderInput[]
     deleteMany?: messagesScalarWhereInput | messagesScalarWhereInput[]
+  }
+
+  export type user_atributUncheckedUpdateOneWithoutUsersNestedInput = {
+    create?: XOR<user_atributCreateWithoutUsersInput, user_atributUncheckedCreateWithoutUsersInput>
+    connectOrCreate?: user_atributCreateOrConnectWithoutUsersInput
+    upsert?: user_atributUpsertWithoutUsersInput
+    disconnect?: user_atributWhereInput | boolean
+    delete?: user_atributWhereInput | boolean
+    connect?: user_atributWhereUniqueInput
+    update?: XOR<XOR<user_atributUpdateToOneWithWhereWithoutUsersInput, user_atributUpdateWithoutUsersInput>, user_atributUncheckedUpdateWithoutUsersInput>
   }
 
   export type usersCreateNestedOneWithoutConversationMembersInput = {
@@ -7698,6 +8929,20 @@ export namespace Prisma {
     set?: $Enums.tags_tier
   }
 
+  export type usersCreateNestedOneWithoutUser_atributInput = {
+    create?: XOR<usersCreateWithoutUser_atributInput, usersUncheckedCreateWithoutUser_atributInput>
+    connectOrCreate?: usersCreateOrConnectWithoutUser_atributInput
+    connect?: usersWhereUniqueInput
+  }
+
+  export type usersUpdateOneRequiredWithoutUser_atributNestedInput = {
+    create?: XOR<usersCreateWithoutUser_atributInput, usersUncheckedCreateWithoutUser_atributInput>
+    connectOrCreate?: usersCreateOrConnectWithoutUser_atributInput
+    upsert?: usersUpsertWithoutUser_atributInput
+    connect?: usersWhereUniqueInput
+    update?: XOR<XOR<usersUpdateToOneWithWhereWithoutUser_atributInput, usersUpdateWithoutUser_atributInput>, usersUncheckedUpdateWithoutUser_atributInput>
+  }
+
   export type NestedIntFilter<$PrismaModel = never> = {
     equals?: number | IntFieldRefInput<$PrismaModel>
     in?: number[]
@@ -7837,29 +9082,6 @@ export namespace Prisma {
     _min?: NestedDateTimeFilter<$PrismaModel>
     _max?: NestedDateTimeFilter<$PrismaModel>
   }
-  export type NestedJsonNullableFilter<$PrismaModel = never> =
-    | PatchUndefined<
-        Either<Required<NestedJsonNullableFilterBase<$PrismaModel>>, Exclude<keyof Required<NestedJsonNullableFilterBase<$PrismaModel>>, 'path'>>,
-        Required<NestedJsonNullableFilterBase<$PrismaModel>>
-      >
-    | OptionalFlat<Omit<Required<NestedJsonNullableFilterBase<$PrismaModel>>, 'path'>>
-
-  export type NestedJsonNullableFilterBase<$PrismaModel = never> = {
-    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-    path?: string
-    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
-    string_contains?: string | StringFieldRefInput<$PrismaModel>
-    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
-    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
-    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    lt?: InputJsonValue
-    lte?: InputJsonValue
-    gt?: InputJsonValue
-    gte?: InputJsonValue
-    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-  }
 
   export type NestedEnummessages_statusFilter<$PrismaModel = never> = {
     equals?: $Enums.messages_status | Enummessages_statusFieldRefInput<$PrismaModel>
@@ -7907,6 +9129,29 @@ export namespace Prisma {
     _min?: NestedEnumtags_tierFilter<$PrismaModel>
     _max?: NestedEnumtags_tierFilter<$PrismaModel>
   }
+  export type NestedJsonNullableFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<NestedJsonNullableFilterBase<$PrismaModel>>, Exclude<keyof Required<NestedJsonNullableFilterBase<$PrismaModel>>, 'path'>>,
+        Required<NestedJsonNullableFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<NestedJsonNullableFilterBase<$PrismaModel>>, 'path'>>
+
+  export type NestedJsonNullableFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue
+    lte?: InputJsonValue
+    gt?: InputJsonValue
+    gte?: InputJsonValue
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+  }
 
   export type conversation_membersCreateWithoutUserInput = {
     joinedAt?: Date | string
@@ -7953,6 +9198,24 @@ export namespace Prisma {
   export type messagesCreateManySenderInputEnvelope = {
     data: messagesCreateManySenderInput | messagesCreateManySenderInput[]
     skipDuplicates?: boolean
+  }
+
+  export type user_atributCreateWithoutUsersInput = {
+    pfp_id?: string | null
+    tags_used?: NullableJsonNullValueInput | InputJsonValue
+    special_tags?: NullableJsonNullValueInput | InputJsonValue
+  }
+
+  export type user_atributUncheckedCreateWithoutUsersInput = {
+    id?: number
+    pfp_id?: string | null
+    tags_used?: NullableJsonNullValueInput | InputJsonValue
+    special_tags?: NullableJsonNullValueInput | InputJsonValue
+  }
+
+  export type user_atributCreateOrConnectWithoutUsersInput = {
+    where: user_atributWhereUniqueInput
+    create: XOR<user_atributCreateWithoutUsersInput, user_atributUncheckedCreateWithoutUsersInput>
   }
 
   export type conversation_membersUpsertWithWhereUniqueWithoutUserInput = {
@@ -8009,6 +9272,30 @@ export namespace Prisma {
     conversationId?: StringFilter<"messages"> | string
   }
 
+  export type user_atributUpsertWithoutUsersInput = {
+    update: XOR<user_atributUpdateWithoutUsersInput, user_atributUncheckedUpdateWithoutUsersInput>
+    create: XOR<user_atributCreateWithoutUsersInput, user_atributUncheckedCreateWithoutUsersInput>
+    where?: user_atributWhereInput
+  }
+
+  export type user_atributUpdateToOneWithWhereWithoutUsersInput = {
+    where?: user_atributWhereInput
+    data: XOR<user_atributUpdateWithoutUsersInput, user_atributUncheckedUpdateWithoutUsersInput>
+  }
+
+  export type user_atributUpdateWithoutUsersInput = {
+    pfp_id?: NullableStringFieldUpdateOperationsInput | string | null
+    tags_used?: NullableJsonNullValueInput | InputJsonValue
+    special_tags?: NullableJsonNullValueInput | InputJsonValue
+  }
+
+  export type user_atributUncheckedUpdateWithoutUsersInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    pfp_id?: NullableStringFieldUpdateOperationsInput | string | null
+    tags_used?: NullableJsonNullValueInput | InputJsonValue
+    special_tags?: NullableJsonNullValueInput | InputJsonValue
+  }
+
   export type usersCreateWithoutConversationMembersInput = {
     username?: string | null
     provider: string
@@ -8017,9 +9304,8 @@ export namespace Prisma {
     phone_number?: string | null
     dial_code?: string | null
     createdAt: Date | string
-    special_tags?: NullableJsonNullValueInput | InputJsonValue
-    tags_used?: NullableJsonNullValueInput | InputJsonValue
     sentMessages?: messagesCreateNestedManyWithoutSenderInput
+    user_atribut?: user_atributCreateNestedOneWithoutUsersInput
   }
 
   export type usersUncheckedCreateWithoutConversationMembersInput = {
@@ -8031,9 +9317,8 @@ export namespace Prisma {
     phone_number?: string | null
     dial_code?: string | null
     createdAt: Date | string
-    special_tags?: NullableJsonNullValueInput | InputJsonValue
-    tags_used?: NullableJsonNullValueInput | InputJsonValue
     sentMessages?: messagesUncheckedCreateNestedManyWithoutSenderInput
+    user_atribut?: user_atributUncheckedCreateNestedOneWithoutUsersInput
   }
 
   export type usersCreateOrConnectWithoutConversationMembersInput = {
@@ -8081,9 +9366,8 @@ export namespace Prisma {
     phone_number?: NullableStringFieldUpdateOperationsInput | string | null
     dial_code?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    special_tags?: NullableJsonNullValueInput | InputJsonValue
-    tags_used?: NullableJsonNullValueInput | InputJsonValue
     sentMessages?: messagesUpdateManyWithoutSenderNestedInput
+    user_atribut?: user_atributUpdateOneWithoutUsersNestedInput
   }
 
   export type usersUncheckedUpdateWithoutConversationMembersInput = {
@@ -8095,9 +9379,8 @@ export namespace Prisma {
     phone_number?: NullableStringFieldUpdateOperationsInput | string | null
     dial_code?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    special_tags?: NullableJsonNullValueInput | InputJsonValue
-    tags_used?: NullableJsonNullValueInput | InputJsonValue
     sentMessages?: messagesUncheckedUpdateManyWithoutSenderNestedInput
+    user_atribut?: user_atributUncheckedUpdateOneWithoutUsersNestedInput
   }
 
   export type conversationsUpsertWithoutMembersInput = {
@@ -8135,9 +9418,8 @@ export namespace Prisma {
     phone_number?: string | null
     dial_code?: string | null
     createdAt: Date | string
-    special_tags?: NullableJsonNullValueInput | InputJsonValue
-    tags_used?: NullableJsonNullValueInput | InputJsonValue
     conversationMembers?: conversation_membersCreateNestedManyWithoutUserInput
+    user_atribut?: user_atributCreateNestedOneWithoutUsersInput
   }
 
   export type usersUncheckedCreateWithoutSentMessagesInput = {
@@ -8149,9 +9431,8 @@ export namespace Prisma {
     phone_number?: string | null
     dial_code?: string | null
     createdAt: Date | string
-    special_tags?: NullableJsonNullValueInput | InputJsonValue
-    tags_used?: NullableJsonNullValueInput | InputJsonValue
     conversationMembers?: conversation_membersUncheckedCreateNestedManyWithoutUserInput
+    user_atribut?: user_atributUncheckedCreateNestedOneWithoutUsersInput
   }
 
   export type usersCreateOrConnectWithoutSentMessagesInput = {
@@ -8199,9 +9480,8 @@ export namespace Prisma {
     phone_number?: NullableStringFieldUpdateOperationsInput | string | null
     dial_code?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    special_tags?: NullableJsonNullValueInput | InputJsonValue
-    tags_used?: NullableJsonNullValueInput | InputJsonValue
     conversationMembers?: conversation_membersUpdateManyWithoutUserNestedInput
+    user_atribut?: user_atributUpdateOneWithoutUsersNestedInput
   }
 
   export type usersUncheckedUpdateWithoutSentMessagesInput = {
@@ -8213,9 +9493,8 @@ export namespace Prisma {
     phone_number?: NullableStringFieldUpdateOperationsInput | string | null
     dial_code?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    special_tags?: NullableJsonNullValueInput | InputJsonValue
-    tags_used?: NullableJsonNullValueInput | InputJsonValue
     conversationMembers?: conversation_membersUncheckedUpdateManyWithoutUserNestedInput
+    user_atribut?: user_atributUncheckedUpdateOneWithoutUsersNestedInput
   }
 
   export type conversationsUpsertWithoutMessagesInput = {
@@ -8322,6 +9601,72 @@ export namespace Prisma {
   export type messagesUpdateManyWithWhereWithoutConversationInput = {
     where: messagesScalarWhereInput
     data: XOR<messagesUpdateManyMutationInput, messagesUncheckedUpdateManyWithoutConversationInput>
+  }
+
+  export type usersCreateWithoutUser_atributInput = {
+    username?: string | null
+    provider: string
+    email?: string | null
+    email_name?: string | null
+    phone_number?: string | null
+    dial_code?: string | null
+    createdAt: Date | string
+    conversationMembers?: conversation_membersCreateNestedManyWithoutUserInput
+    sentMessages?: messagesCreateNestedManyWithoutSenderInput
+  }
+
+  export type usersUncheckedCreateWithoutUser_atributInput = {
+    userId?: number
+    username?: string | null
+    provider: string
+    email?: string | null
+    email_name?: string | null
+    phone_number?: string | null
+    dial_code?: string | null
+    createdAt: Date | string
+    conversationMembers?: conversation_membersUncheckedCreateNestedManyWithoutUserInput
+    sentMessages?: messagesUncheckedCreateNestedManyWithoutSenderInput
+  }
+
+  export type usersCreateOrConnectWithoutUser_atributInput = {
+    where: usersWhereUniqueInput
+    create: XOR<usersCreateWithoutUser_atributInput, usersUncheckedCreateWithoutUser_atributInput>
+  }
+
+  export type usersUpsertWithoutUser_atributInput = {
+    update: XOR<usersUpdateWithoutUser_atributInput, usersUncheckedUpdateWithoutUser_atributInput>
+    create: XOR<usersCreateWithoutUser_atributInput, usersUncheckedCreateWithoutUser_atributInput>
+    where?: usersWhereInput
+  }
+
+  export type usersUpdateToOneWithWhereWithoutUser_atributInput = {
+    where?: usersWhereInput
+    data: XOR<usersUpdateWithoutUser_atributInput, usersUncheckedUpdateWithoutUser_atributInput>
+  }
+
+  export type usersUpdateWithoutUser_atributInput = {
+    username?: NullableStringFieldUpdateOperationsInput | string | null
+    provider?: StringFieldUpdateOperationsInput | string
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    email_name?: NullableStringFieldUpdateOperationsInput | string | null
+    phone_number?: NullableStringFieldUpdateOperationsInput | string | null
+    dial_code?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    conversationMembers?: conversation_membersUpdateManyWithoutUserNestedInput
+    sentMessages?: messagesUpdateManyWithoutSenderNestedInput
+  }
+
+  export type usersUncheckedUpdateWithoutUser_atributInput = {
+    userId?: IntFieldUpdateOperationsInput | number
+    username?: NullableStringFieldUpdateOperationsInput | string | null
+    provider?: StringFieldUpdateOperationsInput | string
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    email_name?: NullableStringFieldUpdateOperationsInput | string | null
+    phone_number?: NullableStringFieldUpdateOperationsInput | string | null
+    dial_code?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    conversationMembers?: conversation_membersUncheckedUpdateManyWithoutUserNestedInput
+    sentMessages?: messagesUncheckedUpdateManyWithoutSenderNestedInput
   }
 
   export type conversation_membersCreateManyUserInput = {

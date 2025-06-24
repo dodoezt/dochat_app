@@ -12,11 +12,7 @@ export const metadata: Metadata = {
   icons: '/favicon.ico'
 };
 
-export default async function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export default function RootLayout({children}: Readonly<{children: React.ReactNode;}>) {
   return (
     <html lang="en">
       <body className="bg-[#121212] h-screen">

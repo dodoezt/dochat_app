@@ -19,8 +19,11 @@ export async function POST (req: Request) {
                 email: true,
                 email_name: true,
                 createdAt: true,
-            }
+                user_atribut: true,
+            },
         })
+
+        console.log(user)
 
         if (!user) return NextResponse.json({message : 'user not found'}, {status: 404})    
 

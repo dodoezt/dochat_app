@@ -17,10 +17,9 @@ model users {
   phone_number        String?                @unique(map: "phone_number_UNIQUE") @db.VarChar(255)
   dial_code           String?                @db.VarChar(255)
   createdAt           DateTime               @db.DateTime(0)
-  special_tags        Json?
-  tags_used           Json?
   conversationMembers conversation_members[] @relation("UserConversationMembers")
   sentMessages        messages[]             @relation("UserSentMessages")
+  user_atribut        user_atribut?
 
   @@map("users")
 }
@@ -68,6 +67,15 @@ model tags {
   id   Int       @id @default(autoincrement())
   name String    @unique(map: "name_UNIQUE") @db.VarChar(100)
   tier tags_tier @default(Common)
+}
+
+model user_atribut {
+  id           Int     @id @default(autoincrement())
+  userId       Int     @unique(map: "userId_UNIQUE")
+  pfp_id       String? @db.VarChar(100)
+  tags_used    Json?
+  special_tags Json?
+  users        users   @relation(fields: [userId], references: [userId], onDelete: Cascade, map: "fk_user_id")
 }
 
 enum messages_status {

@@ -2,10 +2,12 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { TagsType } from '@/lib/getTags'
-import { UserType } from '@/app/api/users/public/route'
+import { UserPublicType } from '@/types/user'
+
+import { MdAccountCircle } from "react-icons/md";
 
 const page = ({params}: {params: any}) => {
-    const [user, setUser] = useState<UserType | null>()
+    const [user, setUser] = useState<UserPublicType | null>()
     const [tags, setTags] = useState<TagsType[] | undefined>()
 
     const getUser = async () => {
@@ -15,7 +17,7 @@ const page = ({params}: {params: any}) => {
                 method: 'GET'
             })
 
-            const user = await response.json() as UserType | null
+            const user = await response.json() as UserPublicType | null
             setUser(user)
         } catch (error: any) {
             console.log(error.message)
@@ -44,7 +46,7 @@ const page = ({params}: {params: any}) => {
         <div className='flex flex-col items-center w-screen h-screen p-5'>
             <h1 className="font-sans text-white">{user?.username}</h1>
             <div className="flex">
-                {user?.tags_used.map((tag_used, index) => {
+                {user?.user_atribut.tags_used && user.user_atribut.tags_used.map((tag_used, index) => {
                     const tag = tags?.filter(tag => tag.id === tag_used)[0]
 
                     return (
