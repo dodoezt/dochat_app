@@ -1,16 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma"
-
-export type UserType = {
-    username: string
-    user_atribut: {
-        id: number,
-        userId: number,
-        pfp_id: string,
-        tags_used: number[],
-        special_tags: number[]
-    },
-}
+import { UserPublicType } from '@/types/user'
 
 export async function GET(req: Request) {
     const { searchParams } = new URL(req.url)
@@ -31,7 +21,7 @@ export async function GET(req: Request) {
                 createdAt: true,
                 user_atribut: true,
             }
-        }) as UserType | null
+        }) as UserPublicType | null
 
         if (!user) return NextResponse.json({message: 'no user found'}, {status: 404})
 

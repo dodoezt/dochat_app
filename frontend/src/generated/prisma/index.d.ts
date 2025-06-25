@@ -6302,7 +6302,7 @@ export namespace Prisma {
     userId: number
     pfp_id: number
     tags_used: number
-    special_tags: number
+    owned_tags: number
     _all: number
   }
 
@@ -6334,7 +6334,7 @@ export namespace Prisma {
     userId?: true
     pfp_id?: true
     tags_used?: true
-    special_tags?: true
+    owned_tags?: true
     _all?: true
   }
 
@@ -6429,7 +6429,7 @@ export namespace Prisma {
     userId: number
     pfp_id: string | null
     tags_used: JsonValue | null
-    special_tags: JsonValue | null
+    owned_tags: JsonValue | null
     _count: User_atributCountAggregateOutputType | null
     _avg: User_atributAvgAggregateOutputType | null
     _sum: User_atributSumAggregateOutputType | null
@@ -6456,7 +6456,7 @@ export namespace Prisma {
     userId?: boolean
     pfp_id?: boolean
     tags_used?: boolean
-    special_tags?: boolean
+    owned_tags?: boolean
     users?: boolean | usersDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["user_atribut"]>
 
@@ -6467,10 +6467,10 @@ export namespace Prisma {
     userId?: boolean
     pfp_id?: boolean
     tags_used?: boolean
-    special_tags?: boolean
+    owned_tags?: boolean
   }
 
-  export type user_atributOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "pfp_id" | "tags_used" | "special_tags", ExtArgs["result"]["user_atribut"]>
+  export type user_atributOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "pfp_id" | "tags_used" | "owned_tags", ExtArgs["result"]["user_atribut"]>
   export type user_atributInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     users?: boolean | usersDefaultArgs<ExtArgs>
   }
@@ -6485,7 +6485,7 @@ export namespace Prisma {
       userId: number
       pfp_id: string | null
       tags_used: Prisma.JsonValue | null
-      special_tags: Prisma.JsonValue | null
+      owned_tags: Prisma.JsonValue | null
     }, ExtArgs["result"]["user_atribut"]>
     composites: {}
   }
@@ -6860,7 +6860,7 @@ export namespace Prisma {
     readonly userId: FieldRef<"user_atribut", 'Int'>
     readonly pfp_id: FieldRef<"user_atribut", 'String'>
     readonly tags_used: FieldRef<"user_atribut", 'Json'>
-    readonly special_tags: FieldRef<"user_atribut", 'Json'>
+    readonly owned_tags: FieldRef<"user_atribut", 'Json'>
   }
     
 
@@ -7296,7 +7296,7 @@ export namespace Prisma {
     userId: 'userId',
     pfp_id: 'pfp_id',
     tags_used: 'tags_used',
-    special_tags: 'special_tags'
+    owned_tags: 'owned_tags'
   };
 
   export type User_atributScalarFieldEnum = (typeof User_atributScalarFieldEnum)[keyof typeof User_atributScalarFieldEnum]
@@ -7773,7 +7773,7 @@ export namespace Prisma {
     userId?: IntFilter<"user_atribut"> | number
     pfp_id?: StringNullableFilter<"user_atribut"> | string | null
     tags_used?: JsonNullableFilter<"user_atribut">
-    special_tags?: JsonNullableFilter<"user_atribut">
+    owned_tags?: JsonNullableFilter<"user_atribut">
     users?: XOR<UsersScalarRelationFilter, usersWhereInput>
   }
 
@@ -7782,7 +7782,7 @@ export namespace Prisma {
     userId?: SortOrder
     pfp_id?: SortOrderInput | SortOrder
     tags_used?: SortOrderInput | SortOrder
-    special_tags?: SortOrderInput | SortOrder
+    owned_tags?: SortOrderInput | SortOrder
     users?: usersOrderByWithRelationInput
     _relevance?: user_atributOrderByRelevanceInput
   }
@@ -7795,7 +7795,7 @@ export namespace Prisma {
     NOT?: user_atributWhereInput | user_atributWhereInput[]
     pfp_id?: StringNullableFilter<"user_atribut"> | string | null
     tags_used?: JsonNullableFilter<"user_atribut">
-    special_tags?: JsonNullableFilter<"user_atribut">
+    owned_tags?: JsonNullableFilter<"user_atribut">
     users?: XOR<UsersScalarRelationFilter, usersWhereInput>
   }, "id" | "userId">
 
@@ -7804,7 +7804,7 @@ export namespace Prisma {
     userId?: SortOrder
     pfp_id?: SortOrderInput | SortOrder
     tags_used?: SortOrderInput | SortOrder
-    special_tags?: SortOrderInput | SortOrder
+    owned_tags?: SortOrderInput | SortOrder
     _count?: user_atributCountOrderByAggregateInput
     _avg?: user_atributAvgOrderByAggregateInput
     _max?: user_atributMaxOrderByAggregateInput
@@ -7820,7 +7820,7 @@ export namespace Prisma {
     userId?: IntWithAggregatesFilter<"user_atribut"> | number
     pfp_id?: StringNullableWithAggregatesFilter<"user_atribut"> | string | null
     tags_used?: JsonNullableWithAggregatesFilter<"user_atribut">
-    special_tags?: JsonNullableWithAggregatesFilter<"user_atribut">
+    owned_tags?: JsonNullableWithAggregatesFilter<"user_atribut">
   }
 
   export type usersCreateInput = {
@@ -8113,7 +8113,7 @@ export namespace Prisma {
   export type user_atributCreateInput = {
     pfp_id?: string | null
     tags_used?: NullableJsonNullValueInput | InputJsonValue
-    special_tags?: NullableJsonNullValueInput | InputJsonValue
+    owned_tags?: NullableJsonNullValueInput | InputJsonValue
     users: usersCreateNestedOneWithoutUser_atributInput
   }
 
@@ -8122,13 +8122,13 @@ export namespace Prisma {
     userId: number
     pfp_id?: string | null
     tags_used?: NullableJsonNullValueInput | InputJsonValue
-    special_tags?: NullableJsonNullValueInput | InputJsonValue
+    owned_tags?: NullableJsonNullValueInput | InputJsonValue
   }
 
   export type user_atributUpdateInput = {
     pfp_id?: NullableStringFieldUpdateOperationsInput | string | null
     tags_used?: NullableJsonNullValueInput | InputJsonValue
-    special_tags?: NullableJsonNullValueInput | InputJsonValue
+    owned_tags?: NullableJsonNullValueInput | InputJsonValue
     users?: usersUpdateOneRequiredWithoutUser_atributNestedInput
   }
 
@@ -8137,7 +8137,7 @@ export namespace Prisma {
     userId?: IntFieldUpdateOperationsInput | number
     pfp_id?: NullableStringFieldUpdateOperationsInput | string | null
     tags_used?: NullableJsonNullValueInput | InputJsonValue
-    special_tags?: NullableJsonNullValueInput | InputJsonValue
+    owned_tags?: NullableJsonNullValueInput | InputJsonValue
   }
 
   export type user_atributCreateManyInput = {
@@ -8145,13 +8145,13 @@ export namespace Prisma {
     userId: number
     pfp_id?: string | null
     tags_used?: NullableJsonNullValueInput | InputJsonValue
-    special_tags?: NullableJsonNullValueInput | InputJsonValue
+    owned_tags?: NullableJsonNullValueInput | InputJsonValue
   }
 
   export type user_atributUpdateManyMutationInput = {
     pfp_id?: NullableStringFieldUpdateOperationsInput | string | null
     tags_used?: NullableJsonNullValueInput | InputJsonValue
-    special_tags?: NullableJsonNullValueInput | InputJsonValue
+    owned_tags?: NullableJsonNullValueInput | InputJsonValue
   }
 
   export type user_atributUncheckedUpdateManyInput = {
@@ -8159,7 +8159,7 @@ export namespace Prisma {
     userId?: IntFieldUpdateOperationsInput | number
     pfp_id?: NullableStringFieldUpdateOperationsInput | string | null
     tags_used?: NullableJsonNullValueInput | InputJsonValue
-    special_tags?: NullableJsonNullValueInput | InputJsonValue
+    owned_tags?: NullableJsonNullValueInput | InputJsonValue
   }
 
   export type IntFilter<$PrismaModel = never> = {
@@ -8590,7 +8590,7 @@ export namespace Prisma {
     userId?: SortOrder
     pfp_id?: SortOrder
     tags_used?: SortOrder
-    special_tags?: SortOrder
+    owned_tags?: SortOrder
   }
 
   export type user_atributAvgOrderByAggregateInput = {
@@ -9203,14 +9203,14 @@ export namespace Prisma {
   export type user_atributCreateWithoutUsersInput = {
     pfp_id?: string | null
     tags_used?: NullableJsonNullValueInput | InputJsonValue
-    special_tags?: NullableJsonNullValueInput | InputJsonValue
+    owned_tags?: NullableJsonNullValueInput | InputJsonValue
   }
 
   export type user_atributUncheckedCreateWithoutUsersInput = {
     id?: number
     pfp_id?: string | null
     tags_used?: NullableJsonNullValueInput | InputJsonValue
-    special_tags?: NullableJsonNullValueInput | InputJsonValue
+    owned_tags?: NullableJsonNullValueInput | InputJsonValue
   }
 
   export type user_atributCreateOrConnectWithoutUsersInput = {
@@ -9286,14 +9286,14 @@ export namespace Prisma {
   export type user_atributUpdateWithoutUsersInput = {
     pfp_id?: NullableStringFieldUpdateOperationsInput | string | null
     tags_used?: NullableJsonNullValueInput | InputJsonValue
-    special_tags?: NullableJsonNullValueInput | InputJsonValue
+    owned_tags?: NullableJsonNullValueInput | InputJsonValue
   }
 
   export type user_atributUncheckedUpdateWithoutUsersInput = {
     id?: IntFieldUpdateOperationsInput | number
     pfp_id?: NullableStringFieldUpdateOperationsInput | string | null
     tags_used?: NullableJsonNullValueInput | InputJsonValue
-    special_tags?: NullableJsonNullValueInput | InputJsonValue
+    owned_tags?: NullableJsonNullValueInput | InputJsonValue
   }
 
   export type usersCreateWithoutConversationMembersInput = {

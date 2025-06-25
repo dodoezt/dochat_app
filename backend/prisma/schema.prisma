@@ -70,12 +70,12 @@ model tags {
 }
 
 model user_atribut {
-  id           Int     @id @default(autoincrement())
-  userId       Int     @unique(map: "userId_UNIQUE")
-  pfp_id       String? @db.VarChar(100)
-  tags_used    Json?
-  special_tags Json?
-  users        users   @relation(fields: [userId], references: [userId], onDelete: Cascade, map: "fk_user_id")
+  id         Int     @id @default(autoincrement())
+  userId     Int     @unique(map: "userId_UNIQUE")
+  pfp_id     String? @db.VarChar(100)
+  tags_used  Json?
+  owned_tags Json?
+  users      users   @relation(fields: [userId], references: [userId], onDelete: Cascade, map: "fk_user_id")
 }
 
 enum messages_status {

@@ -165,7 +165,7 @@ exports.Prisma.User_atributScalarFieldEnum = {
   userId: 'userId',
   pfp_id: 'pfp_id',
   tags_used: 'tags_used',
-  special_tags: 'special_tags'
+  owned_tags: 'owned_tags'
 };
 
 exports.Prisma.SortOrder = {

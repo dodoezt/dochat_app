@@ -3,7 +3,7 @@ export type UserAtributType = {
     userId: number,
     pfp_id: string | null,
     tags_used: number[] | null,
-    special_tags: number[] | null,
+    owned_tags: number[] | null,
 }
 
 export type UserInfoType = {

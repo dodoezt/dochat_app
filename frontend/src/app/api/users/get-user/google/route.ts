@@ -23,8 +23,6 @@ export async function POST (req: Request) {
             },
         })
 
-        console.log(user)
-
         if (!user) return NextResponse.json({message : 'user not found'}, {status: 404})    
 
         return NextResponse.json({user: user}, {status: 200})
