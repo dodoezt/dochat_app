@@ -36,10 +36,13 @@ const page = () => {
     const [userInfo, setUserInfo] = useState<UserInfoType | null>(null)
     const [croppedImage, setCroppedImage] = useState<string | null>(null)
     const [croppedBlob, setCroppedBlob] = useState<Blob | null>(null)
+    const [currentImgSrc, setCurrentImgSrc] = useState<any | null>(null)
     const [fileId, setFileId] = useState<string | null>(null)
     const [tags, setTags] = useState<any[] | null>(null)
     
     const cropMode = UseBoolean(false)
+    const editMode = UseBoolean(false)
+    const previewMode = UseBoolean(false)
     const loading = UseBoolean(true)
     const loadingUpImg = UseBoolean(false)
 
@@ -49,12 +52,15 @@ const page = () => {
     }, [])
 
     useEffect(() => {
-        console.log(userInfo)
-        console.log(tagColors.find(tag => tag.tier === 'Kinda_Cool'))
+        console.log(currentImgSrc)
+    }, [currentImgSrc])
+
+    useEffect(() => {
         if(tags && userInfo) loading.setFalse()
     }, [tags, userInfo])
 
     const handleFileChange = async(e: React.ChangeEvent<HTMLInputElement>) => {
+        editMode.setTrue()
         const file = e.target.files?.[0]
         if(!file) return
 
@@ -88,33 +94,35 @@ const page = () => {
                 credentials: 'include'
             })
     
-            const data = await response.json()
-            setUserInfo(data.user)
+            const {user} = await response.json()
+            setUserInfo(user)
+            if(user) setCurrentImgSrc(`https://fra.cloud.appwrite.io/v1/storage/buckets/683bc8bf0001881c6cc5/files/${user.user_atribut.pfp_id}/view?project=681cbc230020279ce784&mode=admin`)
         } catch (error: any) {
             console.log(error.message)
         }
     }
 
     const getImageData = (data: any) => {
-        console.log(data)
         setCroppedImage(data.croppedImg)
         setCroppedBlob(data.croppedBlob)
+        setCurrentImgSrc(URL.createObjectURL(data.croppedBlob))
     }
 
     const handleSavePfp = async() => {
         loadingUpImg.setTrue()
+
+        const formData = new FormData()
+        formData.append('file', croppedBlob!, 'profile.jpg')
         try {
             const response = await fetch('/api/user/upload-img',{
                 method: 'POST',
-                headers: {
-                    'Content-Type' : 'application/json',
-                },
-                body: JSON.stringify({blobImg: croppedBlob})
+                body: formData
             })
         } catch (error) {
             console.log(error)
         } finally {
             loadingUpImg.setFalse()
+            editMode.setFalse()
         }
     }
     
@@ -150,17 +158,16 @@ const page = () => {
                                     className="hidden"
                                 />
                                 <button 
+                                onClick={()=> {
+                                    previewMode.setTrue()
+                                }}
                                 className="flex items-center justify-center w-20 overflow-hidden rounded-full cursor-pointer aspect-square">
-                                    {userInfo!.user_atribut.pfp_id ? (
-                                        <img src={`https://fra.cloud.appwrite.io/v1/storage/buckets/683bc8bf0001881c6cc5/files/${userInfo?.user_atribut.pfp_id}/view?project=681cbc230020279ce784&mode=admin`} alt={`${userInfo!.username} pfp`} className="w-full h-full" />
+                                    {currentImgSrc ? (
+                                        <img src={currentImgSrc} alt={userInfo?.username} className="w-full h-full" />
                                     ): (
-                                        croppedImage ? (
-                                            <img src={croppedImage} alt='pfp preview' className="w-full h-full" />
-                                        ): (
-                                            <div className="flex items-center justify-center w-full h-full">
-                                                <MdAccountCircle className='text-gray-400 text-[10rem]'/>
-                                            </div>
-                                        )
+                                         <div className="flex items-center justify-center w-full h-full">
+                                            <MdAccountCircle className='text-gray-400 text-[10rem]'/>
+                                        </div>
                                     )}
                                 </button>
                             </div>
@@ -191,20 +198,6 @@ const page = () => {
                         </div>
                     </div>
                 </div>
-                {/* <div className="flex items-center justify-center">
-                    <label
-                        htmlFor="file-upload"
-                        className="px-4 py-2 text-sm font-medium text-white transition bg-blue-600 rounded-md shadow cursor-pointer hover:bg-blue-700"
-                    >
-                        {!croppedImage ? 'Upload File' : 'Change File'}
-                    </label>
-                    <input
-                        id="file-upload"
-                        type="file"
-                        onChange={handleFileChange}
-                        className="hidden"
-                    />
-                </div> */}
                 <div className="">
                     {croppedBlob && (
                         <button
@@ -213,6 +206,15 @@ const page = () => {
                     )}
                 </div>
             </main>
+            <button
+            onClick={() => {
+                previewMode.setFalse()
+            }}
+            className={`${previewMode.value ? 'flex' : 'hidden'} w-screen h-screen fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 items-center justify-center bg-[rgba(0,0,0,0.6)]`}>
+                <div className="w-2/3 aspect-square">
+                    <img src={currentImgSrc} alt={userInfo?.username} className="h-full w-fulll" />
+                </div>
+            </button>
         </div>
     )
 }

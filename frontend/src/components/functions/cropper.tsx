@@ -15,13 +15,14 @@ export default function ImageCropper({ imageUrl, giveImageData, cropMode }: { im
     const croppedBlob = await getCroppedBlob(imageUrl, croppedAreaPixels)
 
     giveImageData(
-        {
-            croppedImg: croppedImg,
-            croppedBlob: croppedBlob,
-        }
+      {
+        croppedImg: croppedImg,
+        croppedBlob: croppedBlob,
+      }
     )
     cropMode.setFalse();
   } 
+  
   return (
     <div className="relative w-full h-full bg-black">
       <Cropper

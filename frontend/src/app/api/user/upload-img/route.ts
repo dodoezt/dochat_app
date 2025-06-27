@@ -5,13 +5,14 @@ import { uploadProfilePicture } from "@/components/functions/uploadToAppwrite";
 
 export async function POST(req: Request) {
     const userInfo = await GetUserInfoFromCookie()
-    const { blobImg } = await req.json()
+    const formData = await req.formData()
+    const file = formData.get('file') as Blob
+
+    console.log(file)
 
     if(!userInfo) return NextResponse.json({message: 'authentication not valid'}, {status: 401})
     
-    const pfp_id = await uploadProfilePicture(blobImg, userInfo?.username)
-
-    console.log(pfp_id)
+    const pfp_id = await uploadProfilePicture(file, userInfo?.username)
 
     if(!pfp_id) return NextResponse.json({message: 'failed to upload'}, {status: 401})
 
