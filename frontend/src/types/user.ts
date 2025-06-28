@@ -4,6 +4,8 @@ export type UserAtributType = {
     pfp_id: string | null,
     tags_used: number[] | null,
     owned_tags: number[] | null,
+    bio: string | null,
+    pronounces: string[] | null
 }
 
 export type UserInfoType = {

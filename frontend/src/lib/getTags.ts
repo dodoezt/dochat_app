@@ -1,5 +1,5 @@
 import { prisma } from "./prisma";
-import { TagsChace } from "./chace";
+import { TagsCache } from "./chaches/TagsCache";
 
 export type TagsType = {
     id: number,
@@ -8,11 +8,11 @@ export type TagsType = {
 }
 
 export const getTags = async() => {
-    const cache: TagsType[] | undefined = TagsChace.get('tags')
+    const cache: TagsType[] | undefined = TagsCache.get('tags')
     if (cache) return cache
 
     const data = await prisma.tags.findMany()
-    TagsChace.set('tags', data)
+    TagsCache.set('tags', data)
 
     return data
 }

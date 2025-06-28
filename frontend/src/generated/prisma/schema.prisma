@@ -75,6 +75,8 @@ model user_atribut {
   pfp_id     String? @db.VarChar(100)
   tags_used  Json?
   owned_tags Json?
+  pronounces Json?
+  bio        String? @db.VarChar(200)
   users      users   @relation(fields: [userId], references: [userId], onDelete: Cascade, map: "fk_user_id")
 }
 

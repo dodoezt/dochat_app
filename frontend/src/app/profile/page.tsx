@@ -7,6 +7,8 @@ import { UserInfoType } from '@/types/user'
 import ImageCropper from '@/components/functions/cropper'
 import { uploadProfilePicture } from '@/components/functions/uploadToAppwrite'
 
+import ShinyText from '@/components/reactBits/shinyText'
+
 import { MdAccountCircle } from 'react-icons/md'
 import { FiEdit3 } from "react-icons/fi";
 
@@ -143,8 +145,8 @@ const page = () => {
             </header>
             <main className="w-full p-2">
                 <div className="flex flex-col items-center w-full">
-                    <div className="flex flex-col items-center justify-center w-full gap-3">
-                        <div className="flex flex-col items-center justify-center">
+                    <div className="flex flex-col items-center justify-center w-full">
+                        <div className="w-full flex flex-col items-center justify-center space-y-2">
                             <div className="relative">
                                 <label
                                 htmlFor='file-upload' 
@@ -171,30 +173,49 @@ const page = () => {
                                     )}
                                 </button>
                             </div>
-                            <h1 className="font-sans text-white">{userInfo!.username}</h1>
-                        </div>
-                        <div className="flex flex-wrap items-center justify-center w-2/3 gap-2">
-                            {userInfo?.user_atribut ? (
-                                userInfo?.user_atribut?.tags_used?.map((tagId) => {
-                                    const tagValue = tags!.find(tag => tag.id == tagId)
-                                    const tagColor = tagColors.find(tagVariable => tagVariable.tier === tagValue.tier)
+                            <div className="flex items-center gap-2">
+                                <h1 className="font-sans text-white">{userInfo!.username}</h1>
+                                {userInfo?.user_atribut.pronounces && (
+                                    <p className="font-sans text-gray-500 text-sm">
+                                        {userInfo.user_atribut.pronounces.join('/')}
+                                    </p>
+                                )}
+                            </div>
+                            <div className="flex flex-wrap items-center justify-center w-2/3 gap-2">
+                                {userInfo?.user_atribut ? (
+                                    userInfo?.user_atribut?.tags_used?.map((tagId) => {
+                                        const tagValue = tags!.find(tag => tag.id == tagId)
+                                        const tagColor = tagColors.find(tagVariable => tagVariable.tier === tagValue.tier)
 
-                                    return (
-                                        <div 
-                                        key={tagId} 
-                                        style={{
-                                            backgroundColor: tagColor?.bgColor,
-                                            borderColor: tagColor?.borderColor,
-                                            color: tagColor?.textColor,
-                                        }}
-                                        className='px-2 text-center border rounded-full'>
-                                            <p className="font-sans text-xs font-medium">{tagValue.name}</p>
-                                        </div>
-                                    )
-                                })
-                            ) : (
-                                <div className=""></div>
-                            )}
+                                        return (
+                                            <div 
+                                            key={tagId} 
+                                            style={{
+                                                backgroundColor: tagColor?.bgColor,
+                                                borderColor: tagColor?.borderColor,
+                                                color: tagColor?.textColor,
+                                            }}
+                                            draggable={false}
+                                            className='px-2 text-center border rounded-full cursor-default'>
+                                                {tagValue.tier === 'Absolute_OG' ? (
+                                                    <ShinyText text={tagValue.name} className='text-xs text-[#8A0000] font-sans'/>
+                                                ): (
+                                                    <p className="font-sans text-xs font-medium">{tagValue.name}</p>
+                                                )}
+                                            </div>
+                                        )
+                                    })
+                                ) : (
+                                    <div className=""></div>
+                                )}
+                            </div>
+                            <div className="w-2/3 font-sans text-sm text-white p-3 text-center">
+                                {userInfo?.user_atribut.bio ? (
+                                    <p className="">{userInfo.user_atribut.bio}</p>
+                                ): (
+                                    <p className="">no bio yet.</p>
+                                )}
+                            </div>
                         </div>
                     </div>
                 </div>

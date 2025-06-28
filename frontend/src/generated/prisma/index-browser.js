@@ -165,7 +165,9 @@ exports.Prisma.User_atributScalarFieldEnum = {
   userId: 'userId',
   pfp_id: 'pfp_id',
   tags_used: 'tags_used',
-  owned_tags: 'owned_tags'
+  owned_tags: 'owned_tags',
+  pronounces: 'pronounces',
+  bio: 'bio'
 };
 
 exports.Prisma.SortOrder = {
@@ -223,7 +225,8 @@ exports.Prisma.QueryMode = {
 };
 
 exports.Prisma.user_atributOrderByRelevanceFieldEnum = {
-  pfp_id: 'pfp_id'
+  pfp_id: 'pfp_id',
+  bio: 'bio'
 };
 exports.messages_status = exports.$Enums.messages_status = {
   NOT_DELIVERED: 'NOT_DELIVERED',
