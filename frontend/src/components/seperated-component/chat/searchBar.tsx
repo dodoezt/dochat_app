@@ -2,12 +2,18 @@ import React, { useEffect, useRef } from 'react'
 
 import { CiSearch } from "react-icons/ci";
 import { IoArrowBack } from "react-icons/io5";
+import { IoCloseOutline } from "react-icons/io5";
+
+import { UseBooleanResult } from '@/hooks/useBoolean';
+import { RoundSpinner } from '@/components/ui/spinner'
 
 type props = {
   isSearchOnFocus: boolean;
   handleSearchBlur: () => void;
   handleSearchFocus: () => void;
-  setKeyword: (keyword: string) => void
+  keyword: string;
+  setKeyword: (keyword: string) => void;
+  searchLoading: UseBooleanResult;
 }
 
 const ChatSearchBar:React.FC<props> = 
@@ -15,7 +21,9 @@ const ChatSearchBar:React.FC<props> =
     isSearchOnFocus,
     handleSearchBlur,
     handleSearchFocus,
-    setKeyword
+    keyword,
+    setKeyword,
+    searchLoading
   }) => {
 
   const searchInputRef = useRef<HTMLInputElement>(null)
@@ -46,16 +54,31 @@ const ChatSearchBar:React.FC<props> =
           type="text" 
           className="appearance-none outline-none flex-1 h-full pl-4 border-y border-l border-[#2c2c2c] bg-transparent rounded-l-full font-sans text-[#e0e0e0] font-normal text-sm"
           placeholder='What are you looking for?'
+          value={keyword ?? ''}
           onFocus={handleSearchFocus}
-          onBlur={handleSearchBlur}
           onChange={(e) => setKeyword(e.target.value)}
           />
         </div>
         <div className="flex items-center justify-center w-auto h-full aspect-square">
-            <button 
-            className="aspect-square h-full pr-4 text-xl text-[#e0e0e0] border-y border-r border-[#2c2c2c] rounded-r-full flex items-center justify-center cursor-pointer">
-                <CiSearch className=''/>
-            </button>
+            <div 
+            className="aspect-square h-full pr-4 text-xl text-[#e0e0e0] border-y border-r border-[#2c2c2c] rounded-r-full flex items-center justify-center">
+                {keyword?.trim() !== '' ? (
+                  searchLoading.value ? (
+                    <RoundSpinner />
+                  ): (
+                    <button
+                    onClick={() => {
+                      setKeyword('')
+                      handleSearchBlur()
+                    }}
+                    className="flex items-center justify-center w-full h-full cursor-pointer">
+                      <IoCloseOutline className=''/>
+                    </button>
+                  )
+                ): (
+                  <CiSearch className=''/>
+                )}
+            </div>
         </div>
     </div>
   )
