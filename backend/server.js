@@ -21,8 +21,30 @@ const io = new Server(server, {
   },
 });
 
+const onlineUsers = new Map()
+
 io.on("connection", (socket) => {
-  console.log("Client connected:", socket.id);
+  socket.on("register", (userId) => {
+    onlineUsers.set(Number(userId), socket.id)
+    socket.emit("receive-online-users", Array.from(onlineUsers.entries()).map(([userId, socketId]) => ({
+      userId,
+      socketId
+    })));
+    console.log(`User ${userId} connected with socket id ${socket.id}`);
+    console.log("Online users:", Array.from(onlineUsers.entries()).map(([userId, socketId]) => ({
+      userId,
+      socketId
+    })));
+  })
+
+  socket.on("send-friend-request", ({toUserId, from}) => {
+    const targetSocketId = onlineUsers.get(toUserId)
+    if(targetSocketId){
+      io.to(targetSocketId).emit('friend-request-received', {
+        from
+      })
+    }
+  })
 
   socket.on("join-room", ({userId, conversationId}) => {
     socket.join(conversationId)
@@ -113,8 +135,14 @@ io.on("connection", (socket) => {
     socket.to(conversationId).emit("show-typing-status", response)
   });
 
-  socket.on("disconnect", () => {
-    console.log("Client disconnected:", socket.id);
+  socket.on("disconnect", (reason) => {
+    for(let [userId, socketId] of onlineUsers.entries()) {
+      if(socketId === socket.id){
+        console.log(`user ${userId} disconnected wth socket id ${socket.id} ${reason ? `due to ${reason}` : ''}`);
+        onlineUsers.delete(userId);
+        break
+      }
+    }
   });
 });
 
