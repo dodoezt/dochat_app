@@ -14,6 +14,7 @@ import { FaRegCircleUser } from "react-icons/fa6";
 import { BsCheckAll } from "react-icons/bs";
 import { MdAccountCircle } from 'react-icons/md'
 import { IoMdPersonAdd } from "react-icons/io";
+import { IoChatboxEllipses } from "react-icons/io5";
 
 const VALID_TABS = ['chat', 'search']
 const DEFAULT_TAB = 'chat'
@@ -68,9 +69,11 @@ const Conversations:React.FC<props> = ({userInfo}) => {
   
   const [conversations, setConversations] = useState<ConversationListItem[]>([]);
 
-  const [keywordDebounce] = useDebounce(keyword, 300)
+  const [keywordDebounce] = useDebounce(keyword, 500)
   const searchLoading = UseBoolean()
   const router = useRouter()
+
+  const {onlineUsers} = useUnifiedAuth()
   
   useEffect(() => {
     if (!userInfo) {
@@ -127,7 +130,7 @@ const Conversations:React.FC<props> = ({userInfo}) => {
   }, [keywordDebounce])
 
   useEffect(() => {
-    searchLoading.setTrue();
+    // searchLoading.setTrue();
     console.log(keyword)
   }, [keyword])
 
@@ -161,10 +164,6 @@ const Conversations:React.FC<props> = ({userInfo}) => {
         credentials: 'include',
       });
 
-      if (!response.ok) {
-        throw new Error('Failed to fetch conversations');
-      }
-
       const data = await response.json();
       console.log(data.conversations)
       setConversations(data.conversations);
@@ -172,6 +171,36 @@ const Conversations:React.FC<props> = ({userInfo}) => {
       console.error('Error fetching conversations:', error);
     } finally {
       setLoadingConversations(false);
+    }
+  }
+
+  const handleAddFriend = (toUserId: number) => {
+    socket.emit('send-friend-request', {
+      toUserId,
+      from: {
+        id: userInfo.userId,
+        username: userInfo.username
+      }
+    })
+  }
+
+  const handleStartConversation = async (toUserId: number) => {
+    try {
+      const response = await fetch('/api/start-conversation', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(toUserId),
+        credentials: 'include',
+      })
+
+      if(response.ok){
+        const data = await response.json();
+        router.push(`/chat?c=${data.conversationId}`);
+      }
+    } catch (error) {
+      console.error('Error starting conversation:', error); 
     }
   }
 
@@ -215,7 +244,7 @@ const Conversations:React.FC<props> = ({userInfo}) => {
             {users?.length === 0 ? (
               <div className="flex justify-center w-full">
                 <h1 className="m-auto mt-5 font-sans text-sm text-gray-700">
-                  No user founded.
+                  No user found.
                 </h1>
               </div>
             ): (
@@ -235,20 +264,27 @@ const Conversations:React.FC<props> = ({userInfo}) => {
                       </button>
                     </div>
                     <div className="flex items-center h-full">
-                      <h1 className="font-sans text-base text-white cursor-pointer">{user.username}</h1>
+                      <h1 className="font-sans text-lg text-white cursor-pointer">{user.username}</h1>
                     </div>
                   </div>
-                  <button 
-                  className="flex items-center h-full cursor-pointer">
-                    <IoMdPersonAdd className='text-xl text-white'/>
-                  </button>
+                  <div className="flex items-center gap-3">
+                    <button
+                    onClick={() => handleStartConversation(user.userId)} 
+                    className="flex items-center justify-center h-full cursor-pointer">
+                      <IoChatboxEllipses className='text-xl text-white'/>
+                    </button>
+                    <button 
+                    className="flex items-center justify-center h-full cursor-pointer">
+                      <IoMdPersonAdd className='text-xl text-white'/>
+                    </button>
+                  </div>
                 </div>
               ))
             )}
           </div>
         </div>
         <div className={`w-full ${keyword.trim() !== '' ? 'hidden' : 'block'}`}>
-          {conversations.length > 0 ? (
+          {conversations?.length > 0 ? (
             conversations.map((conversation) => {
               const oppUser = conversation.conversation.members
                 .find(member => member.user.userId !== userInfo.userId)?.user
@@ -266,17 +302,19 @@ const Conversations:React.FC<props> = ({userInfo}) => {
                 key={conversation.conversationId}
                 className="flex items-center justify-between w-full h-16 px-2 py-2 cursor-pointer chat-container">
                   <div className="flex items-center flex-1 h-full space-x-2">
-                    {oppUser?.user_atribut.pfp_id ? (
-                      <div className="flex items-center justify-center h-full overflow-hidden rounded-full aspect-square">
-                        <img src={`https://fra.cloud.appwrite.io/v1/storage/buckets/683bc8bf0001881c6cc5/files/${oppUser.user_atribut.pfp_id}/view?project=681cbc230020279ce784`} alt={oppUser.username} className="w-full h-full" />
-                      </div>                    
-                    ): (
-                      <div className="flex items-center justify-center h-full rounded-full aspect-square">
-                        <FaRegCircleUser className='text-5xl text-[#e0e0e0]' />
-                      </div>
-                    )}
+                    <div className="relative h-full">
+                      {oppUser?.user_atribut.pfp_id ? (
+                        <div className="flex items-center justify-center h-full overflow-hidden rounded-full aspect-square">
+                          <img src={`https://fra.cloud.appwrite.io/v1/storage/buckets/683bc8bf0001881c6cc5/files/${oppUser.user_atribut.pfp_id}/view?project=681cbc230020279ce784`} alt={oppUser.username} className="w-full h-full" />
+                        </div>                    
+                      ): (
+                        <div className="flex items-center justify-center h-full rounded-full aspect-square">
+                          <FaRegCircleUser className='text-5xl text-[#e0e0e0]' />
+                        </div>
+                      )}
+                    </div>
                     <div className="flex-1 h-full name-n-preview-container">
-                      <div className="flex items-start pt-1 h-1/2">
+                      <div className="flex items-center gap-1 pt-1 h-1/2">
                         <h1 className="font-roboto font-medium text-[#e0e0e0] text-sm">{oppUser?.username}</h1>
                       </div>
                       <div className="flex items-end pb-1 h-1/2">
@@ -309,7 +347,12 @@ const Conversations:React.FC<props> = ({userInfo}) => {
               )
             })
           ) : (
-            <div className=""></div>
+            <div className="flex items-center justify-center w-full">
+              <div className="flex flex-col items-center justify-center gap-2 mt-5">
+                <h1 className="font-sans text-sm text-gray-600">NO conversation found yet.</h1>
+                <h1 className="text-sm font-medium text-white font-sanss font sans">Search some friends and start yap.</h1>
+              </div>
+            </div>
           )}
         </div>
       </main>
