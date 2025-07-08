@@ -25,16 +25,22 @@ const onlineUsers = new Map()
 
 io.on("connection", (socket) => {
   socket.on("register", (userId) => {
-    onlineUsers.set(Number(userId), socket.id)
-    socket.emit("receive-online-users", Array.from(onlineUsers.entries()).map(([userId, socketId]) => ({
-      userId,
-      socketId
-    })));
     console.log(`User ${userId} connected with socket id ${socket.id}`);
     console.log("Online users:", Array.from(onlineUsers.entries()).map(([userId, socketId]) => ({
       userId,
       socketId
     })));
+
+    onlineUsers.set(Number(userId), socket.id)
+    socket.emit("receive-online-users", Array.from(onlineUsers.entries()).map(([userId, socketId]) => ({
+      userId,
+      socketId
+    })));
+
+    socket.broadcast.emit("user-connected", {
+      userId: Number(userId),
+      socketId: socket.id,
+    });
   })
 
   socket.on("send-friend-request", ({toUserId, from}) => {
@@ -140,6 +146,8 @@ io.on("connection", (socket) => {
       if(socketId === socket.id){
         console.log(`user ${userId} disconnected wth socket id ${socket.id} ${reason ? `due to ${reason}` : ''}`);
         onlineUsers.delete(userId);
+
+        socket.broadcast.emit("user-disconnected", { userId })
         break
       }
     }

@@ -51,6 +51,7 @@ const page = () => {
     useEffect(() => {
         getUser()
         getTag()
+        getFriendShips()
     }, [])
 
     useEffect(() => {
@@ -74,6 +75,11 @@ const page = () => {
         reader.readAsDataURL(file);
 
         cropMode.setTrue()
+    }
+
+    const getFriendShips = async() => {
+        const response = await fetch('/api/users/friendships')
+        const data = await response.json()
     }
 
     const getTag = async() => {
@@ -146,7 +152,7 @@ const page = () => {
             <main className="w-full p-2">
                 <div className="flex flex-col items-center w-full">
                     <div className="flex flex-col items-center justify-center w-full">
-                        <div className="w-full flex flex-col items-center justify-center space-y-2">
+                        <div className="flex flex-col items-center justify-center w-full space-y-2">
                             <div className="relative">
                                 <label
                                 htmlFor='file-upload' 
@@ -176,7 +182,7 @@ const page = () => {
                             <div className="flex items-center gap-2">
                                 <h1 className="font-sans text-white">{userInfo!.username}</h1>
                                 {userInfo?.user_atribut.pronounces && (
-                                    <p className="font-sans text-gray-500 text-sm">
+                                    <p className="font-sans text-sm text-gray-500">
                                         {userInfo.user_atribut.pronounces.join('/')}
                                     </p>
                                 )}
@@ -209,7 +215,7 @@ const page = () => {
                                     <div className=""></div>
                                 )}
                             </div>
-                            <div className="w-2/3 font-sans text-sm text-white p-3 text-center">
+                            <div className="w-2/3 font-sans text-sm text-center text-white">
                                 {userInfo?.user_atribut.bio ? (
                                     <p className="">{userInfo.user_atribut.bio}</p>
                                 ): (

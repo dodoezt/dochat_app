@@ -1,6 +1,14 @@
 import React, { useState, useCallback, useMemo } from 'react'
 
-export const UseBoolean = (defaultValue: boolean = false) => {
+export type UseBooleanResult = {
+  value: boolean
+  toggle: () => void
+  setTrue: () => void
+  setFalse: () => void
+}
+
+
+export const UseBoolean = (defaultValue: boolean = false): UseBooleanResult => {
     const [value, setValue] = useState<boolean>(defaultValue)
 
     const toggle = useCallback(() => {

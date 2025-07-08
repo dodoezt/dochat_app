@@ -170,6 +170,14 @@ exports.Prisma.User_atributScalarFieldEnum = {
   bio: 'bio'
 };
 
+exports.Prisma.FriendshipsScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  friendId: 'friendId',
+  status: 'status',
+  created_at: 'created_at'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -240,13 +248,21 @@ exports.tags_tier = exports.$Enums.tags_tier = {
   Absolute_OG: 'Absolute_OG'
 };
 
+exports.friendships_status = exports.$Enums.friendships_status = {
+  pending: 'pending',
+  accepted: 'accepted',
+  declined: 'declined',
+  blocked: 'blocked'
+};
+
 exports.Prisma.ModelName = {
   users: 'users',
   conversation_members: 'conversation_members',
   messages: 'messages',
   conversations: 'conversations',
   tags: 'tags',
-  user_atribut: 'user_atribut'
+  user_atribut: 'user_atribut',
+  friendships: 'friendships'
 };
 
 /**

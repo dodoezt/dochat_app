@@ -22,8 +22,13 @@ export async function POST(req: Request) {
                             include: {
                                 user: {
                                     select: {
+                                        userId: true,
                                         username: true,
-                                        email: true,
+                                        user_atribut: {
+                                            select: {
+                                                pfp_id: true,
+                                            }
+                                        },
                                     },
                                 },
                             },
@@ -38,7 +43,7 @@ export async function POST(req: Request) {
             },
         });
 
-        if(!conversations || conversations.length === 0) return NextResponse.json({message: 'no conversations found'}, {status: 404})
+        if(!conversations || conversations.length === 0) return NextResponse.json({conversations:[], message: 'no conversations found'}, {status: 404})
 
         return NextResponse.json({ conversations }, { status: 200 })
     } catch (error) {

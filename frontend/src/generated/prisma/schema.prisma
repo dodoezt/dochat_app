@@ -9,17 +9,19 @@ datasource db {
 }
 
 model users {
-  userId              Int                    @id @default(autoincrement())
-  username            String?                @unique(map: "username_UNIQUE") @db.VarChar(20)
-  provider            String                 @db.VarChar(255)
-  email               String?                @unique(map: "email_UNIQUE") @db.VarChar(255)
-  email_name          String?                @db.VarChar(255)
-  phone_number        String?                @unique(map: "phone_number_UNIQUE") @db.VarChar(255)
-  dial_code           String?                @db.VarChar(255)
-  createdAt           DateTime               @db.DateTime(0)
-  conversationMembers conversation_members[] @relation("UserConversationMembers")
-  sentMessages        messages[]             @relation("UserSentMessages")
-  user_atribut        user_atribut?
+  userId                                  Int                    @id @default(autoincrement())
+  username                                String                 @unique(map: "username_UNIQUE") @db.VarChar(20)
+  provider                                String                 @db.VarChar(255)
+  email                                   String?                @unique(map: "email_UNIQUE") @db.VarChar(255)
+  email_name                              String?                @db.VarChar(255)
+  phone_number                            String?                @unique(map: "phone_number_UNIQUE") @db.VarChar(255)
+  dial_code                               String?                @db.VarChar(255)
+  createdAt                               DateTime               @db.DateTime(0)
+  conversationMembers                     conversation_members[] @relation("UserConversationMembers")
+  friendships_friendships_userIdTousers   friendships[]          @relation("friendships_userIdTousers")
+  friendships_friendships_friendIdTousers friendships[]          @relation("friendships_friendIdTousers")
+  sentMessages                            messages[]             @relation("UserSentMessages")
+  user_atribut                            user_atribut?
 
   @@map("users")
 }
@@ -80,6 +82,19 @@ model user_atribut {
   users      users   @relation(fields: [userId], references: [userId], onDelete: Cascade, map: "fk_user_id")
 }
 
+model friendships {
+  id                                Int                 @id @default(autoincrement())
+  userId                            Int
+  friendId                          Int
+  status                            friendships_status? @default(pending)
+  created_at                        DateTime?           @default(now()) @db.Timestamp(0)
+  users_friendships_userIdTousers   users               @relation("friendships_userIdTousers", fields: [userId], references: [userId], onDelete: Cascade, onUpdate: NoAction, map: "friendships_ibfk_1")
+  users_friendships_friendIdTousers users               @relation("friendships_friendIdTousers", fields: [friendId], references: [userId], onDelete: Cascade, onUpdate: NoAction, map: "friendships_ibfk_2")
+
+  @@unique([userId, friendId], map: "unique_pair")
+  @@index([friendId], map: "friendId")
+}
+
 enum messages_status {
   NOT_DELIVERED
   DELIVERED
@@ -90,4 +105,11 @@ enum tags_tier {
   Common
   Kinda_Cool  @map("Kinda Cool")
   Absolute_OG @map("Absolute OG")
+}
+
+enum friendships_status {
+  pending
+  accepted
+  declined
+  blocked
 }

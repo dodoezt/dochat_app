@@ -10,14 +10,18 @@ import { UseBoolean } from '@/hooks/useBoolean';
 
 import ExpandableText from '@/components/functions/expandableText';
 import Conversations from '@/components/seperated-component/chat/conversations';
+import { Dots } from '@/components/ui/spinner';
 
 import { IoMdSend, IoMdArrowBack } from "react-icons/io";
 import { FaArrowDown } from "react-icons/fa6";
+import { MdAccountCircle } from 'react-icons/md';
 
 type members = {
     userId: number;
     username: string;
-    email: string;
+    user_atribut: {
+        pfp_id: string | null;
+    }
 }
 
 type MessageType = {
@@ -34,7 +38,7 @@ type RecievedMsgType = MessageType & {
 }
 
 type props = {
-    convId: string | undefined,
+    convId: string | null,
     userInfo: any,
 }
 
@@ -60,6 +64,8 @@ const Conversation: React.FC<props> = ({convId, userInfo}) => {
     
     const [debounceInput] = useDebounce(textInput, 500)
 
+    const { onlineUsers } = useUnifiedAuth()
+
     // useEffect(() => {
     //     console.log('User ID:', userInfo.userId);
     // }, [userId]);
@@ -79,9 +85,11 @@ const Conversation: React.FC<props> = ({convId, userInfo}) => {
         }
     }, [getConversationLoading.value])
 
-
     useEffect(() => {
-        if(!convId || !userInfo) return
+        if(!convId || convId?.trim() === '' || !userInfo){
+            router.back() 
+            return; 
+        } 
 
         socket.emit('join-room', {
             userId: userInfo.userId,
@@ -142,7 +150,7 @@ const Conversation: React.FC<props> = ({convId, userInfo}) => {
                 conversationId: convId
             })
         };
-    }, [convId, userInfo]);
+    }, []);
 
     //NOTE: FIX JOIN DAN LEAVE ROOM PADA SOCKETNYA
 
@@ -177,7 +185,7 @@ const Conversation: React.FC<props> = ({convId, userInfo}) => {
         return () => {
             socket.off("show-typing-status");
         };
-    }, [userInfo]);
+    }, []);
 
     useEffect(() => {
         if (!convId || !userInfo) return;
@@ -185,7 +193,7 @@ const Conversation: React.FC<props> = ({convId, userInfo}) => {
         if (userInfo && userInfo.userId) {
             getConversation()
         }
-    }, [userInfo, convId])
+    }, [])
     
     const sendMessage = () => {
         if (!textInput.trim()) return;
@@ -310,7 +318,7 @@ const Conversation: React.FC<props> = ({convId, userInfo}) => {
     if(getConversationLoading.value || !userInfo) return <div className="font-sans text-[#e0e0e0]">loading...</div>
 
     return (
-        <div className="relative w-screen h-screen">
+        <div className="relative w-screen h-screen bg-[#121212]">
             <header className="fixed top-0 flex items-center justify-between w-full p-3 h-[60px] border-b border-b-[#2c2c2c] bg-[#121212] z-10">
                 <div className="flex items-center flex-1 h-full space-x-2">
                     <button 
@@ -318,25 +326,35 @@ const Conversation: React.FC<props> = ({convId, userInfo}) => {
                     className="flex items-center justify-center h-full cursor-pointer aspect-square ">
                         <IoMdArrowBack className='text-[#e0e0e0] text-lg'/>
                     </button>
-                    <div className="aspect-square w-9 rounded-full border-[1px] border-[#e0e0e0]"></div>
-                    <div className="flex flex-col h-full">
-                        <div className="flex items-start h-1/2">
-                            <h1 className="font-sans font-medium text-[#e0e0e0] text-sm">{members.length === 1 && members[0].username}</h1>
-                            {/* <span className="text-[#888888] font-normal text-xs">@dodoezt</span> */}
+                    <button className="flex h-full gap-2 cursor-pointer">
+                        <div className="flex items-center justify-center overflow-hidden rounded-full aspect-square w-9">
+                            {members.length === 1 && members[0].user_atribut.pfp_id ? (
+                                <img src={`${process.env.NEXT_PUBLIC_APPWRITE_BUCKET_URL}${members[0].user_atribut.pfp_id}${process.env.NEXT_PUBLIC_APPWRITE_BUCKET_URL_END}`} alt="" className="" />
+                            ): (
+                                <MdAccountCircle className='text-5xl text-[#e0e0e0]' />
+                            )}
                         </div>
-                        <div className="flex items-end h-1/2">
-                            <p className="font-sans text-[#888888] text-xs">{isTyping ? 'typing...' : 'online'}</p>
+                        <div className="flex flex-col h-full">
+                            <div className="flex items-start h-1/2">
+                                <h1 className="font-sans font-medium text-[#e0e0e0] text-sm">{members.length === 1 && members[0].username}</h1>
+                                {/* <span className="text-[#888888] font-normal text-xs">@dodoezt</span> */}
+                            </div>
+                            <div className="flex items-end h-1/2">
+                                <p className="font-sans text-[#888888] text-xs">
+                                    {onlineUsers?.find((user : any) => user.userId === members[0].userId) ? isTyping ? 'typing...' : 'online' : 'offline'}
+                                </p>
+                            </div>
                         </div>
-                    </div>
+                    </button>
                 </div>
                 <div className=""></div>
             </header>
             <main className="w-full h-full pt-[72px] pb-12 overflow-y-scroll">
-                <div className="w-full">
+                <div className="flex flex-col justify-end w-full">
                     {Object.entries(groupedMessages).map(([dateKey, messagesInDate]) => (
-                    <div key={dateKey}>
-                        <div className="flex items-center justify-center w-full my-2">
-                            <h1 className="px-2 py-1 bg-[#2c2c2c] font-sans text-xs text-[#e0e0e0] rounded-lg">
+                    <div className='w-full' key={dateKey}>
+                        <div className="relative flex items-center justify-center w-full py-4">
+                            <h1 className="px-2 py-1 bg-[#2c2c2c] font-sans text-xs text-[#e0e0e0] rounded-lg absolute">
                                 {dateFormat(dateKey)}
                             </h1>
                         </div>
@@ -386,14 +404,14 @@ const Conversation: React.FC<props> = ({convId, userInfo}) => {
                         ))}
                     </div>
                     ))}
-                    <div ref={SeenBottomRef} />
-                    {unSeenMessages.length > 0 && (
+                    <div ref={SeenBottomRef}></div>
+                    {/* {unSeenMessages.length > 0 && (
                         <button 
                         onClick={() => UnSeenMessaeRef.current?.scrollIntoView({behavior: 'smooth', block: 'center'})}
                         className="aspect-square animate-bounce flex items-center justify-center rounded-full bg-[#121212] border border-[#2c2c2c] cursor-pointer p-1 fixed bottom-12 left-1/2 -translate-x-1/2">
                             <FaArrowDown className='text-lg text-[#e0e0e0]'/>
                         </button>
-                    )}
+                    )} */}
                 </div>
             </main>
             <div className="fixed bottom-0 w-full p-2 bg-[#121212] z-10">

@@ -1,10 +1,10 @@
 'use client'
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState, useRef } from 'react';
 import { Client, Account, Models } from 'appwrite';
 import { GoogleAuthContextType, userInfoByGoogle } from '@/types/contexts';
+import socket from '@/lib/socket';
 
 import { UseBoolean } from '@/hooks/useBoolean';
-import socket from '@/lib/socket';
 
 const client = new Client()
     .setEndpoint(process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT!)
@@ -21,10 +21,11 @@ export const GoogleAuthProvider = ({ children } : any) => {
         email_name: '',
         email: '',
     })
-
+    const [userInfo, setUserInfo] = useState<userInfoByGoogle | null>(null)
     const loadingGetUser = UseBoolean(true)
 
-    const [userInfo, setUserInfo] = useState<userInfoByGoogle | null>(null)
+    const hasConnected = useRef(false);
+    const [onlineUsers, setOnlineUsers] = useState<any[] | null>(null);
 
     useEffect(() => {
         console.log(loadingGetUser.value)
@@ -34,12 +35,52 @@ export const GoogleAuthProvider = ({ children } : any) => {
         getUserFromDb()
     }, [])
 
-    useEffect(() => {
-        if(!socket.connected) socket.connect();
+    const connectToSocket = async() => {
+        console.log('SocketProvider mounted');
+        
+        try {
+            const response = await fetch('/api/user/userId', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'include',
+        });
+        
+        if (response.ok) {
+            const data = await response.json();
+            
+            if (!hasConnected.current){
+                if(!socket.connected) socket.connect();
+                socket.emit('register', data.userId);
+                hasConnected.current = true;
+            }
 
-        return () => {
-            socket.disconnect();
+        } else {
+            console.error('Failed to fetch user ID');
         }
+        } catch (error) {
+            console.log('Error fetching user ID:', error);
+        }
+    }
+
+    useEffect(() => {
+        connectToSocket()
+    }, [])
+
+    useEffect(() => {
+        socket.on("receive-online-users", (users) => {
+            setOnlineUsers(users); // isi semua online users saat pertama daftar
+        });
+
+        socket.on("user-connected", (user) => {
+            setOnlineUsers((prev: any) => [...prev, user]); // tambahin user yang baru online
+        });
+
+        socket.on("user-disconnected", ({ userId }) => {
+            setOnlineUsers((prev: any) => prev.filter(u => u.userId !== userId)); // hapus yang disconnect
+        });
+
     }, [])
 
     // useEffect(() => {
@@ -96,7 +137,7 @@ export const GoogleAuthProvider = ({ children } : any) => {
     }
 
     return (
-        <GoogleAuthContext.Provider value={{ provider :'google', userInfo: userInfo!, googleUserInfo, getUser, googleLogOut, getJwtToken, loadingGetUser }}>
+        <GoogleAuthContext.Provider value={{ provider :'google', userInfo: userInfo!, googleUserInfo, getUser, googleLogOut, getJwtToken, loadingGetUser, onlineUsers }}>
             {children}
         </GoogleAuthContext.Provider>
     )

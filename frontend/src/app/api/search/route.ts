@@ -25,7 +25,7 @@ export async function GET(req: Request) {
             }
         })        
 
-        if(response.length === 0) return NextResponse.json({res: null}, {status: 404})
+        if(response.length === 0) return NextResponse.json({res: []}, {status: 404})
 
         return NextResponse.json({res: response}, {status: 200})
     } catch (error) {

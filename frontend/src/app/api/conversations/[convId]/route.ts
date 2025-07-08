@@ -26,7 +26,11 @@ export async function POST(req: Request, context: Context) {
               select: {
                 userId: true,
                 username: true,
-                email: true,
+                user_atribut: {
+                  select: {
+                    pfp_id: true,
+                  }
+                }
               }
             }
           }
@@ -57,6 +61,8 @@ export async function POST(req: Request, context: Context) {
     const otherMembers = conversation.members
       .filter(member => member.user.userId !== userId)
       .map(member => member.user);
+    
+    console.log('Other members:', otherMembers);
 
     return NextResponse.json({
       conversation: {

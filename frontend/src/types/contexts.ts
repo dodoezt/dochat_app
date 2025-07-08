@@ -20,6 +20,7 @@ export type GoogleAuthContextType = BaseAuthContext & {
     googleLogOut?: () => Promise<void>;
     getJwtToken?: () => Promise<Models.Jwt>;
     loadingGetUser?: UseBooleanType;
+    onlineUsers?: any;
 };
 
 export type UnLoggedContextType = BaseAuthContext & {
