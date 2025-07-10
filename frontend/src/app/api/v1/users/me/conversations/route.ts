@@ -7,6 +7,7 @@ import { GetUserIdFromCookie } from "@/lib/auth/getUserIdFromCookie";
 
 export async function POST(req: Request) {
     const userId = await GetUserIdFromCookie()
+    console.log('userId:', userId)
     
     if(!userId) return NextResponse.json({message: 'invalid token'}, {status: 400})
     

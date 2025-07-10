@@ -2,11 +2,9 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma"
 import { UserPublicType } from '@/types/user'
 
-export async function GET(req: Request) {
-    const { searchParams } = new URL(req.url)
-    const username = searchParams.get('username')
-//NOTE LANJUTIN PROFILE
-    console.log('username: ', username)
+export async function GET(req: Request, {params}: {params: Promise<{username: string}>}) {
+    const { username } = await params
+
 
     if(!username) return NextResponse.json({message: 'username needed'}, {status: 401})
 

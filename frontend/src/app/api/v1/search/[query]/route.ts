@@ -1,17 +1,16 @@
 import { prisma } from '@/lib/prisma'
 import { NextResponse } from 'next/server'
 
-export async function GET(req: Request) {
-    const {searchParams} = new URL(req.url)
-    const username = searchParams.get('username')
+export async function GET(req: Request, {params}: {params: Promise<{ query: string }>}) {
+    const {query} = await params
 
-    if(username?.trim() === '' || !username) return NextResponse.json({res: null})
+    if(query?.trim() === '' || !query) return NextResponse.json({res: null})
 
     try {
         const response = await prisma.users.findMany({
             where: {
                 username : {
-                    contains: username,
+                    contains: query,
                 }
             },
             select: {

@@ -2,7 +2,7 @@ import { GetUserIdFromCookie } from '@/lib/auth/getUserIdFromCookie';
 import { prisma } from '@/lib/prisma';
 import { NextResponse } from 'next/server';
 
-type Context = {
+export type Context = {
   params: Promise<{ convId: string }>
 };
 
@@ -76,7 +76,6 @@ export async function POST(req: Request, context: Context) {
     }, { status: 200 });
 
   } catch (error) {
-    console.error('Error in POST /api/conversations/[convId]', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
