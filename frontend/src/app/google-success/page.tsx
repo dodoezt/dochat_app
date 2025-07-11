@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Client, Account } from 'appwrite'
 
-import { useUnifiedAuth } from '@/components/contexts/parents/authProvider'
+import { useGlobalContext } from '@/components/contexts/parents/globalProvider'
 import LogoLoading from '@/components/loadings/logoLoading'
 
 const client = new Client()
@@ -19,14 +19,6 @@ const page = () => {
     })
 
     const router = useRouter()
-    const auth = useUnifiedAuth()
-    const { provider } = auth    
-
-    useEffect(() => {
-        if (provider !== null) {
-            router.replace('/')
-        }
-    }, [provider]) 
 
     const getUser = async () => {
         try {
@@ -41,11 +33,11 @@ const page = () => {
     }
 
     const handleIsUserCreated = async (email: string) => {
-        const res = await fetch(`/api/is-user-created?email=${email}`, {
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json',
-        },
+        const res = await fetch(`/api/v1/users/check-email?email=${email}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            },
         })
         const data = await res.json()
         return data.exists
@@ -55,7 +47,7 @@ const page = () => {
         const isUserCreated = await handleIsUserCreated(email)
         if (isUserCreated) {
             try {
-                const response = await fetch('api/login/google', {
+                const response = await fetch('/api/v1/auth/login', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
