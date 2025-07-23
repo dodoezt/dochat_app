@@ -25,13 +25,14 @@ const onlineUsers = new Map()
 
 io.on("connection", (socket) => {
   socket.on("register", (userId) => {
-    console.log(`User ${userId} connected with socket id ${socket.id}`);
-    console.log("Online users:", Array.from(onlineUsers.entries()).map(([userId, socketId]) => ({
-      userId,
-      socketId
-    })));
-
     onlineUsers.set(Number(userId), socket.id)
+    console.log(`User ${userId} connected with socket id ${socket.id}`);
+    // console.log("Online users:", Array.from(onlineUsers.entries()).map(([userId, socketId]) => ({
+    //   userId,
+    //   socketId
+    // })));
+    // console.log('raw onlien users', onlineUsers)
+
     socket.emit("receive-online-users", Array.from(onlineUsers.entries()).map(([userId, socketId]) => ({
       userId,
       socketId
@@ -54,20 +55,19 @@ io.on("connection", (socket) => {
 
   socket.on("join-room", ({userId, conversationId}) => {
     socket.join(conversationId)
+    socket.to(conversationId).emit("user-joined-room", {
+      userId,
+    });
+    console.log(`User ${userId} joined room ${conversationId}`);
   })
 
   socket.on("leave-room", ({userId, conversationId}) => {
     socket.leave(conversationId)
+    socket.to(conversationId).emit("user-left-room", {
+      userId,
+    });
+    console.log(`User ${userId} left room ${conversationId}`);
   })
-
-  socket.on("join-user-room", (userId) => {
-    socket.join(userId);
-  });
-
-  socket.on("leave-user-room", (userId) => {
-    socket.leave(userId);
-  })
-
 
   socket.on("send-message", async ({id, conversationId, senderId, content, sentAt, status}) => {
     const memberIds = await prisma.conversations.findUnique({
@@ -116,7 +116,7 @@ io.on("connection", (socket) => {
       memberIds.members.forEach(member => {
         if (member.userId === senderId) return;
         console.log('terkirim ke', member.userId)
-        io.to(member.userId).emit("new-preview-message", {
+        io.to(onlineUsers.get(member.userId)).emit("new-preview-message", {
           id: saved.id,
           conversationId: saved.conversationId,
           senderId: saved.senderId,
