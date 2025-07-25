@@ -21,19 +21,20 @@ const io = new Server(server, {
   },
 });
 
-const onlineUsers = new Map()
+const onlineUserMap = new Map()
+const activeRooms = new Map()
 
 io.on("connection", (socket) => {
   socket.on("register", (userId) => {
-    onlineUsers.set(Number(userId), socket.id)
+    onlineUserMap.set(Number(userId), socket.id)
     console.log(`User ${userId} connected with socket id ${socket.id}`);
-    // console.log("Online users:", Array.from(onlineUsers.entries()).map(([userId, socketId]) => ({
+    // console.log("Online users:", Array.from(onlineUserMap.entries()).map(([userId, socketId]) => ({
     //   userId,
     //   socketId
     // })));
-    // console.log('raw onlien users', onlineUsers)
+    // console.log('raw onlien users', onlineUserMap)
 
-    socket.emit("receive-online-users", Array.from(onlineUsers.entries()).map(([userId, socketId]) => ({
+    socket.emit("receive-online-users", Array.from(onlineUserMap.entries()).map(([userId, socketId]) => ({
       userId,
       socketId
     })));
@@ -45,7 +46,7 @@ io.on("connection", (socket) => {
   })
 
   socket.on("send-friend-request", ({toUserId, from}) => {
-    const targetSocketId = onlineUsers.get(toUserId)
+    const targetSocketId = onlineUserMap.get(toUserId)
     if(targetSocketId){
       io.to(targetSocketId).emit('friend-request-received', {
         from
@@ -53,21 +54,50 @@ io.on("connection", (socket) => {
     }
   })
 
-  socket.on("join-room", ({userId, conversationId}) => {
-    socket.join(conversationId)
-    socket.to(conversationId).emit("user-joined-room", {
-      userId,
-    });
-    console.log(`User ${userId} joined room ${conversationId}`);
-  })
+  socket.on("join-room", ({ userId, conversationId }) => {
+    const socketId = onlineUserMap.get(userId);
+    if (!socketId) return;
 
-  socket.on("leave-room", ({userId, conversationId}) => {
-    socket.leave(conversationId)
-    socket.to(conversationId).emit("user-left-room", {
-      userId,
-    });
+    const roomMembers = activeRooms.get(conversationId);
+
+    if (roomMembers) {
+      const alreadyJoined = roomMembers.some((user) => user.userId === userId);
+      if (alreadyJoined) return;
+
+      socket.join(conversationId);
+      activeRooms.set(conversationId, [
+        ...roomMembers,
+        { userId, socketId },
+      ]);
+    } else {
+      socket.join(conversationId);
+      activeRooms.set(conversationId, [{ userId, socketId }]);
+    }
+
+    socket.to(conversationId).emit("user-joined-room", { userId });
+    console.log(`User ${userId} joined room ${conversationId}`);
+    console.log(activeRooms);
+  });
+
+  socket.on("leave-room", ({ userId, conversationId }) => {
+    socket.leave(conversationId);
+    socket.to(conversationId).emit("user-left-room", { userId });
+
+    const roomMembers = activeRooms.get(conversationId);
+    if (!roomMembers) return;
+
+    const filtered = roomMembers.filter((user) => user.userId !== userId);
+
+    if (filtered.length === 0) {
+      activeRooms.delete(conversationId);
+    } else {
+      activeRooms.set(conversationId, filtered);
+    }
+
     console.log(`User ${userId} left room ${conversationId}`);
-  })
+    console.log(activeRooms);
+  });
+
 
   socket.on("send-message", async ({id, conversationId, senderId, content, sentAt, status}) => {
     const memberIds = await prisma.conversations.findUnique({
@@ -116,7 +146,7 @@ io.on("connection", (socket) => {
       memberIds.members.forEach(member => {
         if (member.userId === senderId) return;
         console.log('terkirim ke', member.userId)
-        io.to(onlineUsers.get(member.userId)).emit("new-preview-message", {
+        io.to(onlineUserMap.get(member.userId)).emit("new-preview-message", {
           id: saved.id,
           conversationId: saved.conversationId,
           senderId: saved.senderId,
@@ -142,13 +172,42 @@ io.on("connection", (socket) => {
   });
 
   socket.on("disconnect", (reason) => {
-    for(let [userId, socketId] of onlineUsers.entries()) {
-      if(socketId === socket.id){
+    for (let [userId, socketId] of onlineUserMap.entries()) {
+      if (socketId === socket.id) {
         console.log(`user ${userId} disconnected wth socket id ${socket.id} ${reason ? `due to ${reason}` : ''}`);
-        onlineUsers.delete(userId);
+        onlineUserMap.delete(userId);
+        socket.broadcast.emit("user-disconnected", { userId });
+        break;
+      }
+    }
 
-        socket.broadcast.emit("user-disconnected", { userId })
-        break
+    if (activeRooms.size !== 0) {
+      const arrOfActiveRooms = Array.from(activeRooms.entries()).map(([conversationId, users]) => ({
+        conversationId,
+        users,
+      }));
+
+      let lastVisitedRoom = null;
+
+      for (const { conversationId, users } of arrOfActiveRooms) {
+        const user = users.find((u) => u.socketId === socket.id);
+        if (user) {
+          lastVisitedRoom = { conversationId, user };
+          break;
+        }
+      }
+
+      if (lastVisitedRoom) {
+        const usersInRoom = activeRooms.get(lastVisitedRoom.conversationId);
+        const filteredUsers = usersInRoom.filter((u) => u.socketId !== socket.id);
+
+        if (filteredUsers.length === 0) {
+          activeRooms.delete(lastVisitedRoom.conversationId);
+        } else {
+          activeRooms.set(lastVisitedRoom.conversationId, filteredUsers);
+        }
+
+        console.log(activeRooms);
       }
     }
   });
