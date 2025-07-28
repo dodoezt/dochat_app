@@ -62,15 +62,14 @@ export const ChatProvider = ({ children }: {children: React.ReactNode}) => {
 
     const loadingCachedConversations = UseBoolean(true)
     const loadingConversations = UseBoolean(true)
+
+    const [count, setCount] = useState(0)
     
 
     //TESTING USEEFFECT
     useEffect(() => {
         console.log(currentConvId, 'currentConvId in ChatProvider');
     }, [currentConvId]);
-    useEffect(() => {
-        console.log('conversations in context:', conversations)
-    })
     //TESTING USEEFFECT
     
     useEffect(() => {
@@ -101,38 +100,53 @@ export const ChatProvider = ({ children }: {children: React.ReactNode}) => {
     
         const handleNewPreviewMessage = (msg: MessageType) => {
             setConversations((prev) => {
-            const updated = [...prev!];
-            const conversationIndex = updated.findIndex(
-                (conv) => conv.conversationId === msg.conversationId
-            );
-    
-            if (conversationIndex !== -1) {
-                const updatedMessages = [
-                {
-                    id: msg.id,
-                    conversationId: msg.conversationId,
-                    senderId: msg.senderId,
-                    content: msg.content,
-                    sentAt: msg.sentAt,
-                    status: msg.status,
-                },
-                ...updated[conversationIndex].conversation.messages,
-                ];
-    
-                updated[conversationIndex] = {
-                ...updated[conversationIndex],
-                conversation: {
-                    ...updated[conversationIndex].conversation,
-                    messages: updatedMessages,
-                },
-                };
-            }
-    
-            return updated;
+                if (!prev) return prev;
+                
+                const updated = [...prev];
+                const conversationIndex = updated.findIndex(
+                    (conv) => conv.conversationId === msg.conversationId
+                );
+        
+                if (conversationIndex !== -1) {
+                    // Check if message already exists to prevent duplicates
+                    const messageExists = updated[conversationIndex].conversation.messages
+                        .some(existingMsg => existingMsg.id === msg.id);
+                    
+                    if (messageExists) {
+                        return updated; // Return without changes if message already exists
+                    }
+
+                    const updatedMessages = [
+                        {
+                            id: msg.id,
+                            conversationId: msg.conversationId,
+                            senderId: msg.senderId,
+                            content: msg.content,
+                            sentAt: msg.sentAt,
+                            status: msg.status,
+                        },
+                        ...updated[conversationIndex].conversation.messages,
+                    ];
+        
+                    updated[conversationIndex] = {
+                        ...updated[conversationIndex],
+                        conversation: {
+                            ...updated[conversationIndex].conversation,
+                            messages: updatedMessages,
+                        },
+                    };
+                }
+        
+                return updated;
             });
         };
     
         socket.on('new-preview-message', handleNewPreviewMessage);
+
+        // Cleanup function to remove the event listener
+        return () => {
+            socket.off('new-preview-message', handleNewPreviewMessage);
+        };
     }, [loadingServer]);
 
     const getCachedConversations = async () => {
@@ -177,7 +191,7 @@ export const ChatProvider = ({ children }: {children: React.ReactNode}) => {
     }
 
     return (
-        <ChatContext.Provider value={{userInfo, conversations, setConversations, currentConvId, lastConvId, setLastConvId, loadingCachedConversations, loadingConversations, onlineUsers}}>
+        <ChatContext.Provider value={{userInfo, conversations, setConversations, currentConvId, lastConvId, setLastConvId, loadingCachedConversations, loadingConversations, onlineUsers: onlineUsers || []}}>
             {children}
         </ChatContext.Provider>
     )
