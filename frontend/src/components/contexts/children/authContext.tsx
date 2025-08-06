@@ -19,38 +19,34 @@ export const useAuthContext = () => useContext(AuthContext) as AuthContextType;
 export const AuthProvider = ({ children } : any) => { 
     const [userInfo, setUserInfo] = useState<userInfoByGoogle | null>(null)
     const loadingGetUser = UseBoolean(true)
-    const [isLogged, setIsLogged] = useState<boolean | null>(null);
+    const loadingServer = UseBoolean(true)
 
     const hasConnected = useRef(false);
-    const [onlineUsers, setOnlineUsers] = useState<any[] | null>(null);
+    const [onlineUsers, setOnlineUsers] = useState<any[]>([]);
 
-    const connectToSocket = async () => {
-        console.log('SocketProvider mounted');
-
+    const connectToSocket = () => {
+        if (!userInfo) return
         if (hasConnected.current) return;
+        loadingServer.setTrue();
 
         try {
-            const response = await fetch('/api/v1/users/me/userId', {
-                method: 'GET',
-                headers: { 'Content-Type': 'application/json' },
-                credentials: 'include',
-            });
-
-            const data = response.ok ? await response.json() : null;
-            const userId = data?.userId;
+            const userId = userInfo?.userId;
+            console.log(userId)
 
             if (!socket.connected) socket.connect();
             if (userId) socket.emit('register', userId);
+            socket.emit('receive-new-messages', {userId})
 
         } catch (error) {
             console.log('Error fetching user ID:', error);
             if (!socket.connected) socket.connect();
         } finally {
             hasConnected.current = true;
+            loadingServer.setFalse();
         }
     };
 
-    function getIsLoggedCookie(): boolean | null {
+    function getIsLoggedCookie() {
         if (typeof document === 'undefined') return null;
         const match = document.cookie
             .split('; ')
@@ -59,10 +55,11 @@ export const AuthProvider = ({ children } : any) => {
 
         if (match === 'true') return true;
         if (match === 'false') return false;
-        return null;
     }
     
     const getUserFromDb = async() => {
+        const isLogged = getIsLoggedCookie();
+        if(!isLogged) return
         loadingGetUser.setTrue()
         try {
             const response = await fetch('/api/v1/users/me', {
@@ -81,6 +78,7 @@ export const AuthProvider = ({ children } : any) => {
             setUserInfo(null);
         } finally {
             loadingGetUser.setFalse();
+            connectToSocket()
         }
     }   
     
@@ -89,13 +87,19 @@ export const AuthProvider = ({ children } : any) => {
         return jwt;
     }
 
+    // TESTING USEEFFECT
     useEffect(() => {
-       getUserFromDb()
+        console.log('onlineUsers:', onlineUsers);
+    }, [onlineUsers])
+    // TESTING USEEFFECT
+
+    useEffect(() => {
+        getUserFromDb()
     }, [])
 
     useEffect(() => {
-        connectToSocket()
-    }, [])
+        if(userInfo) connectToSocket()
+    }, [userInfo])
     
     useEffect(() => {
         socket.on("receive-online-users", (users) => {
@@ -109,15 +113,24 @@ export const AuthProvider = ({ children } : any) => {
         socket.on("user-disconnected", ({ userId }) => {
             setOnlineUsers((prev: any) => prev.filter((u: any) => u.userId !== userId)); // hapus yang disconnect
         });
-    
+
+        return () => {
+            socket.off('receive-online-users')
+            socket.off('user-connected')
+            socket.off('user-disconnected')
+        }
     }, [])
 
     useEffect(() => {
         console.log('userInfo:', userInfo);
     }, [userInfo])
+
+    if (loadingServer.value && userInfo){
+        return null;
+    }
     
     return (
-        <AuthContext.Provider value={{ userInfo, getOauthJwtToken, loadingGetUser, onlineUsers, isLogged }}>
+        <AuthContext.Provider value={{ userInfo, getOauthJwtToken, loadingGetUser, onlineUsers, loadingServer }}>
             {children}
         </AuthContext.Provider>
     )
