@@ -25,6 +25,7 @@ const onlineUserMap = new Map()
 const activeRooms = new Map()
 
 io.on("connection", (socket) => {
+  console.log(`a client connected with ${socket.id} id`)
   socket.on("register", (userId) => {
     onlineUserMap.set(Number(userId), socket.id)
     console.log(`User ${userId} connected with socket id ${socket.id}`);
@@ -43,6 +44,34 @@ io.on("connection", (socket) => {
       userId: Number(userId),
       socketId: socket.id,
     });
+
+    socket.broadcast.emit('update-not-delivered-messages', {userId})
+  })
+
+  socket.on('receive-new-messages', async (data) => {
+    const { userId } = data;
+
+    try {
+      const statusUpdatedMessages = await prisma.messages.updateMany({
+        where: {
+          conversation: {
+            members: {
+              some: {
+                userId: Number(userId),
+              },
+            },
+          },
+          status: 'NOT_DELIVERED',
+        },
+        data: {
+          status: 'DELIVERED',
+        },
+      })
+
+      io.to(socket.id).emit('new-messages-received', {statusUpdated: true})
+    } catch (error) {
+      console.error("Error updating message status:", error);
+    }
   })
 
   socket.on("send-friend-request", ({toUserId, from}) => {
@@ -74,7 +103,11 @@ io.on("connection", (socket) => {
       activeRooms.set(conversationId, [{ userId, socketId }]);
     }
 
-    socket.to(conversationId).emit("user-joined-room", { userId });
+    io.to(conversationId).emit("user-joined-room", { userId, conversationId });
+    socket.broadcast.emit('status-to-seen', {
+      conversationId,
+      userId,
+    })
     console.log(`User ${userId} joined room ${conversationId}`);
     console.log(activeRooms);
   });
@@ -99,21 +132,41 @@ io.on("connection", (socket) => {
   });
 
 
-  socket.on("send-message", async ({id, conversationId, senderId, content, sentAt, status}) => {
-    const memberIds = await prisma.conversations.findUnique({
-      where: {
-        id: conversationId,
-      }, 
-      include: {
-        members: {
-          select: {
-            userId: true,
+  socket.on("send-message", async ({ id: temporaryId, conversationId, senderId, content, sentAt }) => {
+    try {
+      // Ambil data conversation + semua member-nya
+      const conversation = await prisma.conversations.findUnique({
+        where: { id: conversationId },
+        include: {
+          members: {
+            select: { userId: true },
           },
         },
-      },
-    })
+      });
 
-    try {
+      if (!conversation) {
+        return socket.emit("error-message", "Percakapan tidak ditemukan");
+      }
+
+      const members = conversation.members;
+      const recipientUsers = members.filter(member => member.userId !== senderId);
+
+      // Cek status penerima (anggap 1 lawan 1)
+      const oppUser = recipientUsers[0]; // kalau lebih dari 2 user, ini perlu di-loop
+      const oppUserId = oppUser?.userId;
+      const oppSocketId = onlineUserMap.get(oppUserId);
+      const roomUsers = activeRooms.get(conversationId) ?? [];
+      const isOppInRoom = roomUsers.some(user => user.userId === oppUserId);
+
+      const statusToSave = oppSocketId ? (isOppInRoom ? "SEEN" : "DELIVERED") : "NOT_DELIVERED";
+
+      // Emit status ke pengirim (update dari client pake temporaryId)
+      io.to(conversationId).emit("message-status", {
+        temporaryId,
+        status: statusToSave,
+      });
+
+      // Simpan pesan
       const saved = await prisma.messages.create({
         data: {
           id: crypto.randomUUID(),
@@ -121,43 +174,41 @@ io.on("connection", (socket) => {
           senderId,
           content,
           sentAt,
-          status: 'DELIVERED',
+          status: statusToSave,
         },
       });
-      socket.emit("receive-message", {
-        id: saved.id,
-        temporaryId: id,
-        conversationId: saved.conversationId,
-        senderId: saved.senderId,
-        content: saved.content,
-        sentAt: saved.sentAt,
-        status: 'DELIVERED'
-      });
 
+      // Emit ke semua user di room (kecuali pengirim)
       socket.to(conversationId).emit("receive-message", {
+        temporaryId,
         id: saved.id,
-        conversationId: saved.conversationId,
-        senderId: saved.senderId,
-        content: saved.content,
-        sentAt: saved.sentAt,
-        status: 'DELIVERED'
+        conversationId,
+        senderId,
+        content,
+        sentAt,
+        status: statusToSave,
       });
 
-      memberIds.members.forEach(member => {
-        if (member.userId === senderId) return;
-        console.log('terkirim ke', member.userId)
-        io.to(onlineUserMap.get(member.userId)).emit("new-preview-message", {
-          id: saved.id,
-          conversationId: saved.conversationId,
-          senderId: saved.senderId,
-          content: saved.content, 
-          sentAt: saved.sentAt,
-          status: 'DELIVERED'
-        })
-      })
+      // Emit preview ke semua member yang online (kecuali pengirim)
+      members.forEach(member => {
+        const targetSocket = onlineUserMap.get(member.userId);
+        if (targetSocket) {
+          io.to(targetSocket).emit("new-preview-message", {
+            temporaryId,
+            id: saved.id,
+            conversationId: saved.conversationId,
+            senderId: saved.senderId,
+            content: saved.content,
+            sentAt: saved.sentAt,
+            status: saved.status,
+          });
+          console.log("terkirim ke", member.userId);
+        }
+      });
+
     } catch (err) {
-      console.error("Failed to save message:", err);
-      socket.emit("error-message", "Gagal kirim pesan");
+      console.error("Gagal kirim pesan:", err);
+      socket.emit("error-message", "Gagal mengirim pesan.");
     }
   });
 
