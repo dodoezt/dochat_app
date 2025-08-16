@@ -1,10 +1,12 @@
 'use client'
 import React, { useState, useEffect, createContext, useContext, ReactNode } from 'react';
-import { useParams, useSearchParams } from 'next/navigation';
+// import { useParams, useSearchParams } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import { useGlobalContext } from '@/components/contexts/parents/globalProvider'
 import { useAuthContext } from '@/components/contexts/children/authContext';
 import socket from '@/lib/socket';
 import { UseBoolean } from '@/hooks/useBoolean';
+import { produce } from 'immer'
 
 export type ConversationListItem = {
   conversation: {
@@ -37,6 +39,10 @@ export type MessageType = {
     status?: 'NOT_DELIVERED' | 'DELIVERED' | 'SEEN';
 };
 
+type PreviewMessageType = MessageType & {
+    temporaryId: string;
+}
+
 interface ChatContextType {
     userInfo: any;
     conversations: ConversationListItem[] | null;
@@ -62,14 +68,19 @@ export const ChatProvider = ({ children }: {children: React.ReactNode}) => {
 
     const loadingCachedConversations = UseBoolean(true)
     const loadingConversations = UseBoolean(true)
-
-    const [count, setCount] = useState(0)
     
-
     //TESTING USEEFFECT
     useEffect(() => {
         console.log(currentConvId, 'currentConvId in ChatProvider');
     }, [currentConvId]);
+
+    useEffect(() => {
+        console.log('conversations:', conversations)
+    }, [conversations])
+
+    useEffect(() => {
+        console.log('online users:', onlineUsers)
+    }, [onlineUsers])
     //TESTING USEEFFECT
     
     useEffect(() => {
@@ -96,9 +107,10 @@ export const ChatProvider = ({ children }: {children: React.ReactNode}) => {
     }, [currentConvId, loadingServer]);
 
     useEffect(() => {
-        if(loadingServer?.value) return
+        if(loadingServer?.value, loadingConversations.value) return
     
-        const handleNewPreviewMessage = (msg: MessageType) => {
+        const handleNewPreviewMessage = (msg: PreviewMessageType) => {
+            console.log('New preview message received:', msg);
             setConversations((prev) => {
                 if (!prev) return prev;
                 
@@ -108,12 +120,42 @@ export const ChatProvider = ({ children }: {children: React.ReactNode}) => {
                 );
         
                 if (conversationIndex !== -1) {
+                    if (updated[conversationIndex].conversation.messages.length === 0) {
+                        return updated.map((conv) => 
+                            conv.conversationId === msg.conversationId ? {
+                                ...conv,
+                                conversation: {
+                                    ...conv.conversation,
+                                    messages: [{
+                                        id: msg.id,
+                                        conversationId: msg.conversationId,
+                                        senderId: msg.senderId,
+                                        content: msg.content,
+                                        sentAt: msg.sentAt,
+                                        status: msg.status,
+                                    }],
+                                },
+                            } : conv
+                        )
+                    }
                     // Check if message already exists to prevent duplicates
                     const messageExists = updated[conversationIndex].conversation.messages
-                        .some(existingMsg => existingMsg.id === msg.id);
+                        .some(existingMsg => existingMsg.id === msg.temporaryId);
                     
                     if (messageExists) {
-                        return updated; // Return without changes if message already exists
+                        const existingMessageIndex = updated[conversationIndex].conversation.messages
+                            .findIndex(existingMsg => existingMsg.id === msg.id);
+                        return updated.map((conv) => 
+                            conv.conversationId === msg.conversationId ? {
+                                ...conv,
+                                conversation: {
+                                    ...conv.conversation,
+                                    messages: conv.conversation.messages.map((message, msgIndex) => msgIndex === existingMessageIndex ? {
+                                        ...message, status: msg.status
+                                    } : message)
+                                }
+                            } : conv
+                        )
                     }
 
                     const updatedMessages = [
@@ -142,12 +184,72 @@ export const ChatProvider = ({ children }: {children: React.ReactNode}) => {
         };
     
         socket.on('new-preview-message', handleNewPreviewMessage);
+        socket.on('new-messages-received', ({ isUpdated}) => {
+            if (isUpdated) {
+                setConversations(
+                    produce((draft) => {
+                        draft?.forEach((conv) => {
+                            conv.conversation.messages.forEach((msg) => {
+                                if (msg.status === 'NOT_DELIVERED') {
+                                    msg.status = 'DELIVERED';
+                                }
+                            });
+                        });
+                    })
+                )
+            }
+        })
+
+        socket.on('update-not-delivered-messages', ({ userId }) => {
+            setConversations((prev) =>
+                prev!.map((conv) => {
+                    const isRelevant = conv.conversation.members.some(
+                        (member) => member.user.userId === userId
+                    )
+
+                    if (!isRelevant) return conv;
+
+                    return {
+                        ...conv,
+                        conversation: {
+                            ...conv.conversation,
+                            messages: conv.conversation.messages.map((msg) =>
+                                msg.status === 'NOT_DELIVERED' ? {
+                                    ...msg,
+                                    status: isOnline(msg.senderId) ? 'DELIVERED' : 'NOT_DELIVERED'
+                                } : msg
+                            ),
+                        },
+                    };
+                })
+            );
+        })
+
+        socket.on('status-to-seen', ({ conversationId, userId }) => {
+            setConversations(
+                produce((draft) => {
+                    const conversation = draft?.find(conv => conv.conversationId === conversationId)
+
+                    if(conversation) {
+                        conversation.conversation.messages.forEach((msg) => {
+                            if(msg.status === 'DELIVERED' && msg.senderId !== userId) {
+                                msg.status = 'SEEN';
+                            }
+                        })
+                    }
+                })
+            )
+        })
 
         // Cleanup function to remove the event listener
         return () => {
             socket.off('new-preview-message', handleNewPreviewMessage);
+            socket.off('new-messages-received');
+            socket.off('update-not-delivered-messages');
         };
-    }, [loadingServer]);
+    }, [loadingServer, loadingConversations.value]);
+
+    const isOnline = (userId: number) => onlineUsers!.some(user => user.userId === userId);
 
     const getCachedConversations = async () => {
         loadingCachedConversations.setTrue()
@@ -157,6 +259,7 @@ export const ChatProvider = ({ children }: {children: React.ReactNode}) => {
           });
     
           const data = await response.json();
+        //   const filteredData = data.conversations.filter((conversation : ConversationListItem) => conversation.conversation.messages.length !== 0)
           setConversations(data.conversations);
         } catch (error) {
           console.error('Error fetching cached conversations:', error);
