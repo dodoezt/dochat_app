@@ -8,140 +8,121 @@ import { UseBoolean } from '@/hooks/useBoolean'
 import ChatSearchBar from '@/components/seperated-component/chat/searchBar'
 import ChatNavbar from '@/components/seperated-component/chat/navbar'
 import LogoLoading from '@/components/loadings/logoLoading'
-import { useUnifiedAuth } from '@/components/contexts/parents/authProvider'
 
 import { FaRegCircleUser } from "react-icons/fa6";
-import { BsCheckAll } from "react-icons/bs";
+import { BsCheck, BsCheckAll } from "react-icons/bs";
 import { MdAccountCircle } from 'react-icons/md'
 import { IoMdPersonAdd } from "react-icons/io";
 import { IoChatboxEllipses } from "react-icons/io5";
+import { useAuthContext } from '@/components/contexts/children/authContext'
+import { useChatContext } from '@/components/contexts/children/chatContext'
 
 const VALID_TABS = ['chat', 'search']
 const DEFAULT_TAB = 'chat'
 
-type ConversationListItem = {
-  conversation: {
-    id: string;
-    isGroup: boolean;
-    name: string | null;
-    createdAt: Date;
-    members: {
-      user: {
-        userId: number,
-        username: string,
-        user_atribut: {
-          pfp_id: string | null,
-        }
-      };
-    }[];
-    messages: {
-      id: number;
-      content: string;
-      sentAt: Date;
-      status: 'NOT_DELIVERED' | 'DELIVERED' | 'SEEN';
-      senderId: number;
-      conversationId: string;
-    }[];
-  };
-  userId: number;
-  conversationId: string;
-  joinedAt: Date;
-};
-
-type ConversationMessages = {
-  id: number;
-  content: string;
-  sentAt: Date;
-  status: 'NOT_DELIVERED' | 'DELIVERED' | 'SEEN';
-  senderId: number;
-  conversationId: string;
-}
-
 type props = {
-    userInfo: any,
+  
 }
 
-const Conversations:React.FC<props> = ({userInfo}) => {
+const Conversations:React.FC<props> = ({}) => {
   const [isSearchOnFocus, setIsSearchOnFocus] = useState<boolean>(false)
-  const [loadingConversations, setLoadingConversations] = useState<boolean>(true)
   const [keyword, setKeyword] = useState<string>('')
   const [users, setUsers] = useState<any[] | null>(null)
+  // const loadingCachedConversations = UseBoolean(true)
+  // const loadingConversations = UseBoolean(true)
   
-  const [conversations, setConversations] = useState<ConversationListItem[]>([]);
-
   const [keywordDebounce] = useDebounce(keyword, 500)
   const searchLoading = UseBoolean()
   const router = useRouter()
-
-  const {onlineUsers} = useUnifiedAuth()
+  const { userInfo, conversations } = useChatContext();
   
-  useEffect(() => {
-    if (!userInfo) {
-      console.log('No user info available, skipping socket connection.');
-      return;
-    }
-    socket.emit('join-user-room', userInfo.userId);
+  const { onlineUsers } = useAuthContext()
+  
+  //  TESTING USEEFFECT
+  // useEffect(() => {
+  //     getCachedConversations()
+  // }, []);
 
-    const handleNewPreviewMessage = (msg: ConversationMessages) => {
-      setConversations((prev) => {
-        const updated = [...prev];
-        const conversationIndex = updated.findIndex(
-          (conv) => conv.conversationId === msg.conversationId
-        );
+  //  TESTING USEEFFECT
 
-        if (conversationIndex !== -1) {
-          const updatedMessages = [
-            {
-              id: msg.id,
-              conversationId: msg.conversationId,
-              senderId: msg.senderId,
-              content: msg.content,
-              sentAt: msg.sentAt,
-              status: msg.status,
-            },
-            ...updated[conversationIndex].conversation.messages,
-          ];
-
-          updated[conversationIndex] = {
-            ...updated[conversationIndex],
-            conversation: {
-              ...updated[conversationIndex].conversation,
-              messages: updatedMessages,
-            },
-          };
-        }
-
-        return updated;
-      });
-    };
-
-    socket.on('new-preview-message', handleNewPreviewMessage);
-
-    return () => {
-      socket.off('new-preview-message', handleNewPreviewMessage);
-      socket.emit('leave-user-room', userInfo.userId)
-    };
-  }, [userInfo]);
 
   useEffect(() => {
-    if(keyword.trim() === '')
-    console.log(keyword)
+    if(keyword.trim() === '') return;
     searchUsers(keyword)
   }, [keywordDebounce])
 
-  useEffect(() => {
-    // searchLoading.setTrue();
-    console.log(keyword)
-  }, [keyword])
+  // const getCachedConversations = async () => {
+  //   loadingCachedConversations.setTrue()
+  //   try {
+  //     const response = await fetch('/api/v1/caches/conversations', {
+  //       method: 'GET',
+  //     });
 
-  useEffect(() => {
-    getConversations()
-  }, []);
+  //     const data = await response.json();
+  //     setConversations(data.conversations);
+  //   } catch (error) {
+  //     console.error('Error fetching cached conversations:', error);
+  //   } finally {
+  //     loadingCachedConversations.setFalse();
+  //     getConversations();
+  //   }
+  // }
+  
+  // const getConversations = async () => {
+  //   loadingConversations.setTrue()
+  //   try {
+  //       const response = await fetch('/api/v1/users/me/conversations', {
+  //       method: 'POST',
+  //       headers: {
+  //           'Content-Type': 'application/json',
+  //       },
+  //       credentials: 'include',
+  //       });
+
+  //       const data = await response.json();
+  //       setConversations(data.conversations);
+  //   } catch (error) {
+  //       console.error('Error fetching conversations:', error);
+  //   } finally {
+  //       loadingConversations.setFalse();
+  //   }
+  // }
+
+  function handleAddFriend (toUserId: number) {
+    console.log(toUserId, userInfo.userId)
+    socket.emit('send-friend-request', {
+      toUserId,
+      from: {
+        userId: userInfo.userId,
+        username: userInfo.username,
+      }
+    })
+  }
+
+  const renderMessageStatus = (status: string) => {
+    switch (status) {
+      case 'NOT_DELIVERED':
+        return <BsCheck className="text-lg text-[#e0e0e0]" />; // ⏰ belum terkirim
+      case 'DELIVERED':
+        return <BsCheckAll className="text-lg text-[#e0e0e0]" />; // ✓ terkirim
+      case 'SEEN':
+        return <BsCheckAll className="text-lg text-blue-500" />; // ✓✓ terbaca
+      default:
+        return null;
+    }
+  };
+
   
   const searchUsers = async(keyword: string) => {
+    if (keyword.trim() === '') {
+      setUsers(null)
+      return;
+    }
     searchLoading.setTrue()
     try {
-      const response = await fetch(`/api/search?username=${keyword.trim()}`)
+      const response = await fetch(`/api/v1/search/${keyword}`, {
+        method: 'GET',
+      })
 
       const data = await response.json()
       setUsers(data.res)
@@ -153,40 +134,9 @@ const Conversations:React.FC<props> = ({userInfo}) => {
     }
   }
 
-  const getConversations = async () => {
-    setLoadingConversations(true);
-    try {
-      const response = await fetch('/api/conversations', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-      });
-
-      const data = await response.json();
-      console.log(data.conversations)
-      setConversations(data.conversations);
-    } catch (error) {
-      console.error('Error fetching conversations:', error);
-    } finally {
-      setLoadingConversations(false);
-    }
-  }
-
-  const handleAddFriend = (toUserId: number) => {
-    socket.emit('send-friend-request', {
-      toUserId,
-      from: {
-        id: userInfo.userId,
-        username: userInfo.username
-      }
-    })
-  }
-
   const handleStartConversation = async (toUserId: number) => {
     try {
-      const response = await fetch('/api/start-conversation', {
+      const response = await fetch('/api/v1/conversations', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -197,7 +147,8 @@ const Conversations:React.FC<props> = ({userInfo}) => {
 
       if(response.ok){
         const data = await response.json();
-        router.push(`/chat?c=${data.conversationId}`);
+        console.log('conversation created:', data)
+        router.push(`/chat/c/${data.conversationId}`);
       }
     } catch (error) {
       console.error('Error starting conversation:', error); 
@@ -211,21 +162,14 @@ const Conversations:React.FC<props> = ({userInfo}) => {
   const handleSearchBlur = () => {
     setIsSearchOnFocus(false)
   }
-
-  if (loadingConversations) {
-    return (
-      <div className="w-screen h-screen">
-        <LogoLoading />
-      </div>
-    )
-  }
+  if(!conversations || !userInfo) return null
 
   return (
     <div className='relative w-screen h-screen'>
       <header className={`w-full px-4 py-3 items-center justify-between border-b border-b-[#2c2c2c]
         ${isSearchOnFocus ? 'hidden' : 'flex'}  
       `}>
-        <ChatNavbar />
+        <ChatNavbar userInfo={userInfo}/>
       </header>
 
       <main className={`w-full px-2 
@@ -274,6 +218,7 @@ const Conversations:React.FC<props> = ({userInfo}) => {
                       <IoChatboxEllipses className='text-xl text-white'/>
                     </button>
                     <button 
+                    onClick={() => handleAddFriend(user.userId)}
                     className="flex items-center justify-center h-full cursor-pointer">
                       <IoMdPersonAdd className='text-xl text-white'/>
                     </button>
@@ -284,23 +229,32 @@ const Conversations:React.FC<props> = ({userInfo}) => {
           </div>
         </div>
         <div className={`w-full ${keyword.trim() !== '' ? 'hidden' : 'block'}`}>
-          {conversations?.length > 0 ? (
-            conversations.map((conversation) => {
+          {conversations && conversations.length > 0 ? (
+            conversations.slice().sort((a,b) => {
+              const aTime = a.conversation.messages[0]?.sentAt || 0
+              const bTime = b.conversation.messages[0]?.sentAt || 0
+
+              return new Date(bTime).getTime() - new Date(aTime).getTime()
+            })
+            .map((conversation) => {
+              if(conversation.conversation.messages.length === 0) return null;
               const oppUser = conversation.conversation.members
                 .find(member => member.user.userId !== userInfo.userId)?.user
 
-              const oppMessages = conversation.conversation.messages.filter(msg => msg.senderId !== userInfo!.userId);
+              const oppMessages = conversation.conversation.messages.filter(msg => msg.senderId !== userInfo!.userId) || [];
+              const unSeenOppMessages = oppMessages.filter(msg => msg.status !== 'SEEN') || []
 
-              const lastMessage = conversation.conversation.messages[0];
+              const lastMessage = conversation.conversation.messages?.[0];
               const lastMessageTime = lastMessage ? new Date(lastMessage.sentAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Unknown Time';
+
 
               return (
                 <button
                 onClick={() => {
-                  router.push(`/chat?c=${conversation.conversationId}`);
+                  router.push(`/chat/c/${conversation.conversationId}`);
                 }} 
                 key={conversation.conversationId}
-                className="flex items-center justify-between w-full h-16 px-2 py-2 cursor-pointer chat-container">
+                className="flex items-center justify-between w-full h-16 px-2 py-2 transition-all duration-200 ease-in-out cursor-pointer chat-container hover:bg-[rgba(0,0,0,0.2)]">
                   <div className="flex items-center flex-1 h-full space-x-2">
                     <div className="relative h-full">
                       {oppUser?.user_atribut.pfp_id ? (
@@ -319,13 +273,13 @@ const Conversations:React.FC<props> = ({userInfo}) => {
                       </div>
                       <div className="flex items-end pb-1 h-1/2">
                         <div className="flex items-center">
-                          {lastMessage.senderId === userInfo!.userId && (
+                          {lastMessage && lastMessage.senderId === userInfo!.userId && (
                             <span className="mr-[2px] chat-status">
-                              <BsCheckAll className='text-lg text-[#e0e0e0]' />
+                              {renderMessageStatus(lastMessage.status!)}
                             </span>
                           )}
                           <p className="font-roboto font-normal text-[#888888] text-xs">
-                            {lastMessage.content}
+                            {lastMessage ? lastMessage.content : 'No messages yet'}
                           </p>
                         </div>
                       </div>
@@ -336,9 +290,9 @@ const Conversations:React.FC<props> = ({userInfo}) => {
                       <p className="font-sans font-light text-[#888888] text-xs">{lastMessageTime}</p>
                     </div>
                     <div className="flex items-end pb-1 h-1/2">
-                      {lastMessage.senderId !== userInfo!.userId && (
+                      {lastMessage && lastMessage.senderId !== userInfo!.userId && unSeenOppMessages.length !== 0 && (
                         <div className="relative flex items-center justify-center w-4 bg-green-400 rounded-full aspect-square">
-                          <span className="absolute text-[#121212] text-[0.7rem] font-sans font-semibold">{oppMessages.filter(msg => msg.status !== 'SEEN').length}</span>
+                          <span className="absolute text-[#121212] text-[0.7rem] font-sans font-semibold">{unSeenOppMessages.length}</span>
                         </div>
                       )}
                     </div>
