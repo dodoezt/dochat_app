@@ -1,5 +1,5 @@
 'use client'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, useMemo } from 'react'
 import { account, storage, ID, Permission, Role } from '@/lib/appwrite/appwrite'
 
 import { UseBoolean } from '@/hooks/useBoolean'
@@ -11,6 +11,30 @@ import ShinyText from '@/components/reactBits/shinyText'
 
 import { MdAccountCircle } from 'react-icons/md'
 import { FiEdit3 } from "react-icons/fi";
+import { FaCheck } from "react-icons/fa";
+import { IoMdClose } from "react-icons/io";
+
+type friendshipsType = {
+    id: number
+    userId: number
+    friendId: number 
+    status: 'accepted' | 'pending' | 'rejected'
+    createdAt: Date
+    users_friendships_userIdTousers: {
+        userId: number
+        username: string
+        user_atribut: {
+            pfp_id: string
+        }
+    }
+    users_friendships_friendIdTousers: {
+        userId: number
+        username: string
+        user_atribut: {
+            pfp_id: string
+        }
+    }
+}
 
 export const tagColors = [
   {
@@ -33,7 +57,6 @@ export const tagColors = [
   }
 ];
 
-
 const page = () => {
     const [userInfo, setUserInfo] = useState<UserInfoType | null>(null)
     const [croppedImage, setCroppedImage] = useState<string | null>(null)
@@ -41,6 +64,18 @@ const page = () => {
     const [currentImgSrc, setCurrentImgSrc] = useState<any | null>(null)
     const [fileId, setFileId] = useState<string | null>(null)
     const [tags, setTags] = useState<any[] | null>(null)
+    const [friendships, setFriendships] = useState<friendshipsType[] | null>(null)
+    const [socialFilter, setSocialFilter] = useState<'friends' | 'requests'>('friends')
+
+    const loadings = {
+        user: UseBoolean(true),
+        tags: UseBoolean(true),
+        friendships: UseBoolean(true),
+    }
+
+    const editModes = {
+        bio: UseBoolean(true),
+    }
     
     const cropMode = UseBoolean(false)
     const editMode = UseBoolean(false)
@@ -48,12 +83,15 @@ const page = () => {
     const loading = UseBoolean(true)
     const loadingUpImg = UseBoolean(false)
 
+    const bioInputRef = useRef<HTMLInputElement>(null)
+
     useEffect(() => {
         getUser()
         getTag()
         getFriendShips()
     }, [])
 
+    
     useEffect(() => {
         console.log(currentImgSrc)
     }, [currentImgSrc])
@@ -78,23 +116,45 @@ const page = () => {
     }
 
     const getFriendShips = async() => {
-        const response = await fetch('/api/users/friendships')
-        const data = await response.json()
+        loadings.friendships.setTrue()
+        try {
+            const response = await fetch('/api/v1/users/me/friendships')
+            const data = await response.json()
+    
+            setFriendships(data)
+        } catch (error) {
+            console.log()
+            setFriendships(null)
+        } finally {
+            loadings.friendships.setFalse()
+        }
     }
 
     const getTag = async() => {
-        const response = await fetch('/api/tags', {
-            method: 'GET',
-            next: {revalidate : 86400}
-        })
-
-        const data = await response.json()
-        setTags(data)
+        loadings.tags.setTrue()
+        
+        try {
+            const response = await fetch('/api/v1/tags', {
+                method: 'GET',
+                next: {
+                    revalidate : 86400
+                }
+            })
+    
+            const data = await response.json()
+            setTags(data)
+        } catch (error) {
+            console.log(error)
+            setTags(null)
+        } finally {
+            loadings.tags.setFalse()
+        }
     }
 
     const getUser = async() => {
+        loadings.user.setTrue()
         try {
-            const response = await fetch('/api/users/get-user/google', {
+            const response = await fetch('/api/v1/users/me', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'applications/json'
@@ -107,6 +167,9 @@ const page = () => {
             if(user) setCurrentImgSrc(`https://fra.cloud.appwrite.io/v1/storage/buckets/683bc8bf0001881c6cc5/files/${user.user_atribut.pfp_id}/view?project=681cbc230020279ce784&mode=admin`)
         } catch (error: any) {
             console.log(error.message)
+            setUserInfo(null)
+        } finally {
+            loadings.user.setFalse()
         }
     }
 
@@ -122,7 +185,7 @@ const page = () => {
         const formData = new FormData()
         formData.append('file', croppedBlob!, 'profile.jpg')
         try {
-            const response = await fetch('/api/user/upload-img',{
+            const response = await fetch('/api/v1/users/me/avatar',{
                 method: 'POST',
                 body: formData
             })
@@ -133,8 +196,42 @@ const page = () => {
             editMode.setFalse()
         }
     }
+
+    const friends = useMemo(() => {
+        if(!friendships || !userInfo) return []
+        return friendships
+            .filter(friendship => friendship.status === 'accepted')
+            .map(friendship => {
+                if(friendship.userId === userInfo.userId) {
+                    return friendship.users_friendships_friendIdTousers
+                } else if (friendship.friendId === userInfo.userId) {
+                    return friendship.users_friendships_userIdTousers
+                } 
+                return null
+            })
+            .filter(Boolean)
+    }, [friendships])
+
+    const requesters = useMemo(() => {
+        if(!friendships || !userInfo) return []
+        return friendships
+            .filter(friendship => friendship.status === 'pending')
+            .map(friendship => {
+                if(friendship.userId === userInfo.userId) {
+                    return friendship.users_friendships_friendIdTousers
+                } else if (friendship.friendId === userInfo.userId) {
+                    return friendship.users_friendships_userIdTousers
+                } 
+                return null
+            })
+    }, [friendships])
+
+    useEffect(() => {
+        console.log('friendships', friendships)
+        console.log('requeseters', requesters)
+    }, [friendships, requesters])
     
-    if(loading.value) return <p className="text-white">jawa</p>
+    if(loading.value) return <p className="text-white">loading</p>
 
     if(cropMode.value) return (
         <div className="w-screen h-screen bg-[rgba(0, 0, 0, 0.6)] flex items-center justify-center">
@@ -215,11 +312,123 @@ const page = () => {
                                     <div className=""></div>
                                 )}
                             </div>
-                            <div className="w-2/3 font-sans text-sm text-center text-white">
-                                {userInfo?.user_atribut.bio ? (
-                                    <p className="">{userInfo.user_atribut.bio}</p>
-                                ): (
-                                    <p className="">no bio yet.</p>
+                            {editModes.bio.value ? (
+                                <div className="w-2/3 font-sans text-sm text-center text-white">
+                                    <input
+                                    onBlur={(() => {
+                                        editModes.bio.setFalse()
+                                        if(bioInputRef.current) {
+                                            bioInputRef.current.blur()
+                                            bioInputRef.current.select()
+                                        }
+                                        if(userInfo?.user_atribut.bio && userInfo.user_atribut.bio.trim() === ''){
+                                            setUserInfo((prev) => ({
+                                                ...prev!,
+                                                user_atribut: {
+                                                    ...prev!.user_atribut,
+                                                    bio: 'no bio yet.'
+                                                }
+                                            }))
+                                        }
+                                    })} 
+                                    ref={bioInputRef}
+                                    type="text" 
+                                    value={userInfo?.user_atribut.bio ?? 'no bio yet.'}
+                                    onChange={((e) => {
+                                        setUserInfo((prev) => ({
+                                            ...prev!,
+                                            user_atribut: {
+                                                ...prev!.user_atribut,
+                                                bio: e.target.value
+                                            }
+                                        }))
+                                    })}
+                                    className="w-auto h-auto text-center outline-none appearance-none text-wrap" />
+                                </div>
+                            ): (
+                                <div
+                                className="w-2/3 font-sans text-sm text-center text-white">
+                                    <button 
+                                        onClick={() => {
+                                            editModes.bio.setTrue()
+                                            if(bioInputRef.current) {
+                                                bioInputRef.current.focus()
+                                            }
+                                        }}
+                                        className="w-auto h-auto cursor-text">
+                                        {userInfo?.user_atribut.bio ? (
+                                            <p className="">{userInfo.user_atribut.bio}</p>
+                                        ): (
+                                            <p className="">no bio yet.</p>
+                                        )}
+                                    </button>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                    <div className="w-full">
+                        <div className="flex w-full">
+                            <div className="flex flex-col w-full">
+                                <div className="flex items-center w-full">
+                                    <h1 className="font-sans text-lg font-medium text-white">Social</h1>
+                                </div>
+                                <div className="flex items-center w-full gap-2">
+                                    <button 
+                                    onClick={() => setSocialFilter('friends')}
+                                    id='friends'
+                                    className={`text-xs text-white font-sans px-2 py-1 rounded-lg bg-[#2c2c2c] hover:bg-[#393939] cursor-pointer ${socialFilter === 'friends' ? 'border border-white' : ''}`}>
+                                        friends
+                                    </button>
+                                    <button
+                                    onClick={() => setSocialFilter('requests')}
+                                    id='requests'
+                                    className={`text-xs text-white font-sans px-2 py-1 rounded-lg bg-[#2c2c2c] hover:bg-[#393939] cursor-pointer ${socialFilter === 'requests' ? 'border border-white' : ''}`}>
+                                        requests
+                                    </button>
+                                </div>
+                                {friendships ? (
+                                    friendships.filter(friendship => friendship.status === (socialFilter === 'friends' ? 'accepted' : 'pending')).length > 0 ? (
+                                        <div className="flex flex-col w-full mt-2">
+                                            {socialFilter === 'friends' ? (
+                                                friends.map((friend, idx) => {
+                                                    
+                                                    return (
+                                                        <div key={idx} className="flex items-center w-full h-12 gap-2 px-2 py-2">
+                                                            <div className="h-full overflow-hidden rounded-full aspect-square">
+                                                                <img src={`${process.env.NEXT_PUBLIC_APPWRITE_BUCKET_URL}${friend?.user_atribut.pfp_id}${process.env.NEXT_PUBLIC_APPWRITE_BUCKET_URL_END}`} alt={`${friend?.username} pfp`} className="object-cover w-full h-full" />
+                                                            </div>
+                                                            <h1 className="text-base font-medium text-white font-roboto">{friend?.username}</h1>
+                                                        </div>
+                                                    )
+                                                })
+                                            ) : (
+                                                requesters.map((requester, idx) => {
+                                                    return (
+                                                        <div key={idx} className="flex items-center justify-between w-full h-12 px-2 py-2">
+                                                            <div className="flex items-center h-full gap-2">
+                                                                <div className="h-full overflow-hidden rounded-full aspect-square">
+                                                                    <img src={`${process.env.NEXT_PUBLIC_APPWRITE_BUCKET_URL}${requester?.user_atribut.pfp_id}${process.env.NEXT_PUBLIC_APPWRITE_BUCKET_URL_END}`} alt={`${requester?.username} pfp`} className="w-full h-full" />
+                                                                </div>
+                                                                <h1 className="text-base font-medium text-white font-roboto">{requester?.username}</h1>
+                                                            </div>
+                                                            <div className="flex items-center gap-2">
+                                                                <button className="flex items-center justify-center p-2 bg-green-600 cursor-pointer rounded-xl">
+                                                                    <FaCheck className='text-[#121212] text-base'/>
+                                                                </button>
+                                                                <button className="flex items-center justify-center p-2 bg-gray-500 cursor-pointer rounded-xl">
+                                                                    <IoMdClose className='text-[#121212] text-lg'/>
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    )
+                                                })
+                                            )}
+                                        </div>
+                                    ) : (
+                                        <p className="text-sm text-white">You dont have any {socialFilter} yet.</p>
+                                    )
+                                ) : (
+                                    <h1 className="text-sm font-medium text-white">You dont have any social interaction yet.</h1>
                                 )}
                             </div>
                         </div>
@@ -239,7 +448,7 @@ const page = () => {
             }}
             className={`${previewMode.value ? 'flex' : 'hidden'} w-screen h-screen fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 items-center justify-center bg-[rgba(0,0,0,0.6)]`}>
                 <div className="w-2/3 aspect-square">
-                    <img src={currentImgSrc} alt={userInfo?.username} className="h-full w-fulll" />
+                    <img src={currentImgSrc} alt={userInfo?.username} className="h-full w-fudll" />
                 </div>
             </button>
         </div>
