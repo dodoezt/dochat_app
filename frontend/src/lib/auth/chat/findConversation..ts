@@ -1,4 +1,4 @@
-import { prisma} from '@/lib/prisma';
+import { prisma } from '@/lib/prisma';
 
 export async function findPrivateConversation(userAId: number, userBId: number) {
   const all = await prisma.conversations.findMany({
@@ -13,12 +13,19 @@ export async function findPrivateConversation(userAId: number, userBId: number) 
     }
   });
 
+  console.log('all conversations:', all)
+
   const existing = all.find(conv => {
     const ids = conv.members.map(m => m.userId).sort();
+    console.log('ids:', ids)
     return ids.length === 2 &&
-      ids[0] === Math.min(userAId, userBId) &&
-      ids[1] === Math.max(userAId, userBId);
+      ids.some(id => id === userAId) &&
+      ids.some(id => id === userBId);
   });
+
+  console.log('is existing?', existing)
 
   return existing;
 }
+
+// FIX ONLINE USERS, DAN JUGA START CONVERSATIONS

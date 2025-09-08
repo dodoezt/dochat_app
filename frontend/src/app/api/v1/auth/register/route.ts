@@ -29,6 +29,12 @@ export async function POST(request: Request) {
                 email,
                 email_name,
                 createdAt,
+                user_atribut: {
+                    create: {
+                        pfp_id: null,
+                        bio: null,
+                    }
+                }
             },
         });
 
@@ -41,7 +47,6 @@ export async function POST(request: Request) {
             {
                 userId: user.userId,
                 username: user.username,
-                provider: 'google',
                 email: user.email,
                 email_name : user.email_name
             },

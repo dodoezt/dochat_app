@@ -34,6 +34,8 @@ export type MessageType = {
     id: string;
     conversationId: string;
     senderId: number;
+    senderPfp_id: string | null;
+    senderUsername: string;
     content: string;
     sentAt: string;
     status?: 'NOT_DELIVERED' | 'DELIVERED' | 'SEEN';
@@ -130,6 +132,8 @@ export const ChatProvider = ({ children }: {children: React.ReactNode}) => {
                                         id: msg.id,
                                         conversationId: msg.conversationId,
                                         senderId: msg.senderId,
+                                        senderUsername: msg.senderUsername,
+                                        senderPfp_id: msg.senderPfp_id,
                                         content: msg.content,
                                         sentAt: msg.sentAt,
                                         status: msg.status,
@@ -163,6 +167,8 @@ export const ChatProvider = ({ children }: {children: React.ReactNode}) => {
                             id: msg.id,
                             conversationId: msg.conversationId,
                             senderId: msg.senderId,
+                            senderUsername: msg.senderUsername,
+                            senderPfp_id: msg.senderPfp_id,
                             content: msg.content,
                             sentAt: msg.sentAt,
                             status: msg.status,

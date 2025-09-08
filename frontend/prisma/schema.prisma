@@ -21,6 +21,7 @@ model users {
   friendships_friendships_userIdTousers   friendships[]          @relation("friendships_userIdTousers")
   friendships_friendships_friendIdTousers friendships[]          @relation("friendships_friendIdTousers")
   sentMessages                            messages[]             @relation("UserSentMessages")
+  notifications                           notifications[]
   user_atribut                            user_atribut?
 
   @@map("users")
@@ -45,7 +46,10 @@ model messages {
   sentAt         DateTime        @default(now()) @db.DateTime(0)
   status         messages_status @default(NOT_DELIVERED)
   senderId       Int
+  senderUsername String          @db.VarChar(20)
+  senderPfp_id   String?         @db.VarChar(100)
   conversationId String          @db.VarChar(36)
+  seen_by        Json?
   sender         users           @relation("UserSentMessages", fields: [senderId], references: [userId], onDelete: Cascade, onUpdate: NoAction, map: "messages_ibfk_1")
   conversation   conversations   @relation(fields: [conversationId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "messages_ibfk_2")
 
@@ -95,6 +99,16 @@ model friendships {
   @@index([friendId], map: "friendId")
 }
 
+model notifications {
+  id      Int                @id @default(autoincrement())
+  userId  Int
+  type    notifications_type
+  content String             @db.Text
+  users   users              @relation(fields: [userId], references: [userId], onDelete: NoAction, onUpdate: NoAction, map: "fk_notifications_userId")
+
+  @@index([userId], map: "fk_notifications_userId")
+}
+
 enum messages_status {
   NOT_DELIVERED
   DELIVERED
@@ -112,4 +126,8 @@ enum friendships_status {
   accepted
   declined
   blocked
+}
+
+enum notifications_type {
+  FRIENDSHIPS
 }

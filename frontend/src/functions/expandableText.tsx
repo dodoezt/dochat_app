@@ -12,7 +12,7 @@ const ExpandableText: React.FC<ExpandableTextProps> = ({ text, maxChars = 120 })
   const displayText = expanded || !isLong ? text : text.slice(0, maxChars) + '...';
 
   return (
-    <div className="text-sm text-[#e0e0e0] whitespace-pre-wrap break-words">
+    <div className="text-sm font-sans text-[#e0e0e0] whitespace-pre-wrap break-words text-wrap max-w-full">
       {displayText}
       {isLong && (
         <button

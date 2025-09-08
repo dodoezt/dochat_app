@@ -13,34 +13,39 @@ import {
     IoMdSettings
 } from "react-icons/io";
 
-const menuItems = [
-    {
-        name: 'Profile',
-        icon: <FaUser className='text-base text-white'/>,
-        navigate: '/profile'
-    },
-    {
-        name: 'Friends',
-        icon: <FaUserFriends className='text-lg text-white'/>,
-        navigate: '/friends'
-    },
-    {
-        name: 'Notifications',
-        icon: <IoMdNotifications className='text-lg text-white'/>,
-        navigate: '/notifications'
-    },
-    {
-        name: 'Settings',
-        icon: <IoMdSettings className='text-lg text-white'/>,
-        navigate: '/settings'
-    },
-]
-
 const ChatNavbar = ({userInfo} : {userInfo: UserInfoType}) => {
     const isMenuOpen = UseBoolean(false);
     const isMenuClicked = UseBoolean(false);
     const menuRef = useRef<HTMLDivElement>(null);
     const router = useRouter()
+
+    const isSocialOpen = UseBoolean(false);
+    const [menuItems, setMenuItems] = useState([
+        {
+            name: 'Profile',
+            icon: <FaUser className='text-base text-white'/>,
+            navigate: '/profile',
+        },
+        {
+            name: 'Social',
+            icon: <FaUserFriends className='text-lg text-white'/>,
+            navigate: '/profile',
+        },
+        {
+            name: 'Notifications',
+            icon: <IoMdNotifications className='text-lg text-white'/>,
+            navigate: '/notifications'
+        },
+        {
+            name: 'Settings',
+            icon: <IoMdSettings className='text-lg text-white'/>,
+            navigate: '/settings'
+        },
+    ])
+
+    useEffect(() => {
+        console.log('menuItems', menuItems);
+    }, [menuItems]);
 
     function handleMenuToggle() {
         if(isMenuClicked.value) return;
@@ -87,17 +92,23 @@ const ChatNavbar = ({userInfo} : {userInfo: UserInfoType}) => {
                 <div id='menu' ref={menuRef} className='absolute right-[50%] w-56 transition-all duration-200 ease-in-out bg-[#121212] top-[110%] z-[30] hidden flex-col opacity-0 rounded-b-2xl rounded-tl-2xl border border-[#2c2c2c] -translate-y-5'>
                     {menuItems.map((item, idx) => {
                         return (
-                            <button
-                            onClick={() => {
-                                router.push(item.navigate);
-                                isMenuOpen.setFalse();
-                            }}
-                            key={idx}
-                            className="flex items-center w-full h-10 py-2 px-3 gap-2 p-2 hover:bg-[#1a1a1a] cursor-pointer">
-                                {item.icon}
-                                <span className='font-sans text-sm font-normal text-white'>{item.name}</span>
-                            </button>
-                        )
+                            <div key={idx} className="relative w-full">
+                                <button
+                                onClick={() => {
+                                    router.push(item.navigate!);
+                                    isMenuOpen.setFalse();
+                                }}
+                                className="flex items-center justify-between w-full h-10 p-3 hover:bg-[#1a1a1a] cursor-pointer"
+                                >
+                                    <div className="flex items-center gap-2">
+                                        {item.icon}
+                                        <span className="font-sans text-sm font-normal text-white">
+                                            {item.name}
+                                        </span>
+                                    </div>
+                                </button>
+                            </div>
+                        );
                     })}
                 </div>
             </div>

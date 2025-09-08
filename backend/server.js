@@ -74,18 +74,23 @@ io.on("connection", (socket) => {
     }
   })
 
-  socket.on("send-friend-request", ({toUserId, from}) => {
+  socket.on("send-friend-request", async ({toUserId,friendshipId, from}) => {
     const targetSocketId = onlineUserMap.get(toUserId)
     if(targetSocketId){
       io.to(targetSocketId).emit('friend-request-received', {
+        type: 'friend-request',
+        friendshipId,
         from
       })
     }
   })
 
-  socket.on("join-room", ({ userId, conversationId }) => {
+  socket.on("join-room", async ({ userId, conversationId }) => {
     const socketId = onlineUserMap.get(userId);
-    if (!socketId) return;
+    if (!socketId) {
+      socket.emit('error-message', 'User not authenticated or not connected');
+      return;
+    }
 
     const roomMembers = activeRooms.get(conversationId);
 
@@ -101,6 +106,24 @@ io.on("connection", (socket) => {
     } else {
       socket.join(conversationId);
       activeRooms.set(conversationId, [{ userId, socketId }]);
+    }
+
+    try {
+      const updateMsgStatus = await prisma.messages.updateMany({
+        where: {
+          conversationId,
+          status: 'DELIVERED',
+          senderId: {
+            not: userId,
+          },
+        },
+        data: {
+          status: 'SEEN'
+        }
+      })
+    } catch (error) {
+      console.error('error updating message status:', error);
+      socket.emit('error-message', 'Failed to update messages status');
     }
 
     io.to(conversationId).emit("user-joined-room", { userId, conversationId });
@@ -132,7 +155,7 @@ io.on("connection", (socket) => {
   });
 
 
-  socket.on("send-message", async ({ id: temporaryId, conversationId, senderId, content, sentAt }) => {
+  socket.on("send-message", async ({ id: temporaryId, conversationId, senderId, senderUsername, senderPfp_id, content, sentAt }) => {
     try {
       // Ambil data conversation + semua member-nya
       const conversation = await prisma.conversations.findUnique({
@@ -172,6 +195,8 @@ io.on("connection", (socket) => {
           id: crypto.randomUUID(),
           conversationId,
           senderId,
+          senderUsername,
+          senderPfp_id,
           content,
           sentAt,
           status: statusToSave,
@@ -184,6 +209,8 @@ io.on("connection", (socket) => {
         id: saved.id,
         conversationId,
         senderId,
+        senderUsername,
+        senderPfp_id,
         content,
         sentAt,
         status: statusToSave,
@@ -196,13 +223,27 @@ io.on("connection", (socket) => {
           io.to(targetSocket).emit("new-preview-message", {
             temporaryId,
             id: saved.id,
-            conversationId: saved.conversationId,
-            senderId: saved.senderId,
-            content: saved.content,
-            sentAt: saved.sentAt,
-            status: saved.status,
+            conversationId,
+            senderId,
+            senderUsername,
+            senderPfp_id,
+            content,
+            sentAt,
+            status: statusToSave,
           });
-          console.log("terkirim ke", member.userId);
+          if(member.userId !== senderId){
+            io.to(targetSocket).emit("new-message-notification", {
+              id: saved.id,
+              type: 'message',
+              conversationId,
+              from: {
+                senderId,
+                senderUsername,
+                senderPfp_id,
+              },
+              content              
+            })
+          }
         }
       });
 

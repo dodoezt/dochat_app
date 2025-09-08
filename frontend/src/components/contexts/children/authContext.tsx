@@ -2,9 +2,13 @@
 import React, { createContext, useContext, useEffect, useState, useRef } from 'react';
 import { Client, Account, Models } from 'appwrite';
 import { AuthContextType, userInfoByGoogle } from '@/types/contexts';
+import { UserInfoType } from '@/types/user';
 import socket from '@/lib/socket';
+import Notification from '@/components/mini-components/notification';
 
 import { UseBoolean } from '@/hooks/useBoolean';
+import { redis } from '@/lib/caches/RedisCaches';
+import { getRedis, setRedis } from '@/functions/redis/redisFunctions';
 
 const client = new Client()
     .setEndpoint(process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT!)
@@ -16,13 +20,39 @@ const AuthContext = createContext<any>(null);
 
 export const useAuthContext = () => useContext(AuthContext) as AuthContextType;
 
+const testNotifications = [
+    {
+        type: 'friend-request',
+        friendshipId: 99,
+        from: {
+            userId: 9,
+            username: 'nero',
+            pfp_id: '686523f10025e35c2dd6'
+        },
+        title: `New Friend Request`,
+    },
+    {
+        type: 'friend-request',
+        friendshipId: 100,
+        from: {
+            userId: 12,
+            username: 'alldo uncut',
+            pfp_id: '6880b6bd002fd13db081'
+        },
+        title: `New Friend Request`,
+    }
+]
+
 export const AuthProvider = ({ children } : any) => { 
-    const [userInfo, setUserInfo] = useState<userInfoByGoogle | null>(null)
+    const [userInfo, setUserInfo] = useState<UserInfoType | null>(null)
     const loadingGetUser = UseBoolean(true)
     const loadingServer = UseBoolean(true)
 
     const hasConnected = useRef(false);
     const [onlineUsers, setOnlineUsers] = useState<any[]>([]);
+    const [notifications, setNotifications] = useState<any[]>([]);
+    const [newFriendRequests, setNewFriendRequests] = useState<any[]>([]);
+    // const audio = new Audio('/assets/sounds/notification.mp3')
 
     const connectToSocket = () => {
         if (!userInfo) return
@@ -91,14 +121,54 @@ export const AuthProvider = ({ children } : any) => {
     useEffect(() => {
         console.log('onlineUsers:', onlineUsers);
     }, [onlineUsers])
+
+    useEffect(() => {
+        console.log('notifications:', notifications);
+    }, [notifications])
     // TESTING USEEFFECT
 
     useEffect(() => {
+        // setNotifications(testNotifications)
         getUserFromDb()
     }, [])
 
     useEffect(() => {
-        if(userInfo) connectToSocket()
+        if(userInfo) {
+            connectToSocket()
+            socket.on('friend-request-received', ({type, friendshipId, from}) => {
+                const newNotification = {
+                    type,
+                    friendshipId,
+                    from: {
+                        userId: from.userId,
+                        username: from.username,
+                        pfp_id: from.pfp_id
+                    },
+                    title: `New Friend Request`,
+                }
+                setNotifications((prev) => [...prev, newNotification]);
+            })
+
+            socket.on('new-message-notification', ({ id, type, conversationId, from, content}) => {
+                const newNotification = {
+                    msgId : id,
+                    type,
+                    conversationId,
+                    from: {
+                        userId: from.senderId,
+                        username: from.senderUsername,
+                        pfp_id: from.senderPfp_id
+                    },
+                    content,
+                }
+                setNotifications((prev) => [...prev, newNotification]);
+            })
+        }
+
+        return () => {
+            socket.off('friend-request-received');
+            socket.off('new-message-notification');
+        }
     }, [userInfo])
     
     useEffect(() => {
@@ -131,6 +201,7 @@ export const AuthProvider = ({ children } : any) => {
     
     return (
         <AuthContext.Provider value={{ userInfo, getOauthJwtToken, loadingGetUser, onlineUsers, loadingServer }}>
+            {notifications.length > 0 && <Notification queues={notifications} setNotifications={setNotifications}/>}
             {children}
         </AuthContext.Provider>
     )

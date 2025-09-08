@@ -1,15 +1,16 @@
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 
-
+import { ConversationsCache } from '@/lib/caches/ConversationsCache';
 import { userInfoByGoogle } from '@/types/contexts'
 import { GetUserIdFromCookie } from "@/lib/auth/getUserIdFromCookie";
+import { redis } from "@/lib/caches/RedisCaches";
 
 export async function POST(req: Request) {
     const userId = await GetUserIdFromCookie()
     console.log('userId:', userId)
     
-    if(!userId) return NextResponse.json({message: 'invalid token'}, {status: 400})
+    if(!userId) return NextResponse.json({conversations: [], message: 'invalid token'}, {status: 400})
     
     try {
         const conversations = await prisma.conversation_members.findMany({
@@ -43,8 +44,13 @@ export async function POST(req: Request) {
                 },
             },
         });
-
+        
+        
         if(!conversations || conversations.length === 0) return NextResponse.json({conversations:[], message: 'no conversations found'}, {status: 404})
+            
+        await redis.set(`conversations:${userId}`, JSON.stringify(conversations), {
+            ex: 60 * 60 * 24 * 7,
+        })
 
         return NextResponse.json({ conversations }, { status: 200 })
     } catch (error) {

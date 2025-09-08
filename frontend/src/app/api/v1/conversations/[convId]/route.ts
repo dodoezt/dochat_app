@@ -49,6 +49,8 @@ export async function POST(req: Request, context: Context) {
       }
     });
 
+    console.log('Conversation:', conversation);
+
     if (!conversation) {
       return NextResponse.json({ error: 'Conversation not found' }, { status: 404 });
     }

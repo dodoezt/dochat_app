@@ -7,22 +7,19 @@ import Menu from '@/components/seperated-component/home-page/menu';
 import { MdArrowOutward } from "react-icons/md";
 import { TbMessageCircle } from "react-icons/tb";
 
-import { useUnifiedAuth } from '@/components/contexts/parents/authProvider';
-import LogoLoading from '@/components/loadings/logoLoading';
+import { useGlobalContext } from '@/components/contexts/parents/globalProvider';
+import { useAuthContext } from '@/components/contexts/children/authContext';
+import { useRouter } from 'next/navigation'
+
+import LogoLoading from '@/components/loadings/logoLoading'
 
 const Home = () => {
   const [isProfileShown, setIsProfileShown] = useState(false)
-  const [loading, setLoading] = useState(true)
-  const auth = useUnifiedAuth()
-  const { userInfo, provider } = auth;
+  const auth = useAuthContext()
+  const { userInfo, loadingGetUser } = auth;
+  const router = useRouter()
 
-  useEffect(() => {
-    if(userInfo?.username || provider === null){
-        setLoading(false)
-    }
-  }, [userInfo])
-
-  if (loading) {
+  if (loadingGetUser!.value) {
     return (
       <div className="w-screen h-screen">
         <LogoLoading />
@@ -47,10 +44,10 @@ const Home = () => {
               A chatting platform powered by OpenAi.
             </h1>
           </div>
-          {userInfo?.username ? (
+          {userInfo ? (
             <div className="">
               <button 
-                onClick={() => window.location.href = '/chat'}
+                onClick={() => router.push('/chat')}
                 className='font-roboto bg-[#e0e0e0] font-semibold text-[#121212] text-base px-3 py-2 rounded-full flex items-center cursor-pointer'>
                   <span className="mr-1">
                     <TbMessageCircle className='text-xl'/>

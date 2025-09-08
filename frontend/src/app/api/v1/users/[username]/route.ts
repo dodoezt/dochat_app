@@ -5,7 +5,6 @@ import { UserPublicType } from '@/types/user'
 export async function GET(req: Request, {params}: {params: Promise<{username: string}>}) {
     const { username } = await params
 
-
     if(!username) return NextResponse.json({message: 'username needed'}, {status: 401})
 
     try {
@@ -21,7 +20,7 @@ export async function GET(req: Request, {params}: {params: Promise<{username: st
             }
         }) as UserPublicType | null
 
-        if (!user) return NextResponse.json({message: 'no user found'}, {status: 404})
+        if (!user) return NextResponse.json({user: null}, {status: 404})
 
         return NextResponse.json(user)
     } catch (error) {

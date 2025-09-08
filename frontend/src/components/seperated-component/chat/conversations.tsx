@@ -8,14 +8,14 @@ import { UseBoolean } from '@/hooks/useBoolean'
 import ChatSearchBar from '@/components/seperated-component/chat/searchBar'
 import ChatNavbar from '@/components/seperated-component/chat/navbar'
 import LogoLoading from '@/components/loadings/logoLoading'
+import { useAuthContext } from '@/components/contexts/children/authContext'
+import { useChatContext } from '@/components/contexts/children/chatContext'
 
 import { FaRegCircleUser } from "react-icons/fa6";
 import { BsCheck, BsCheckAll } from "react-icons/bs";
 import { MdAccountCircle } from 'react-icons/md'
 import { IoMdPersonAdd } from "react-icons/io";
 import { IoChatboxEllipses } from "react-icons/io5";
-import { useAuthContext } from '@/components/contexts/children/authContext'
-import { useChatContext } from '@/components/contexts/children/chatContext'
 
 const VALID_TABS = ['chat', 'search']
 const DEFAULT_TAB = 'chat'
@@ -88,15 +88,33 @@ const Conversations:React.FC<props> = ({}) => {
   //   }
   // }
 
-  function handleAddFriend (toUserId: number) {
-    console.log(toUserId, userInfo.userId)
-    socket.emit('send-friend-request', {
-      toUserId,
-      from: {
-        userId: userInfo.userId,
-        username: userInfo.username,
+  async function handleAddFriend (toUserId: number) {
+    try {
+      const response = await fetch('/api/v1/friendships', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ toUserId }),
+        credentials: 'include',
+      })
+
+      if(response.ok) {
+        const { data } = await response.json()
+        console.log('friend request sent:', data)
+        socket.emit('send-friend-request', {
+          toUserId: toUserId,
+          friendshipId: data.id, 
+          from: {
+            userId: userInfo.userId,
+            username: userInfo.username,
+            pfp_id: userInfo.user_atribut.pfp_id
+          }
+        })
       }
-    })
+    } catch (error) {
+      console.log(error)
+    }
   }
 
   const renderMessageStatus = (status: string) => {
@@ -278,7 +296,7 @@ const Conversations:React.FC<props> = ({}) => {
                               {renderMessageStatus(lastMessage.status!)}
                             </span>
                           )}
-                          <p className="font-roboto font-normal text-[#888888] text-xs">
+                          <p className="font-roboto font-normal text-[#888888] text-xs whitespace-nowrap overflow-hidden text-ellipsis max-w-[140px]">
                             {lastMessage ? lastMessage.content : 'No messages yet'}
                           </p>
                         </div>

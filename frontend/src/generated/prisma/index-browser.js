@@ -144,7 +144,10 @@ exports.Prisma.MessagesScalarFieldEnum = {
   sentAt: 'sentAt',
   status: 'status',
   senderId: 'senderId',
-  conversationId: 'conversationId'
+  senderUsername: 'senderUsername',
+  senderPfp_id: 'senderPfp_id',
+  conversationId: 'conversationId',
+  seen_by: 'seen_by'
 };
 
 exports.Prisma.ConversationsScalarFieldEnum = {
@@ -178,6 +181,13 @@ exports.Prisma.FriendshipsScalarFieldEnum = {
   created_at: 'created_at'
 };
 
+exports.Prisma.NotificationsScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  type: 'type',
+  content: 'content'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -206,9 +216,22 @@ exports.Prisma.conversation_membersOrderByRelevanceFieldEnum = {
   conversationId: 'conversationId'
 };
 
+exports.Prisma.JsonNullValueFilter = {
+  DbNull: Prisma.DbNull,
+  JsonNull: Prisma.JsonNull,
+  AnyNull: Prisma.AnyNull
+};
+
+exports.Prisma.QueryMode = {
+  default: 'default',
+  insensitive: 'insensitive'
+};
+
 exports.Prisma.messagesOrderByRelevanceFieldEnum = {
   id: 'id',
   content: 'content',
+  senderUsername: 'senderUsername',
+  senderPfp_id: 'senderPfp_id',
   conversationId: 'conversationId'
 };
 
@@ -221,20 +244,13 @@ exports.Prisma.tagsOrderByRelevanceFieldEnum = {
   name: 'name'
 };
 
-exports.Prisma.JsonNullValueFilter = {
-  DbNull: Prisma.DbNull,
-  JsonNull: Prisma.JsonNull,
-  AnyNull: Prisma.AnyNull
-};
-
-exports.Prisma.QueryMode = {
-  default: 'default',
-  insensitive: 'insensitive'
-};
-
 exports.Prisma.user_atributOrderByRelevanceFieldEnum = {
   pfp_id: 'pfp_id',
   bio: 'bio'
+};
+
+exports.Prisma.notificationsOrderByRelevanceFieldEnum = {
+  content: 'content'
 };
 exports.messages_status = exports.$Enums.messages_status = {
   NOT_DELIVERED: 'NOT_DELIVERED',
@@ -255,6 +271,10 @@ exports.friendships_status = exports.$Enums.friendships_status = {
   blocked: 'blocked'
 };
 
+exports.notifications_type = exports.$Enums.notifications_type = {
+  FRIENDSHIPS: 'FRIENDSHIPS'
+};
+
 exports.Prisma.ModelName = {
   users: 'users',
   conversation_members: 'conversation_members',
@@ -262,7 +282,8 @@ exports.Prisma.ModelName = {
   conversations: 'conversations',
   tags: 'tags',
   user_atribut: 'user_atribut',
-  friendships: 'friendships'
+  friendships: 'friendships',
+  notifications: 'notifications'
 };
 
 /**

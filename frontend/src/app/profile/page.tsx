@@ -1,18 +1,21 @@
 'use client'
 import { useEffect, useRef, useState, useMemo } from 'react'
-import { account, storage, ID, Permission, Role } from '@/lib/appwrite/appwrite'
+import { useRouter } from 'next/navigation'
+import { produce } from 'immer'
 
 import { UseBoolean } from '@/hooks/useBoolean'
 import { UserInfoType } from '@/types/user'
-import ImageCropper from '@/components/functions/cropper'
-import { uploadProfilePicture } from '@/components/functions/uploadToAppwrite'
+import ImageCropper from '@/functions/cropper'
+import { uploadProfilePicture } from '@/functions/uploadToAppwrite'
+import socket from '@/lib/socket'
 
 import ShinyText from '@/components/reactBits/shinyText'
 
-import { MdAccountCircle } from 'react-icons/md'
+import { MdAccountCircle, MdPersonRemove } from 'react-icons/md'
 import { FiEdit3 } from "react-icons/fi";
 import { FaCheck } from "react-icons/fa";
 import { IoMdClose } from "react-icons/io";
+import { IoChatboxEllipses } from "react-icons/io5";
 
 type friendshipsType = {
     id: number
@@ -66,6 +69,7 @@ const page = () => {
     const [tags, setTags] = useState<any[] | null>(null)
     const [friendships, setFriendships] = useState<friendshipsType[] | null>(null)
     const [socialFilter, setSocialFilter] = useState<'friends' | 'requests'>('friends')
+    const router = useRouter()
 
     const loadings = {
         user: UseBoolean(true),
@@ -91,6 +95,39 @@ const page = () => {
         getFriendShips()
     }, [])
 
+    useEffect(() => {
+        if(!userInfo) return;
+        // socket.on("friend-request-received", ({friendshipId, from}) => {
+        //     setFriendships(prev => 
+        //         produce(prev, draft => {
+        //         draft?.unshift({
+        //             id: friendshipId,
+        //             userId: from.userId,
+        //             friendId: userInfo!.userId,
+        //             status: 'pending',
+        //             createdAt: new Date().toISOString() as unknown as Date,
+        //             users_friendships_userIdTousers: {
+        //                 userId: from.userId,
+        //                 username: from.username,
+        //                 user_atribut: {
+        //                     pfp_id: from.pfp_id
+        //                 }
+        //             },
+        //             users_friendships_friendIdTousers: {
+        //                 userId: userInfo!.userId,
+        //                 username: userInfo!.username,
+        //                 user_atribut: {
+        //                     pfp_id: userInfo!.user_atribut.pfp_id!
+        //                 },
+        //             }
+        //         })
+        //     }))
+        // })
+
+        // return () => {
+        //     socket.off("friend-request-received")
+        // }
+    }, [userInfo])
     
     useEffect(() => {
         console.log(currentImgSrc)
@@ -197,39 +234,118 @@ const page = () => {
         }
     }
 
-    const friends = useMemo(() => {
+    async function handleOnAccept(friendshipId: number) {
+        try {
+            const response = await fetch(`/api/v1/users/me/friendships/${friendshipId}`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                credentials: 'include'
+            })
+            const data = await response.json()
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+    async function handleOnDecline(friendshipId: number) {
+        try {
+            const response = await fetch(`/api/v1/users/me/friendships/${friendshipId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'include'
+            })
+
+            if(response.ok){
+                setFriendships(prev => prev!.filter(friendship => friendship.id !== friendshipId))
+            }
+        } catch (error) {
+            console.error(error)            
+        }
+    }
+
+    async function handleOnRemoveFriend(friendshipId: number) {
+        try {
+            const response = await fetch(`/api/v1/users/me/friendships/${friendshipId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'include'
+            })
+        } catch (error) {
+            console.error(error)            
+        }
+    }
+
+    async function handleStartConversation (toUserId: number) {
+        try {
+        const response = await fetch('/api/v1/conversations', {
+            method: 'POST',
+            headers: {
+            'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(toUserId),
+            credentials: 'include',
+        })
+
+        if(response.ok){
+            const data = await response.json();
+            console.log('conversation created:', data)
+            router.push(`/chat/c/${data.conversationId}`);
+        }
+        } catch (error) {
+            console.error('Error starting conversation:', error); 
+        }
+    }
+
+    const friendConnections = useMemo(() => {
         if(!friendships || !userInfo) return []
         return friendships
             .filter(friendship => friendship.status === 'accepted')
             .map(friendship => {
-                if(friendship.userId === userInfo.userId) {
-                    return friendship.users_friendships_friendIdTousers
+                if (friendship.userId === userInfo.userId) {
+                    return {
+                        friendshipId: friendship.id,
+                        friend: friendship.users_friendships_friendIdTousers
+                    }
                 } else if (friendship.friendId === userInfo.userId) {
-                    return friendship.users_friendships_userIdTousers
+                    return {
+                        friendshipId: friendship.id,
+                        friend: friendship.users_friendships_userIdTousers
+                    }
                 } 
                 return null
             })
             .filter(Boolean)
     }, [friendships])
 
-    const requesters = useMemo(() => {
+    const requesterConnections = useMemo(() => {
         if(!friendships || !userInfo) return []
         return friendships
             .filter(friendship => friendship.status === 'pending')
             .map(friendship => {
-                if(friendship.userId === userInfo.userId) {
-                    return friendship.users_friendships_friendIdTousers
+                if (friendship.userId === userInfo.userId) {
+                    return null
                 } else if (friendship.friendId === userInfo.userId) {
-                    return friendship.users_friendships_userIdTousers
+                    return {
+                        friendshipId: friendship.id,
+                        requester: friendship.users_friendships_userIdTousers
+                    }
                 } 
                 return null
             })
+            .filter(Boolean)
     }, [friendships])
 
     useEffect(() => {
-        console.log('friendships', friendships)
-        console.log('requeseters', requesters)
-    }, [friendships, requesters])
+        console.table(friendships)
+        console.log('friendConnections', friendConnections)
+        console.log('requesterConnections', requesterConnections)
+    }, [friendships])
     
     if(loading.value) return <p className="text-white">loading</p>
 
@@ -370,7 +486,7 @@ const page = () => {
                         <div className="flex w-full">
                             <div className="flex flex-col w-full">
                                 <div className="flex items-center w-full">
-                                    <h1 className="font-sans text-lg font-medium text-white">Social</h1>
+                                    <h1 className="font-sans text-lg font-medium text-white">Friend List</h1>
                                 </div>
                                 <div className="flex items-center w-full gap-2">
                                     <button 
@@ -390,19 +506,36 @@ const page = () => {
                                     friendships.filter(friendship => friendship.status === (socialFilter === 'friends' ? 'accepted' : 'pending')).length > 0 ? (
                                         <div className="flex flex-col w-full mt-2">
                                             {socialFilter === 'friends' ? (
-                                                friends.map((friend, idx) => {
-                                                    
+                                                friendConnections && friendConnections.map((friendConnection, idx) => {
+                                                    const friend = friendConnection?.friend
+                                                    if(!friend) return;
                                                     return (
-                                                        <div key={idx} className="flex items-center w-full h-12 gap-2 px-2 py-2">
-                                                            <div className="h-full overflow-hidden rounded-full aspect-square">
-                                                                <img src={`${process.env.NEXT_PUBLIC_APPWRITE_BUCKET_URL}${friend?.user_atribut.pfp_id}${process.env.NEXT_PUBLIC_APPWRITE_BUCKET_URL_END}`} alt={`${friend?.username} pfp`} className="object-cover w-full h-full" />
+                                                        <div key={idx} className="flex items-center justify-between w-full px-2 py-2 h-14 ">
+                                                            <div className="flex items-center h-full gap-2">
+                                                                <div className="h-full overflow-hidden rounded-full aspect-square">
+                                                                    <img src={`${process.env.NEXT_PUBLIC_APPWRITE_BUCKET_URL}${friend?.user_atribut.pfp_id}${process.env.NEXT_PUBLIC_APPWRITE_BUCKET_URL_END}`} alt={`${friend?.username} pfp`} className="object-cover w-full h-full" />
+                                                                </div>
+                                                                <h1 className="text-base font-medium text-white font-roboto">{friend?.username}</h1>
                                                             </div>
-                                                            <h1 className="text-base font-medium text-white font-roboto">{friend?.username}</h1>
+                                                            <div className="flex items-center h-full gap-3">
+                                                                <button 
+                                                                onClick={() => handleStartConversation(friend?.userId)}
+                                                                className="flex items-center justify-center h-full p-1 cursor-pointer">
+                                                                    <IoChatboxEllipses className='text-xl text-white'/>
+                                                                </button>
+                                                                <button 
+                                                                onClick={() => handleOnRemoveFriend(friendConnection.friendshipId)}
+                                                                className="flex items-center justify-center h-full p-1 cursor-pointer">
+                                                                    <MdPersonRemove className='text-xl text-red-500'/>
+                                                                </button>
+                                                            </div>
                                                         </div>
                                                     )
                                                 })
                                             ) : (
-                                                requesters.map((requester, idx) => {
+                                                requesterConnections && requesterConnections.length > 0 ? requesterConnections.map((requesterConnection, idx) => {
+                                                    const requester = requesterConnection?.requester
+                                                    if(!requester) return;
                                                     return (
                                                         <div key={idx} className="flex items-center justify-between w-full h-12 px-2 py-2">
                                                             <div className="flex items-center h-full gap-2">
@@ -412,16 +545,22 @@ const page = () => {
                                                                 <h1 className="text-base font-medium text-white font-roboto">{requester?.username}</h1>
                                                             </div>
                                                             <div className="flex items-center gap-2">
-                                                                <button className="flex items-center justify-center p-2 bg-green-600 cursor-pointer rounded-xl">
+                                                                <button 
+                                                                onClick={() => handleOnAccept(requesterConnection!.friendshipId)}
+                                                                className="flex items-center justify-center p-2 bg-green-600 rounded-full cursor-pointer">
                                                                     <FaCheck className='text-[#121212] text-base'/>
                                                                 </button>
-                                                                <button className="flex items-center justify-center p-2 bg-gray-500 cursor-pointer rounded-xl">
+                                                                <button
+                                                                onClick={() => handleOnDecline(requesterConnection!.friendshipId)}
+                                                                className="flex items-center justify-center p-2 bg-gray-500 rounded-full cursor-pointer">
                                                                     <IoMdClose className='text-[#121212] text-lg'/>
                                                                 </button>
                                                             </div>
                                                         </div>
                                                     )
-                                                })
+                                                }) : (
+                                                    <p className="text-sm text-white">You dont have any request yet.</p>
+                                                )
                                             )}
                                         </div>
                                     ) : (

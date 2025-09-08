@@ -6,7 +6,7 @@ import { MdNoAccounts } from "react-icons/md";
 import { TbMessage } from "react-icons/tb";
 import { FaRegCircleUser } from "react-icons/fa6";
 
-import { useUnifiedAuth } from '@/components/contexts/parents/authProvider';
+import { useGlobalContext } from '@/components/contexts/parents/globalProvider';
 import Overlay from '@/components/mini-components/overlay';
 import { userInfoByGoogle } from '@/types/contexts';
 
@@ -23,12 +23,6 @@ const client = new Client()
 const account = new Account(client)
 
 const Menu:React.FC<MenuProps> = ({isProfileShown, setIsProfileShown, userInfo}) => {
-    const [loadings, setLoadings] = useState({
-        getgoogleUserInfo: false,
-    })
-
-    const auth = useUnifiedAuth()
-    const { provider } = auth;
 
     const handleLogOut = async() => {
         try {
@@ -46,7 +40,7 @@ const Menu:React.FC<MenuProps> = ({isProfileShown, setIsProfileShown, userInfo})
             onDrag={(e) => e.preventDefault()}
             className={`w-1/2 z-[100] fixed top-0 p-5 rounded-l-xl border border-[#2c2c2c] bg-[#121212] flex flex-col gap-3 transition-all duration-300 ease-in-out ${isProfileShown ? 'right-0' : '-right-full'}`}>
                 <header className="flex items-center w-full gap-3">
-                    {provider === null ? (
+                    {!userInfo ? (
                         <>
                             <div className="aspect-square">
                                 <MdNoAccounts className="text-3xl text-[#e0e0e0]"/>
@@ -80,7 +74,7 @@ const Menu:React.FC<MenuProps> = ({isProfileShown, setIsProfileShown, userInfo})
                         <p className="font-sans font-medium text-xs text-[#e0e0e0]">Messages</p>
                     </div>
                     <div className="flex items-center w-full gap-1">
-                        {provider !== null && 
+                        {userInfo && 
                             <button onClick={handleLogOut} className="">logout</button>
                         }
                     </div>

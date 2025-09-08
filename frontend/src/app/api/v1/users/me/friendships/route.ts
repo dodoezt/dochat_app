@@ -10,7 +10,6 @@ export async function GET() {
     try {
         const response = await prisma.friendships.findMany({
             where: {
-                status: 'accepted',
                 OR: [
                     {userId: userId},
                     {friendId: userId}
@@ -42,9 +41,8 @@ export async function GET() {
             }
         })
 
-        console.dir(response)
-
-        return NextResponse.json(response)
+        console.log(response)
+        return NextResponse.json(response, {status: 200})
     } catch (error) {
         return NextResponse.json({message: 'Internal server error'}, {status: 500})
     }

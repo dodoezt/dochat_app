@@ -4,7 +4,8 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import './animations.css';
-import { AuthProvider } from "@/components/contexts/parents/authProvider";
+import { AuthProvider } from "@/components/contexts/children/authContext";
+import Notification from "@/components/mini-components/notification";
 
 export const metadata: Metadata = {
   title: "YipYap | Conversations",
@@ -15,7 +16,7 @@ export const metadata: Metadata = {
 export default function RootLayout({children}: Readonly<{children: React.ReactNode;}>) {
   return (
     <html lang="en">
-      <body className="bg-[#121212] h-screen">
+      <body className="bg-[#121212] h-screen relative">
         <AuthProvider>
           {children}
         </AuthProvider>

@@ -2,7 +2,6 @@
 import { Client, Account, OAuthProvider } from 'appwrite'
 import React, { useEffect, useState } from 'react'
 import countries from '@/data/southeastAsiaCountries.json';
-import { useUnifiedAuth } from '@/components/contexts/parents/authProvider';
 
 const client = new Client()
     .setEndpoint(process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT!)
@@ -50,22 +49,22 @@ const page = () => {
     // } 
 
     return (
-        <div className='w-full h-screen flex justify-center items-center'>
+        <div className='flex items-center justify-center w-full h-screen'>
             <div className="w-3/4 bg-black p-5 rounded-2xl border border-[#2c2c2c] space-y-4">
-                <header className="w-full flex items-center justify-center">
+                <header className="flex items-center justify-center w-full">
                     <div className="flex flex-col items-center">
                         <img src="/assets/doChat.svg" alt="logo-doChat" className="w-auto h-10 bg-[#e0e0e0] px-2 rounded-full" />
                     </div>
                 </header>
                 <main className="w-full space-y-5">
-                    <div className="w-full flex flex-col">
+                    <div className="flex flex-col w-full">
                         <div className="flex gap-1">
-                            <div className="aspect-square w-4 h-4">
+                            <div className="w-4 h-4 aspect-square">
                                 <img src="/assets/whatsapp.png" alt="whatsapp" className="w-full h-full"/>
                             </div>
                             <label htmlFor="whatsapp-number" className="font-sans text-[#e0e0e0] font-medium text-xs mb-1">Whatsapp Number</label>
                         </div>
-                        <div className="w-full h-8 flex items-center justify-center rounded-lg relative mb-2">
+                        <div className="relative flex items-center justify-center w-full h-8 mb-2 rounded-lg">
                             <button 
                                 onClick={toggleList}
                                 className="h-full p-1 bg-[#2c2c2c] ronded-l-lg flex items-center gap-1 relative cursor-pointer">
@@ -91,7 +90,7 @@ const page = () => {
                                     return (
                                         <button 
                                         key={index} 
-                                        className="h-8 p-1 flex items-center gap-1 cursor-pointer"
+                                        className="flex items-center h-8 gap-1 p-1 cursor-pointer"
                                         onClick={() => {
                                             setSelectedCountry(countries.find(countriesCountry => countriesCountry.code === country.code) || countries[0])
                                             setIsListShown(false)
@@ -113,7 +112,7 @@ const page = () => {
                             </button>
                         </div>
                     </div>
-                    <div className="w-full relative flex items-center justify-center">
+                    <div className="relative flex items-center justify-center w-full">
                         <h1 className="z-10 absolute text-sm text-[#e0e0e0] bg-[black] px-1 py-1">or</h1>
                         <span className="absolute top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2 bg-[#2c2c2c] w-full py-[1px] rounded-full"></span>
                     </div>

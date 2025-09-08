@@ -6,7 +6,6 @@ import { useRouter } from 'next/navigation';
 
 import ConfirmPopUp from '@/components/mini-components/confirmPopUp';
 import Overlay from '@/components/mini-components/overlay';
-import { useUnifiedAuth } from '@/components/contexts/parents/authProvider';
 
 const client = new Client()
     .setEndpoint(process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT!)
@@ -55,7 +54,7 @@ const page = () => {
         if(buttonBlock) return
         try {
             setLoadings({ ...loadings, usernameCheck: true })
-            const res = await fetch(`/api/is-username-exists?username=${username}`, {
+            const res = await fetch(`/api/v1/users/check-username?username=${username}`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -77,7 +76,7 @@ const page = () => {
 
     const handleCreateAccount = async() => {
         try {
-            const create = await fetch('/api/create-new-account/google', {
+            const create = await fetch('/api/v1/auth/register', {
                 method : 'POST',
                 headers : {
                     'Content-Type' : 'application/json',

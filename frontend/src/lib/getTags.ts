@@ -1,5 +1,5 @@
 import { prisma } from "./prisma";
-import { TagsCache } from "./chaches/TagsCache";
+import { TagsCache } from "./caches/TagsCache";
 
 export type TagsType = {
     id: number,

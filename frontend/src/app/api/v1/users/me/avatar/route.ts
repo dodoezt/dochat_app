@@ -1,7 +1,7 @@
 import { GetUserInfoFromCookie } from "@/lib/auth/getUserInfoFromCookie";
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
-import { uploadProfilePicture } from "@/components/functions/uploadToAppwrite";
+import { uploadProfilePicture } from "@/functions/uploadToAppwrite";
 
 export async function POST(req: Request) {
     const userInfo = await GetUserInfoFromCookie()
