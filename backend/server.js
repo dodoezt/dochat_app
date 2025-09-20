@@ -74,13 +74,20 @@ io.on("connection", (socket) => {
     }
   })
 
-  socket.on("send-friend-request", async ({toUserId,friendshipId, from}) => {
+  socket.on("send-friend-request", async ({toUserId, friendshipId, from}) => {
     const targetSocketId = onlineUserMap.get(toUserId)
     if(targetSocketId){
       io.to(targetSocketId).emit('friend-request-received', {
         type: 'friend-request',
         friendshipId,
-        from
+        from: {
+          userId: from.userId,
+          username: from.username,
+          user_atribut: {
+            pfp_id: from.user_atribut.pfp_id
+          }
+        },
+        createdAt: new Date(),
       })
     }
   })

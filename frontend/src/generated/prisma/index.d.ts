@@ -53,6 +53,11 @@ export type friendships = $Result.DefaultSelection<Prisma.$friendshipsPayload>
  * 
  */
 export type notifications = $Result.DefaultSelection<Prisma.$notificationsPayload>
+/**
+ * Model group_atributs
+ * 
+ */
+export type group_atributs = $Result.DefaultSelection<Prisma.$group_atributsPayload>
 
 /**
  * Enums
@@ -314,6 +319,16 @@ export class PrismaClient<
     * ```
     */
   get notifications(): Prisma.notificationsDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.group_atributs`: Exposes CRUD operations for the **group_atributs** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Group_atributs
+    * const group_atributs = await prisma.group_atributs.findMany()
+    * ```
+    */
+  get group_atributs(): Prisma.group_atributsDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -761,7 +776,8 @@ export namespace Prisma {
     tags: 'tags',
     user_atribut: 'user_atribut',
     friendships: 'friendships',
-    notifications: 'notifications'
+    notifications: 'notifications',
+    group_atributs: 'group_atributs'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -780,7 +796,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "users" | "conversation_members" | "messages" | "conversations" | "tags" | "user_atribut" | "friendships" | "notifications"
+      modelProps: "users" | "conversation_members" | "messages" | "conversations" | "tags" | "user_atribut" | "friendships" | "notifications" | "group_atributs"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1312,6 +1328,72 @@ export namespace Prisma {
           }
         }
       }
+      group_atributs: {
+        payload: Prisma.$group_atributsPayload<ExtArgs>
+        fields: Prisma.group_atributsFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.group_atributsFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$group_atributsPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.group_atributsFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$group_atributsPayload>
+          }
+          findFirst: {
+            args: Prisma.group_atributsFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$group_atributsPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.group_atributsFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$group_atributsPayload>
+          }
+          findMany: {
+            args: Prisma.group_atributsFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$group_atributsPayload>[]
+          }
+          create: {
+            args: Prisma.group_atributsCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$group_atributsPayload>
+          }
+          createMany: {
+            args: Prisma.group_atributsCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          delete: {
+            args: Prisma.group_atributsDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$group_atributsPayload>
+          }
+          update: {
+            args: Prisma.group_atributsUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$group_atributsPayload>
+          }
+          deleteMany: {
+            args: Prisma.group_atributsDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.group_atributsUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.group_atributsUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$group_atributsPayload>
+          }
+          aggregate: {
+            args: Prisma.Group_atributsAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateGroup_atributs>
+          }
+          groupBy: {
+            args: Prisma.group_atributsGroupByArgs<ExtArgs>
+            result: $Utils.Optional<Group_atributsGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.group_atributsCountArgs<ExtArgs>
+            result: $Utils.Optional<Group_atributsCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -1404,6 +1486,7 @@ export namespace Prisma {
     user_atribut?: user_atributOmit
     friendships?: friendshipsOmit
     notifications?: notificationsOmit
+    group_atributs?: group_atributsOmit
   }
 
   /* Types for Logging */
@@ -4741,21 +4824,18 @@ export namespace Prisma {
   export type ConversationsMinAggregateOutputType = {
     id: string | null
     isGroup: boolean | null
-    name: string | null
     createdAt: Date | null
   }
 
   export type ConversationsMaxAggregateOutputType = {
     id: string | null
     isGroup: boolean | null
-    name: string | null
     createdAt: Date | null
   }
 
   export type ConversationsCountAggregateOutputType = {
     id: number
     isGroup: number
-    name: number
     createdAt: number
     _all: number
   }
@@ -4764,21 +4844,18 @@ export namespace Prisma {
   export type ConversationsMinAggregateInputType = {
     id?: true
     isGroup?: true
-    name?: true
     createdAt?: true
   }
 
   export type ConversationsMaxAggregateInputType = {
     id?: true
     isGroup?: true
-    name?: true
     createdAt?: true
   }
 
   export type ConversationsCountAggregateInputType = {
     id?: true
     isGroup?: true
-    name?: true
     createdAt?: true
     _all?: true
   }
@@ -4858,7 +4935,6 @@ export namespace Prisma {
   export type ConversationsGroupByOutputType = {
     id: string
     isGroup: boolean
-    name: string | null
     createdAt: Date
     _count: ConversationsCountAggregateOutputType | null
     _min: ConversationsMinAggregateOutputType | null
@@ -4882,9 +4958,9 @@ export namespace Prisma {
   export type conversationsSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     isGroup?: boolean
-    name?: boolean
     createdAt?: boolean
     members?: boolean | conversations$membersArgs<ExtArgs>
+    group_atributs?: boolean | conversations$group_atributsArgs<ExtArgs>
     messages?: boolean | conversations$messagesArgs<ExtArgs>
     _count?: boolean | ConversationsCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["conversations"]>
@@ -4894,13 +4970,13 @@ export namespace Prisma {
   export type conversationsSelectScalar = {
     id?: boolean
     isGroup?: boolean
-    name?: boolean
     createdAt?: boolean
   }
 
-  export type conversationsOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "isGroup" | "name" | "createdAt", ExtArgs["result"]["conversations"]>
+  export type conversationsOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "isGroup" | "createdAt", ExtArgs["result"]["conversations"]>
   export type conversationsInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     members?: boolean | conversations$membersArgs<ExtArgs>
+    group_atributs?: boolean | conversations$group_atributsArgs<ExtArgs>
     messages?: boolean | conversations$messagesArgs<ExtArgs>
     _count?: boolean | ConversationsCountOutputTypeDefaultArgs<ExtArgs>
   }
@@ -4909,12 +4985,12 @@ export namespace Prisma {
     name: "conversations"
     objects: {
       members: Prisma.$conversation_membersPayload<ExtArgs>[]
+      group_atributs: Prisma.$group_atributsPayload<ExtArgs> | null
       messages: Prisma.$messagesPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
       isGroup: boolean
-      name: string | null
       createdAt: Date
     }, ExtArgs["result"]["conversations"]>
     composites: {}
@@ -5257,6 +5333,7 @@ export namespace Prisma {
   export interface Prisma__conversationsClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     members<T extends conversations$membersArgs<ExtArgs> = {}>(args?: Subset<T, conversations$membersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$conversation_membersPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    group_atributs<T extends conversations$group_atributsArgs<ExtArgs> = {}>(args?: Subset<T, conversations$group_atributsArgs<ExtArgs>>): Prisma__group_atributsClient<$Result.GetResult<Prisma.$group_atributsPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     messages<T extends conversations$messagesArgs<ExtArgs> = {}>(args?: Subset<T, conversations$messagesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$messagesPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -5289,7 +5366,6 @@ export namespace Prisma {
   interface conversationsFieldRefs {
     readonly id: FieldRef<"conversations", 'String'>
     readonly isGroup: FieldRef<"conversations", 'Boolean'>
-    readonly name: FieldRef<"conversations", 'String'>
     readonly createdAt: FieldRef<"conversations", 'DateTime'>
   }
     
@@ -5655,6 +5731,25 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: Conversation_membersScalarFieldEnum | Conversation_membersScalarFieldEnum[]
+  }
+
+  /**
+   * conversations.group_atributs
+   */
+  export type conversations$group_atributsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the group_atributs
+     */
+    select?: group_atributsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the group_atributs
+     */
+    omit?: group_atributsOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: group_atributsInclude<ExtArgs> | null
+    where?: group_atributsWhereInput
   }
 
   /**
@@ -9503,6 +9598,969 @@ export namespace Prisma {
 
 
   /**
+   * Model group_atributs
+   */
+
+  export type AggregateGroup_atributs = {
+    _count: Group_atributsCountAggregateOutputType | null
+    _avg: Group_atributsAvgAggregateOutputType | null
+    _sum: Group_atributsSumAggregateOutputType | null
+    _min: Group_atributsMinAggregateOutputType | null
+    _max: Group_atributsMaxAggregateOutputType | null
+  }
+
+  export type Group_atributsAvgAggregateOutputType = {
+    id: number | null
+  }
+
+  export type Group_atributsSumAggregateOutputType = {
+    id: number | null
+  }
+
+  export type Group_atributsMinAggregateOutputType = {
+    id: number | null
+    conversationId: string | null
+    group_name: string | null
+    group_description: string | null
+    group_pfp: string | null
+  }
+
+  export type Group_atributsMaxAggregateOutputType = {
+    id: number | null
+    conversationId: string | null
+    group_name: string | null
+    group_description: string | null
+    group_pfp: string | null
+  }
+
+  export type Group_atributsCountAggregateOutputType = {
+    id: number
+    conversationId: number
+    group_name: number
+    group_description: number
+    group_pfp: number
+    _all: number
+  }
+
+
+  export type Group_atributsAvgAggregateInputType = {
+    id?: true
+  }
+
+  export type Group_atributsSumAggregateInputType = {
+    id?: true
+  }
+
+  export type Group_atributsMinAggregateInputType = {
+    id?: true
+    conversationId?: true
+    group_name?: true
+    group_description?: true
+    group_pfp?: true
+  }
+
+  export type Group_atributsMaxAggregateInputType = {
+    id?: true
+    conversationId?: true
+    group_name?: true
+    group_description?: true
+    group_pfp?: true
+  }
+
+  export type Group_atributsCountAggregateInputType = {
+    id?: true
+    conversationId?: true
+    group_name?: true
+    group_description?: true
+    group_pfp?: true
+    _all?: true
+  }
+
+  export type Group_atributsAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which group_atributs to aggregate.
+     */
+    where?: group_atributsWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of group_atributs to fetch.
+     */
+    orderBy?: group_atributsOrderByWithRelationInput | group_atributsOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: group_atributsWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` group_atributs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` group_atributs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned group_atributs
+    **/
+    _count?: true | Group_atributsCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: Group_atributsAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: Group_atributsSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: Group_atributsMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: Group_atributsMaxAggregateInputType
+  }
+
+  export type GetGroup_atributsAggregateType<T extends Group_atributsAggregateArgs> = {
+        [P in keyof T & keyof AggregateGroup_atributs]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateGroup_atributs[P]>
+      : GetScalarType<T[P], AggregateGroup_atributs[P]>
+  }
+
+
+
+
+  export type group_atributsGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: group_atributsWhereInput
+    orderBy?: group_atributsOrderByWithAggregationInput | group_atributsOrderByWithAggregationInput[]
+    by: Group_atributsScalarFieldEnum[] | Group_atributsScalarFieldEnum
+    having?: group_atributsScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: Group_atributsCountAggregateInputType | true
+    _avg?: Group_atributsAvgAggregateInputType
+    _sum?: Group_atributsSumAggregateInputType
+    _min?: Group_atributsMinAggregateInputType
+    _max?: Group_atributsMaxAggregateInputType
+  }
+
+  export type Group_atributsGroupByOutputType = {
+    id: number
+    conversationId: string
+    group_name: string
+    group_description: string | null
+    group_pfp: string | null
+    _count: Group_atributsCountAggregateOutputType | null
+    _avg: Group_atributsAvgAggregateOutputType | null
+    _sum: Group_atributsSumAggregateOutputType | null
+    _min: Group_atributsMinAggregateOutputType | null
+    _max: Group_atributsMaxAggregateOutputType | null
+  }
+
+  type GetGroup_atributsGroupByPayload<T extends group_atributsGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<Group_atributsGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof Group_atributsGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], Group_atributsGroupByOutputType[P]>
+            : GetScalarType<T[P], Group_atributsGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type group_atributsSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    conversationId?: boolean
+    group_name?: boolean
+    group_description?: boolean
+    group_pfp?: boolean
+    conversations?: boolean | conversationsDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["group_atributs"]>
+
+
+
+  export type group_atributsSelectScalar = {
+    id?: boolean
+    conversationId?: boolean
+    group_name?: boolean
+    group_description?: boolean
+    group_pfp?: boolean
+  }
+
+  export type group_atributsOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "conversationId" | "group_name" | "group_description" | "group_pfp", ExtArgs["result"]["group_atributs"]>
+  export type group_atributsInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    conversations?: boolean | conversationsDefaultArgs<ExtArgs>
+  }
+
+  export type $group_atributsPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "group_atributs"
+    objects: {
+      conversations: Prisma.$conversationsPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: number
+      conversationId: string
+      group_name: string
+      group_description: string | null
+      group_pfp: string | null
+    }, ExtArgs["result"]["group_atributs"]>
+    composites: {}
+  }
+
+  type group_atributsGetPayload<S extends boolean | null | undefined | group_atributsDefaultArgs> = $Result.GetResult<Prisma.$group_atributsPayload, S>
+
+  type group_atributsCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<group_atributsFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: Group_atributsCountAggregateInputType | true
+    }
+
+  export interface group_atributsDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['group_atributs'], meta: { name: 'group_atributs' } }
+    /**
+     * Find zero or one Group_atributs that matches the filter.
+     * @param {group_atributsFindUniqueArgs} args - Arguments to find a Group_atributs
+     * @example
+     * // Get one Group_atributs
+     * const group_atributs = await prisma.group_atributs.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends group_atributsFindUniqueArgs>(args: SelectSubset<T, group_atributsFindUniqueArgs<ExtArgs>>): Prisma__group_atributsClient<$Result.GetResult<Prisma.$group_atributsPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one Group_atributs that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {group_atributsFindUniqueOrThrowArgs} args - Arguments to find a Group_atributs
+     * @example
+     * // Get one Group_atributs
+     * const group_atributs = await prisma.group_atributs.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends group_atributsFindUniqueOrThrowArgs>(args: SelectSubset<T, group_atributsFindUniqueOrThrowArgs<ExtArgs>>): Prisma__group_atributsClient<$Result.GetResult<Prisma.$group_atributsPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Group_atributs that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {group_atributsFindFirstArgs} args - Arguments to find a Group_atributs
+     * @example
+     * // Get one Group_atributs
+     * const group_atributs = await prisma.group_atributs.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends group_atributsFindFirstArgs>(args?: SelectSubset<T, group_atributsFindFirstArgs<ExtArgs>>): Prisma__group_atributsClient<$Result.GetResult<Prisma.$group_atributsPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Group_atributs that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {group_atributsFindFirstOrThrowArgs} args - Arguments to find a Group_atributs
+     * @example
+     * // Get one Group_atributs
+     * const group_atributs = await prisma.group_atributs.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends group_atributsFindFirstOrThrowArgs>(args?: SelectSubset<T, group_atributsFindFirstOrThrowArgs<ExtArgs>>): Prisma__group_atributsClient<$Result.GetResult<Prisma.$group_atributsPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more Group_atributs that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {group_atributsFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all Group_atributs
+     * const group_atributs = await prisma.group_atributs.findMany()
+     * 
+     * // Get first 10 Group_atributs
+     * const group_atributs = await prisma.group_atributs.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const group_atributsWithIdOnly = await prisma.group_atributs.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends group_atributsFindManyArgs>(args?: SelectSubset<T, group_atributsFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$group_atributsPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a Group_atributs.
+     * @param {group_atributsCreateArgs} args - Arguments to create a Group_atributs.
+     * @example
+     * // Create one Group_atributs
+     * const Group_atributs = await prisma.group_atributs.create({
+     *   data: {
+     *     // ... data to create a Group_atributs
+     *   }
+     * })
+     * 
+     */
+    create<T extends group_atributsCreateArgs>(args: SelectSubset<T, group_atributsCreateArgs<ExtArgs>>): Prisma__group_atributsClient<$Result.GetResult<Prisma.$group_atributsPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many Group_atributs.
+     * @param {group_atributsCreateManyArgs} args - Arguments to create many Group_atributs.
+     * @example
+     * // Create many Group_atributs
+     * const group_atributs = await prisma.group_atributs.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends group_atributsCreateManyArgs>(args?: SelectSubset<T, group_atributsCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Delete a Group_atributs.
+     * @param {group_atributsDeleteArgs} args - Arguments to delete one Group_atributs.
+     * @example
+     * // Delete one Group_atributs
+     * const Group_atributs = await prisma.group_atributs.delete({
+     *   where: {
+     *     // ... filter to delete one Group_atributs
+     *   }
+     * })
+     * 
+     */
+    delete<T extends group_atributsDeleteArgs>(args: SelectSubset<T, group_atributsDeleteArgs<ExtArgs>>): Prisma__group_atributsClient<$Result.GetResult<Prisma.$group_atributsPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one Group_atributs.
+     * @param {group_atributsUpdateArgs} args - Arguments to update one Group_atributs.
+     * @example
+     * // Update one Group_atributs
+     * const group_atributs = await prisma.group_atributs.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends group_atributsUpdateArgs>(args: SelectSubset<T, group_atributsUpdateArgs<ExtArgs>>): Prisma__group_atributsClient<$Result.GetResult<Prisma.$group_atributsPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more Group_atributs.
+     * @param {group_atributsDeleteManyArgs} args - Arguments to filter Group_atributs to delete.
+     * @example
+     * // Delete a few Group_atributs
+     * const { count } = await prisma.group_atributs.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends group_atributsDeleteManyArgs>(args?: SelectSubset<T, group_atributsDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Group_atributs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {group_atributsUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many Group_atributs
+     * const group_atributs = await prisma.group_atributs.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends group_atributsUpdateManyArgs>(args: SelectSubset<T, group_atributsUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one Group_atributs.
+     * @param {group_atributsUpsertArgs} args - Arguments to update or create a Group_atributs.
+     * @example
+     * // Update or create a Group_atributs
+     * const group_atributs = await prisma.group_atributs.upsert({
+     *   create: {
+     *     // ... data to create a Group_atributs
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the Group_atributs we want to update
+     *   }
+     * })
+     */
+    upsert<T extends group_atributsUpsertArgs>(args: SelectSubset<T, group_atributsUpsertArgs<ExtArgs>>): Prisma__group_atributsClient<$Result.GetResult<Prisma.$group_atributsPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of Group_atributs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {group_atributsCountArgs} args - Arguments to filter Group_atributs to count.
+     * @example
+     * // Count the number of Group_atributs
+     * const count = await prisma.group_atributs.count({
+     *   where: {
+     *     // ... the filter for the Group_atributs we want to count
+     *   }
+     * })
+    **/
+    count<T extends group_atributsCountArgs>(
+      args?: Subset<T, group_atributsCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], Group_atributsCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a Group_atributs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {Group_atributsAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends Group_atributsAggregateArgs>(args: Subset<T, Group_atributsAggregateArgs>): Prisma.PrismaPromise<GetGroup_atributsAggregateType<T>>
+
+    /**
+     * Group by Group_atributs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {group_atributsGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends group_atributsGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: group_atributsGroupByArgs['orderBy'] }
+        : { orderBy?: group_atributsGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, group_atributsGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetGroup_atributsGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the group_atributs model
+   */
+  readonly fields: group_atributsFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for group_atributs.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__group_atributsClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    conversations<T extends conversationsDefaultArgs<ExtArgs> = {}>(args?: Subset<T, conversationsDefaultArgs<ExtArgs>>): Prisma__conversationsClient<$Result.GetResult<Prisma.$conversationsPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the group_atributs model
+   */
+  interface group_atributsFieldRefs {
+    readonly id: FieldRef<"group_atributs", 'Int'>
+    readonly conversationId: FieldRef<"group_atributs", 'String'>
+    readonly group_name: FieldRef<"group_atributs", 'String'>
+    readonly group_description: FieldRef<"group_atributs", 'String'>
+    readonly group_pfp: FieldRef<"group_atributs", 'String'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * group_atributs findUnique
+   */
+  export type group_atributsFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the group_atributs
+     */
+    select?: group_atributsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the group_atributs
+     */
+    omit?: group_atributsOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: group_atributsInclude<ExtArgs> | null
+    /**
+     * Filter, which group_atributs to fetch.
+     */
+    where: group_atributsWhereUniqueInput
+  }
+
+  /**
+   * group_atributs findUniqueOrThrow
+   */
+  export type group_atributsFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the group_atributs
+     */
+    select?: group_atributsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the group_atributs
+     */
+    omit?: group_atributsOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: group_atributsInclude<ExtArgs> | null
+    /**
+     * Filter, which group_atributs to fetch.
+     */
+    where: group_atributsWhereUniqueInput
+  }
+
+  /**
+   * group_atributs findFirst
+   */
+  export type group_atributsFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the group_atributs
+     */
+    select?: group_atributsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the group_atributs
+     */
+    omit?: group_atributsOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: group_atributsInclude<ExtArgs> | null
+    /**
+     * Filter, which group_atributs to fetch.
+     */
+    where?: group_atributsWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of group_atributs to fetch.
+     */
+    orderBy?: group_atributsOrderByWithRelationInput | group_atributsOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for group_atributs.
+     */
+    cursor?: group_atributsWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` group_atributs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` group_atributs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of group_atributs.
+     */
+    distinct?: Group_atributsScalarFieldEnum | Group_atributsScalarFieldEnum[]
+  }
+
+  /**
+   * group_atributs findFirstOrThrow
+   */
+  export type group_atributsFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the group_atributs
+     */
+    select?: group_atributsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the group_atributs
+     */
+    omit?: group_atributsOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: group_atributsInclude<ExtArgs> | null
+    /**
+     * Filter, which group_atributs to fetch.
+     */
+    where?: group_atributsWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of group_atributs to fetch.
+     */
+    orderBy?: group_atributsOrderByWithRelationInput | group_atributsOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for group_atributs.
+     */
+    cursor?: group_atributsWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` group_atributs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` group_atributs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of group_atributs.
+     */
+    distinct?: Group_atributsScalarFieldEnum | Group_atributsScalarFieldEnum[]
+  }
+
+  /**
+   * group_atributs findMany
+   */
+  export type group_atributsFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the group_atributs
+     */
+    select?: group_atributsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the group_atributs
+     */
+    omit?: group_atributsOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: group_atributsInclude<ExtArgs> | null
+    /**
+     * Filter, which group_atributs to fetch.
+     */
+    where?: group_atributsWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of group_atributs to fetch.
+     */
+    orderBy?: group_atributsOrderByWithRelationInput | group_atributsOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing group_atributs.
+     */
+    cursor?: group_atributsWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` group_atributs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` group_atributs.
+     */
+    skip?: number
+    distinct?: Group_atributsScalarFieldEnum | Group_atributsScalarFieldEnum[]
+  }
+
+  /**
+   * group_atributs create
+   */
+  export type group_atributsCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the group_atributs
+     */
+    select?: group_atributsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the group_atributs
+     */
+    omit?: group_atributsOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: group_atributsInclude<ExtArgs> | null
+    /**
+     * The data needed to create a group_atributs.
+     */
+    data: XOR<group_atributsCreateInput, group_atributsUncheckedCreateInput>
+  }
+
+  /**
+   * group_atributs createMany
+   */
+  export type group_atributsCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many group_atributs.
+     */
+    data: group_atributsCreateManyInput | group_atributsCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * group_atributs update
+   */
+  export type group_atributsUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the group_atributs
+     */
+    select?: group_atributsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the group_atributs
+     */
+    omit?: group_atributsOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: group_atributsInclude<ExtArgs> | null
+    /**
+     * The data needed to update a group_atributs.
+     */
+    data: XOR<group_atributsUpdateInput, group_atributsUncheckedUpdateInput>
+    /**
+     * Choose, which group_atributs to update.
+     */
+    where: group_atributsWhereUniqueInput
+  }
+
+  /**
+   * group_atributs updateMany
+   */
+  export type group_atributsUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update group_atributs.
+     */
+    data: XOR<group_atributsUpdateManyMutationInput, group_atributsUncheckedUpdateManyInput>
+    /**
+     * Filter which group_atributs to update
+     */
+    where?: group_atributsWhereInput
+    /**
+     * Limit how many group_atributs to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * group_atributs upsert
+   */
+  export type group_atributsUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the group_atributs
+     */
+    select?: group_atributsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the group_atributs
+     */
+    omit?: group_atributsOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: group_atributsInclude<ExtArgs> | null
+    /**
+     * The filter to search for the group_atributs to update in case it exists.
+     */
+    where: group_atributsWhereUniqueInput
+    /**
+     * In case the group_atributs found by the `where` argument doesn't exist, create a new group_atributs with this data.
+     */
+    create: XOR<group_atributsCreateInput, group_atributsUncheckedCreateInput>
+    /**
+     * In case the group_atributs was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<group_atributsUpdateInput, group_atributsUncheckedUpdateInput>
+  }
+
+  /**
+   * group_atributs delete
+   */
+  export type group_atributsDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the group_atributs
+     */
+    select?: group_atributsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the group_atributs
+     */
+    omit?: group_atributsOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: group_atributsInclude<ExtArgs> | null
+    /**
+     * Filter which group_atributs to delete.
+     */
+    where: group_atributsWhereUniqueInput
+  }
+
+  /**
+   * group_atributs deleteMany
+   */
+  export type group_atributsDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which group_atributs to delete
+     */
+    where?: group_atributsWhereInput
+    /**
+     * Limit how many group_atributs to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * group_atributs without action
+   */
+  export type group_atributsDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the group_atributs
+     */
+    select?: group_atributsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the group_atributs
+     */
+    omit?: group_atributsOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: group_atributsInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -9558,7 +10616,6 @@ export namespace Prisma {
   export const ConversationsScalarFieldEnum: {
     id: 'id',
     isGroup: 'isGroup',
-    name: 'name',
     createdAt: 'createdAt'
   };
 
@@ -9606,6 +10663,17 @@ export namespace Prisma {
   };
 
   export type NotificationsScalarFieldEnum = (typeof NotificationsScalarFieldEnum)[keyof typeof NotificationsScalarFieldEnum]
+
+
+  export const Group_atributsScalarFieldEnum: {
+    id: 'id',
+    conversationId: 'conversationId',
+    group_name: 'group_name',
+    group_description: 'group_description',
+    group_pfp: 'group_pfp'
+  };
+
+  export type Group_atributsScalarFieldEnum = (typeof Group_atributsScalarFieldEnum)[keyof typeof Group_atributsScalarFieldEnum]
 
 
   export const SortOrder: {
@@ -9680,8 +10748,7 @@ export namespace Prisma {
 
 
   export const conversationsOrderByRelevanceFieldEnum: {
-    id: 'id',
-    name: 'name'
+    id: 'id'
   };
 
   export type conversationsOrderByRelevanceFieldEnum = (typeof conversationsOrderByRelevanceFieldEnum)[keyof typeof conversationsOrderByRelevanceFieldEnum]
@@ -9707,6 +10774,16 @@ export namespace Prisma {
   };
 
   export type notificationsOrderByRelevanceFieldEnum = (typeof notificationsOrderByRelevanceFieldEnum)[keyof typeof notificationsOrderByRelevanceFieldEnum]
+
+
+  export const group_atributsOrderByRelevanceFieldEnum: {
+    conversationId: 'conversationId',
+    group_name: 'group_name',
+    group_description: 'group_description',
+    group_pfp: 'group_pfp'
+  };
+
+  export type group_atributsOrderByRelevanceFieldEnum = (typeof group_atributsOrderByRelevanceFieldEnum)[keyof typeof group_atributsOrderByRelevanceFieldEnum]
 
 
   /**
@@ -10026,18 +11103,18 @@ export namespace Prisma {
     NOT?: conversationsWhereInput | conversationsWhereInput[]
     id?: StringFilter<"conversations"> | string
     isGroup?: BoolFilter<"conversations"> | boolean
-    name?: StringNullableFilter<"conversations"> | string | null
     createdAt?: DateTimeFilter<"conversations"> | Date | string
     members?: Conversation_membersListRelationFilter
+    group_atributs?: XOR<Group_atributsNullableScalarRelationFilter, group_atributsWhereInput> | null
     messages?: MessagesListRelationFilter
   }
 
   export type conversationsOrderByWithRelationInput = {
     id?: SortOrder
     isGroup?: SortOrder
-    name?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     members?: conversation_membersOrderByRelationAggregateInput
+    group_atributs?: group_atributsOrderByWithRelationInput
     messages?: messagesOrderByRelationAggregateInput
     _relevance?: conversationsOrderByRelevanceInput
   }
@@ -10048,16 +11125,15 @@ export namespace Prisma {
     OR?: conversationsWhereInput[]
     NOT?: conversationsWhereInput | conversationsWhereInput[]
     isGroup?: BoolFilter<"conversations"> | boolean
-    name?: StringNullableFilter<"conversations"> | string | null
     createdAt?: DateTimeFilter<"conversations"> | Date | string
     members?: Conversation_membersListRelationFilter
+    group_atributs?: XOR<Group_atributsNullableScalarRelationFilter, group_atributsWhereInput> | null
     messages?: MessagesListRelationFilter
   }, "id" | "id">
 
   export type conversationsOrderByWithAggregationInput = {
     id?: SortOrder
     isGroup?: SortOrder
-    name?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     _count?: conversationsCountOrderByAggregateInput
     _max?: conversationsMaxOrderByAggregateInput
@@ -10070,7 +11146,6 @@ export namespace Prisma {
     NOT?: conversationsScalarWhereWithAggregatesInput | conversationsScalarWhereWithAggregatesInput[]
     id?: StringWithAggregatesFilter<"conversations"> | string
     isGroup?: BoolWithAggregatesFilter<"conversations"> | boolean
-    name?: StringNullableWithAggregatesFilter<"conversations"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"conversations"> | Date | string
   }
 
@@ -10301,6 +11376,64 @@ export namespace Prisma {
     content?: StringWithAggregatesFilter<"notifications"> | string
   }
 
+  export type group_atributsWhereInput = {
+    AND?: group_atributsWhereInput | group_atributsWhereInput[]
+    OR?: group_atributsWhereInput[]
+    NOT?: group_atributsWhereInput | group_atributsWhereInput[]
+    id?: IntFilter<"group_atributs"> | number
+    conversationId?: StringFilter<"group_atributs"> | string
+    group_name?: StringFilter<"group_atributs"> | string
+    group_description?: StringNullableFilter<"group_atributs"> | string | null
+    group_pfp?: StringNullableFilter<"group_atributs"> | string | null
+    conversations?: XOR<ConversationsScalarRelationFilter, conversationsWhereInput>
+  }
+
+  export type group_atributsOrderByWithRelationInput = {
+    id?: SortOrder
+    conversationId?: SortOrder
+    group_name?: SortOrder
+    group_description?: SortOrderInput | SortOrder
+    group_pfp?: SortOrderInput | SortOrder
+    conversations?: conversationsOrderByWithRelationInput
+    _relevance?: group_atributsOrderByRelevanceInput
+  }
+
+  export type group_atributsWhereUniqueInput = Prisma.AtLeast<{
+    id?: number
+    conversationId?: string
+    AND?: group_atributsWhereInput | group_atributsWhereInput[]
+    OR?: group_atributsWhereInput[]
+    NOT?: group_atributsWhereInput | group_atributsWhereInput[]
+    group_name?: StringFilter<"group_atributs"> | string
+    group_description?: StringNullableFilter<"group_atributs"> | string | null
+    group_pfp?: StringNullableFilter<"group_atributs"> | string | null
+    conversations?: XOR<ConversationsScalarRelationFilter, conversationsWhereInput>
+  }, "id" | "conversationId">
+
+  export type group_atributsOrderByWithAggregationInput = {
+    id?: SortOrder
+    conversationId?: SortOrder
+    group_name?: SortOrder
+    group_description?: SortOrderInput | SortOrder
+    group_pfp?: SortOrderInput | SortOrder
+    _count?: group_atributsCountOrderByAggregateInput
+    _avg?: group_atributsAvgOrderByAggregateInput
+    _max?: group_atributsMaxOrderByAggregateInput
+    _min?: group_atributsMinOrderByAggregateInput
+    _sum?: group_atributsSumOrderByAggregateInput
+  }
+
+  export type group_atributsScalarWhereWithAggregatesInput = {
+    AND?: group_atributsScalarWhereWithAggregatesInput | group_atributsScalarWhereWithAggregatesInput[]
+    OR?: group_atributsScalarWhereWithAggregatesInput[]
+    NOT?: group_atributsScalarWhereWithAggregatesInput | group_atributsScalarWhereWithAggregatesInput[]
+    id?: IntWithAggregatesFilter<"group_atributs"> | number
+    conversationId?: StringWithAggregatesFilter<"group_atributs"> | string
+    group_name?: StringWithAggregatesFilter<"group_atributs"> | string
+    group_description?: StringNullableWithAggregatesFilter<"group_atributs"> | string | null
+    group_pfp?: StringNullableWithAggregatesFilter<"group_atributs"> | string | null
+  }
+
   export type usersCreateInput = {
     username: string
     provider: string
@@ -10528,57 +11661,54 @@ export namespace Prisma {
   export type conversationsCreateInput = {
     id?: string
     isGroup?: boolean
-    name?: string | null
     createdAt?: Date | string
     members?: conversation_membersCreateNestedManyWithoutConversationInput
+    group_atributs?: group_atributsCreateNestedOneWithoutConversationsInput
     messages?: messagesCreateNestedManyWithoutConversationInput
   }
 
   export type conversationsUncheckedCreateInput = {
     id?: string
     isGroup?: boolean
-    name?: string | null
     createdAt?: Date | string
     members?: conversation_membersUncheckedCreateNestedManyWithoutConversationInput
+    group_atributs?: group_atributsUncheckedCreateNestedOneWithoutConversationsInput
     messages?: messagesUncheckedCreateNestedManyWithoutConversationInput
   }
 
   export type conversationsUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     isGroup?: BoolFieldUpdateOperationsInput | boolean
-    name?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     members?: conversation_membersUpdateManyWithoutConversationNestedInput
+    group_atributs?: group_atributsUpdateOneWithoutConversationsNestedInput
     messages?: messagesUpdateManyWithoutConversationNestedInput
   }
 
   export type conversationsUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     isGroup?: BoolFieldUpdateOperationsInput | boolean
-    name?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     members?: conversation_membersUncheckedUpdateManyWithoutConversationNestedInput
+    group_atributs?: group_atributsUncheckedUpdateOneWithoutConversationsNestedInput
     messages?: messagesUncheckedUpdateManyWithoutConversationNestedInput
   }
 
   export type conversationsCreateManyInput = {
     id?: string
     isGroup?: boolean
-    name?: string | null
     createdAt?: Date | string
   }
 
   export type conversationsUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
     isGroup?: BoolFieldUpdateOperationsInput | boolean
-    name?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type conversationsUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
     isGroup?: BoolFieldUpdateOperationsInput | boolean
-    name?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -10781,6 +11911,58 @@ export namespace Prisma {
     userId?: IntFieldUpdateOperationsInput | number
     type?: Enumnotifications_typeFieldUpdateOperationsInput | $Enums.notifications_type
     content?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type group_atributsCreateInput = {
+    group_name?: string
+    group_description?: string | null
+    group_pfp?: string | null
+    conversations: conversationsCreateNestedOneWithoutGroup_atributsInput
+  }
+
+  export type group_atributsUncheckedCreateInput = {
+    id?: number
+    conversationId: string
+    group_name?: string
+    group_description?: string | null
+    group_pfp?: string | null
+  }
+
+  export type group_atributsUpdateInput = {
+    group_name?: StringFieldUpdateOperationsInput | string
+    group_description?: NullableStringFieldUpdateOperationsInput | string | null
+    group_pfp?: NullableStringFieldUpdateOperationsInput | string | null
+    conversations?: conversationsUpdateOneRequiredWithoutGroup_atributsNestedInput
+  }
+
+  export type group_atributsUncheckedUpdateInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    conversationId?: StringFieldUpdateOperationsInput | string
+    group_name?: StringFieldUpdateOperationsInput | string
+    group_description?: NullableStringFieldUpdateOperationsInput | string | null
+    group_pfp?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type group_atributsCreateManyInput = {
+    id?: number
+    conversationId: string
+    group_name?: string
+    group_description?: string | null
+    group_pfp?: string | null
+  }
+
+  export type group_atributsUpdateManyMutationInput = {
+    group_name?: StringFieldUpdateOperationsInput | string
+    group_description?: NullableStringFieldUpdateOperationsInput | string | null
+    group_pfp?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type group_atributsUncheckedUpdateManyInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    conversationId?: StringFieldUpdateOperationsInput | string
+    group_name?: StringFieldUpdateOperationsInput | string
+    group_description?: NullableStringFieldUpdateOperationsInput | string | null
+    group_pfp?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type IntFilter<$PrismaModel = never> = {
@@ -11169,6 +12351,11 @@ export namespace Prisma {
     not?: NestedBoolFilter<$PrismaModel> | boolean
   }
 
+  export type Group_atributsNullableScalarRelationFilter = {
+    is?: group_atributsWhereInput | null
+    isNot?: group_atributsWhereInput | null
+  }
+
   export type conversationsOrderByRelevanceInput = {
     fields: conversationsOrderByRelevanceFieldEnum | conversationsOrderByRelevanceFieldEnum[]
     sort: SortOrder
@@ -11178,21 +12365,18 @@ export namespace Prisma {
   export type conversationsCountOrderByAggregateInput = {
     id?: SortOrder
     isGroup?: SortOrder
-    name?: SortOrder
     createdAt?: SortOrder
   }
 
   export type conversationsMaxOrderByAggregateInput = {
     id?: SortOrder
     isGroup?: SortOrder
-    name?: SortOrder
     createdAt?: SortOrder
   }
 
   export type conversationsMinOrderByAggregateInput = {
     id?: SortOrder
     isGroup?: SortOrder
-    name?: SortOrder
     createdAt?: SortOrder
   }
 
@@ -11428,6 +12612,44 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumnotifications_typeFilter<$PrismaModel>
     _max?: NestedEnumnotifications_typeFilter<$PrismaModel>
+  }
+
+  export type group_atributsOrderByRelevanceInput = {
+    fields: group_atributsOrderByRelevanceFieldEnum | group_atributsOrderByRelevanceFieldEnum[]
+    sort: SortOrder
+    search: string
+  }
+
+  export type group_atributsCountOrderByAggregateInput = {
+    id?: SortOrder
+    conversationId?: SortOrder
+    group_name?: SortOrder
+    group_description?: SortOrder
+    group_pfp?: SortOrder
+  }
+
+  export type group_atributsAvgOrderByAggregateInput = {
+    id?: SortOrder
+  }
+
+  export type group_atributsMaxOrderByAggregateInput = {
+    id?: SortOrder
+    conversationId?: SortOrder
+    group_name?: SortOrder
+    group_description?: SortOrder
+    group_pfp?: SortOrder
+  }
+
+  export type group_atributsMinOrderByAggregateInput = {
+    id?: SortOrder
+    conversationId?: SortOrder
+    group_name?: SortOrder
+    group_description?: SortOrder
+    group_pfp?: SortOrder
+  }
+
+  export type group_atributsSumOrderByAggregateInput = {
+    id?: SortOrder
   }
 
   export type conversation_membersCreateNestedManyWithoutUserInput = {
@@ -11759,6 +12981,12 @@ export namespace Prisma {
     connect?: conversation_membersWhereUniqueInput | conversation_membersWhereUniqueInput[]
   }
 
+  export type group_atributsCreateNestedOneWithoutConversationsInput = {
+    create?: XOR<group_atributsCreateWithoutConversationsInput, group_atributsUncheckedCreateWithoutConversationsInput>
+    connectOrCreate?: group_atributsCreateOrConnectWithoutConversationsInput
+    connect?: group_atributsWhereUniqueInput
+  }
+
   export type messagesCreateNestedManyWithoutConversationInput = {
     create?: XOR<messagesCreateWithoutConversationInput, messagesUncheckedCreateWithoutConversationInput> | messagesCreateWithoutConversationInput[] | messagesUncheckedCreateWithoutConversationInput[]
     connectOrCreate?: messagesCreateOrConnectWithoutConversationInput | messagesCreateOrConnectWithoutConversationInput[]
@@ -11771,6 +12999,12 @@ export namespace Prisma {
     connectOrCreate?: conversation_membersCreateOrConnectWithoutConversationInput | conversation_membersCreateOrConnectWithoutConversationInput[]
     createMany?: conversation_membersCreateManyConversationInputEnvelope
     connect?: conversation_membersWhereUniqueInput | conversation_membersWhereUniqueInput[]
+  }
+
+  export type group_atributsUncheckedCreateNestedOneWithoutConversationsInput = {
+    create?: XOR<group_atributsCreateWithoutConversationsInput, group_atributsUncheckedCreateWithoutConversationsInput>
+    connectOrCreate?: group_atributsCreateOrConnectWithoutConversationsInput
+    connect?: group_atributsWhereUniqueInput
   }
 
   export type messagesUncheckedCreateNestedManyWithoutConversationInput = {
@@ -11796,6 +13030,16 @@ export namespace Prisma {
     update?: conversation_membersUpdateWithWhereUniqueWithoutConversationInput | conversation_membersUpdateWithWhereUniqueWithoutConversationInput[]
     updateMany?: conversation_membersUpdateManyWithWhereWithoutConversationInput | conversation_membersUpdateManyWithWhereWithoutConversationInput[]
     deleteMany?: conversation_membersScalarWhereInput | conversation_membersScalarWhereInput[]
+  }
+
+  export type group_atributsUpdateOneWithoutConversationsNestedInput = {
+    create?: XOR<group_atributsCreateWithoutConversationsInput, group_atributsUncheckedCreateWithoutConversationsInput>
+    connectOrCreate?: group_atributsCreateOrConnectWithoutConversationsInput
+    upsert?: group_atributsUpsertWithoutConversationsInput
+    disconnect?: group_atributsWhereInput | boolean
+    delete?: group_atributsWhereInput | boolean
+    connect?: group_atributsWhereUniqueInput
+    update?: XOR<XOR<group_atributsUpdateToOneWithWhereWithoutConversationsInput, group_atributsUpdateWithoutConversationsInput>, group_atributsUncheckedUpdateWithoutConversationsInput>
   }
 
   export type messagesUpdateManyWithoutConversationNestedInput = {
@@ -11824,6 +13068,16 @@ export namespace Prisma {
     update?: conversation_membersUpdateWithWhereUniqueWithoutConversationInput | conversation_membersUpdateWithWhereUniqueWithoutConversationInput[]
     updateMany?: conversation_membersUpdateManyWithWhereWithoutConversationInput | conversation_membersUpdateManyWithWhereWithoutConversationInput[]
     deleteMany?: conversation_membersScalarWhereInput | conversation_membersScalarWhereInput[]
+  }
+
+  export type group_atributsUncheckedUpdateOneWithoutConversationsNestedInput = {
+    create?: XOR<group_atributsCreateWithoutConversationsInput, group_atributsUncheckedCreateWithoutConversationsInput>
+    connectOrCreate?: group_atributsCreateOrConnectWithoutConversationsInput
+    upsert?: group_atributsUpsertWithoutConversationsInput
+    disconnect?: group_atributsWhereInput | boolean
+    delete?: group_atributsWhereInput | boolean
+    connect?: group_atributsWhereUniqueInput
+    update?: XOR<XOR<group_atributsUpdateToOneWithWhereWithoutConversationsInput, group_atributsUpdateWithoutConversationsInput>, group_atributsUncheckedUpdateWithoutConversationsInput>
   }
 
   export type messagesUncheckedUpdateManyWithoutConversationNestedInput = {
@@ -11910,6 +13164,20 @@ export namespace Prisma {
     upsert?: usersUpsertWithoutNotificationsInput
     connect?: usersWhereUniqueInput
     update?: XOR<XOR<usersUpdateToOneWithWhereWithoutNotificationsInput, usersUpdateWithoutNotificationsInput>, usersUncheckedUpdateWithoutNotificationsInput>
+  }
+
+  export type conversationsCreateNestedOneWithoutGroup_atributsInput = {
+    create?: XOR<conversationsCreateWithoutGroup_atributsInput, conversationsUncheckedCreateWithoutGroup_atributsInput>
+    connectOrCreate?: conversationsCreateOrConnectWithoutGroup_atributsInput
+    connect?: conversationsWhereUniqueInput
+  }
+
+  export type conversationsUpdateOneRequiredWithoutGroup_atributsNestedInput = {
+    create?: XOR<conversationsCreateWithoutGroup_atributsInput, conversationsUncheckedCreateWithoutGroup_atributsInput>
+    connectOrCreate?: conversationsCreateOrConnectWithoutGroup_atributsInput
+    upsert?: conversationsUpsertWithoutGroup_atributsInput
+    connect?: conversationsWhereUniqueInput
+    update?: XOR<XOR<conversationsUpdateToOneWithWhereWithoutGroup_atributsInput, conversationsUpdateWithoutGroup_atributsInput>, conversationsUncheckedUpdateWithoutGroup_atributsInput>
   }
 
   export type NestedIntFilter<$PrismaModel = never> = {
@@ -12516,16 +13784,16 @@ export namespace Prisma {
   export type conversationsCreateWithoutMembersInput = {
     id?: string
     isGroup?: boolean
-    name?: string | null
     createdAt?: Date | string
+    group_atributs?: group_atributsCreateNestedOneWithoutConversationsInput
     messages?: messagesCreateNestedManyWithoutConversationInput
   }
 
   export type conversationsUncheckedCreateWithoutMembersInput = {
     id?: string
     isGroup?: boolean
-    name?: string | null
     createdAt?: Date | string
+    group_atributs?: group_atributsUncheckedCreateNestedOneWithoutConversationsInput
     messages?: messagesUncheckedCreateNestedManyWithoutConversationInput
   }
 
@@ -12590,16 +13858,16 @@ export namespace Prisma {
   export type conversationsUpdateWithoutMembersInput = {
     id?: StringFieldUpdateOperationsInput | string
     isGroup?: BoolFieldUpdateOperationsInput | boolean
-    name?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    group_atributs?: group_atributsUpdateOneWithoutConversationsNestedInput
     messages?: messagesUpdateManyWithoutConversationNestedInput
   }
 
   export type conversationsUncheckedUpdateWithoutMembersInput = {
     id?: StringFieldUpdateOperationsInput | string
     isGroup?: BoolFieldUpdateOperationsInput | boolean
-    name?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    group_atributs?: group_atributsUncheckedUpdateOneWithoutConversationsNestedInput
     messages?: messagesUncheckedUpdateManyWithoutConversationNestedInput
   }
 
@@ -12642,17 +13910,17 @@ export namespace Prisma {
   export type conversationsCreateWithoutMessagesInput = {
     id?: string
     isGroup?: boolean
-    name?: string | null
     createdAt?: Date | string
     members?: conversation_membersCreateNestedManyWithoutConversationInput
+    group_atributs?: group_atributsCreateNestedOneWithoutConversationsInput
   }
 
   export type conversationsUncheckedCreateWithoutMessagesInput = {
     id?: string
     isGroup?: boolean
-    name?: string | null
     createdAt?: Date | string
     members?: conversation_membersUncheckedCreateNestedManyWithoutConversationInput
+    group_atributs?: group_atributsUncheckedCreateNestedOneWithoutConversationsInput
   }
 
   export type conversationsCreateOrConnectWithoutMessagesInput = {
@@ -12716,17 +13984,17 @@ export namespace Prisma {
   export type conversationsUpdateWithoutMessagesInput = {
     id?: StringFieldUpdateOperationsInput | string
     isGroup?: BoolFieldUpdateOperationsInput | boolean
-    name?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     members?: conversation_membersUpdateManyWithoutConversationNestedInput
+    group_atributs?: group_atributsUpdateOneWithoutConversationsNestedInput
   }
 
   export type conversationsUncheckedUpdateWithoutMessagesInput = {
     id?: StringFieldUpdateOperationsInput | string
     isGroup?: BoolFieldUpdateOperationsInput | boolean
-    name?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     members?: conversation_membersUncheckedUpdateManyWithoutConversationNestedInput
+    group_atributs?: group_atributsUncheckedUpdateOneWithoutConversationsNestedInput
   }
 
   export type conversation_membersCreateWithoutConversationInput = {
@@ -12748,6 +14016,24 @@ export namespace Prisma {
   export type conversation_membersCreateManyConversationInputEnvelope = {
     data: conversation_membersCreateManyConversationInput | conversation_membersCreateManyConversationInput[]
     skipDuplicates?: boolean
+  }
+
+  export type group_atributsCreateWithoutConversationsInput = {
+    group_name?: string
+    group_description?: string | null
+    group_pfp?: string | null
+  }
+
+  export type group_atributsUncheckedCreateWithoutConversationsInput = {
+    id?: number
+    group_name?: string
+    group_description?: string | null
+    group_pfp?: string | null
+  }
+
+  export type group_atributsCreateOrConnectWithoutConversationsInput = {
+    where: group_atributsWhereUniqueInput
+    create: XOR<group_atributsCreateWithoutConversationsInput, group_atributsUncheckedCreateWithoutConversationsInput>
   }
 
   export type messagesCreateWithoutConversationInput = {
@@ -12796,6 +14082,30 @@ export namespace Prisma {
   export type conversation_membersUpdateManyWithWhereWithoutConversationInput = {
     where: conversation_membersScalarWhereInput
     data: XOR<conversation_membersUpdateManyMutationInput, conversation_membersUncheckedUpdateManyWithoutConversationInput>
+  }
+
+  export type group_atributsUpsertWithoutConversationsInput = {
+    update: XOR<group_atributsUpdateWithoutConversationsInput, group_atributsUncheckedUpdateWithoutConversationsInput>
+    create: XOR<group_atributsCreateWithoutConversationsInput, group_atributsUncheckedCreateWithoutConversationsInput>
+    where?: group_atributsWhereInput
+  }
+
+  export type group_atributsUpdateToOneWithWhereWithoutConversationsInput = {
+    where?: group_atributsWhereInput
+    data: XOR<group_atributsUpdateWithoutConversationsInput, group_atributsUncheckedUpdateWithoutConversationsInput>
+  }
+
+  export type group_atributsUpdateWithoutConversationsInput = {
+    group_name?: StringFieldUpdateOperationsInput | string
+    group_description?: NullableStringFieldUpdateOperationsInput | string | null
+    group_pfp?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type group_atributsUncheckedUpdateWithoutConversationsInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    group_name?: StringFieldUpdateOperationsInput | string
+    group_description?: NullableStringFieldUpdateOperationsInput | string | null
+    group_pfp?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type messagesUpsertWithWhereUniqueWithoutConversationInput = {
@@ -13124,6 +14434,54 @@ export namespace Prisma {
     friendships_friendships_friendIdTousers?: friendshipsUncheckedUpdateManyWithoutUsers_friendships_friendIdTousersNestedInput
     sentMessages?: messagesUncheckedUpdateManyWithoutSenderNestedInput
     user_atribut?: user_atributUncheckedUpdateOneWithoutUsersNestedInput
+  }
+
+  export type conversationsCreateWithoutGroup_atributsInput = {
+    id?: string
+    isGroup?: boolean
+    createdAt?: Date | string
+    members?: conversation_membersCreateNestedManyWithoutConversationInput
+    messages?: messagesCreateNestedManyWithoutConversationInput
+  }
+
+  export type conversationsUncheckedCreateWithoutGroup_atributsInput = {
+    id?: string
+    isGroup?: boolean
+    createdAt?: Date | string
+    members?: conversation_membersUncheckedCreateNestedManyWithoutConversationInput
+    messages?: messagesUncheckedCreateNestedManyWithoutConversationInput
+  }
+
+  export type conversationsCreateOrConnectWithoutGroup_atributsInput = {
+    where: conversationsWhereUniqueInput
+    create: XOR<conversationsCreateWithoutGroup_atributsInput, conversationsUncheckedCreateWithoutGroup_atributsInput>
+  }
+
+  export type conversationsUpsertWithoutGroup_atributsInput = {
+    update: XOR<conversationsUpdateWithoutGroup_atributsInput, conversationsUncheckedUpdateWithoutGroup_atributsInput>
+    create: XOR<conversationsCreateWithoutGroup_atributsInput, conversationsUncheckedCreateWithoutGroup_atributsInput>
+    where?: conversationsWhereInput
+  }
+
+  export type conversationsUpdateToOneWithWhereWithoutGroup_atributsInput = {
+    where?: conversationsWhereInput
+    data: XOR<conversationsUpdateWithoutGroup_atributsInput, conversationsUncheckedUpdateWithoutGroup_atributsInput>
+  }
+
+  export type conversationsUpdateWithoutGroup_atributsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    isGroup?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    members?: conversation_membersUpdateManyWithoutConversationNestedInput
+    messages?: messagesUpdateManyWithoutConversationNestedInput
+  }
+
+  export type conversationsUncheckedUpdateWithoutGroup_atributsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    isGroup?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    members?: conversation_membersUncheckedUpdateManyWithoutConversationNestedInput
+    messages?: messagesUncheckedUpdateManyWithoutConversationNestedInput
   }
 
   export type conversation_membersCreateManyUserInput = {

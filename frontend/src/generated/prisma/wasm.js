@@ -153,7 +153,6 @@ exports.Prisma.MessagesScalarFieldEnum = {
 exports.Prisma.ConversationsScalarFieldEnum = {
   id: 'id',
   isGroup: 'isGroup',
-  name: 'name',
   createdAt: 'createdAt'
 };
 
@@ -186,6 +185,14 @@ exports.Prisma.NotificationsScalarFieldEnum = {
   userId: 'userId',
   type: 'type',
   content: 'content'
+};
+
+exports.Prisma.Group_atributsScalarFieldEnum = {
+  id: 'id',
+  conversationId: 'conversationId',
+  group_name: 'group_name',
+  group_description: 'group_description',
+  group_pfp: 'group_pfp'
 };
 
 exports.Prisma.SortOrder = {
@@ -236,8 +243,7 @@ exports.Prisma.messagesOrderByRelevanceFieldEnum = {
 };
 
 exports.Prisma.conversationsOrderByRelevanceFieldEnum = {
-  id: 'id',
-  name: 'name'
+  id: 'id'
 };
 
 exports.Prisma.tagsOrderByRelevanceFieldEnum = {
@@ -251,6 +257,13 @@ exports.Prisma.user_atributOrderByRelevanceFieldEnum = {
 
 exports.Prisma.notificationsOrderByRelevanceFieldEnum = {
   content: 'content'
+};
+
+exports.Prisma.group_atributsOrderByRelevanceFieldEnum = {
+  conversationId: 'conversationId',
+  group_name: 'group_name',
+  group_description: 'group_description',
+  group_pfp: 'group_pfp'
 };
 exports.messages_status = exports.$Enums.messages_status = {
   NOT_DELIVERED: 'NOT_DELIVERED',
@@ -283,7 +296,8 @@ exports.Prisma.ModelName = {
   tags: 'tags',
   user_atribut: 'user_atribut',
   friendships: 'friendships',
-  notifications: 'notifications'
+  notifications: 'notifications',
+  group_atributs: 'group_atributs'
 };
 
 /**

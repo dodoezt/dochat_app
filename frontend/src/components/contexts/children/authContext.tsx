@@ -1,7 +1,7 @@
 'use client'
-import React, { createContext, useContext, useEffect, useState, useRef } from 'react';
+import React, { createContext, useContext, useEffect, useState, useRef, useMemo } from 'react';
 import { Client, Account, Models } from 'appwrite';
-import { AuthContextType, userInfoByGoogle } from '@/types/contexts';
+import { AuthContextType, userInfoByGoogle, friendshipsType, requesterConnectionsType } from '@/types/contexts';
 import { UserInfoType } from '@/types/user';
 import socket from '@/lib/socket';
 import Notification from '@/components/mini-components/notification';
@@ -51,8 +51,8 @@ export const AuthProvider = ({ children } : any) => {
     const hasConnected = useRef(false);
     const [onlineUsers, setOnlineUsers] = useState<any[]>([]);
     const [notifications, setNotifications] = useState<any[]>([]);
-    const [newFriendRequests, setNewFriendRequests] = useState<any[]>([]);
-    // const audio = new Audio('/assets/sounds/notification.mp3')
+    const [newFriendRequests, setNewFriendRequests] = useState<requesterConnectionsType[]>([]);
+    const [friendships, setFriendships] = useState<friendshipsType[] | null>(null);
 
     const connectToSocket = () => {
         if (!userInfo) return
@@ -111,16 +111,67 @@ export const AuthProvider = ({ children } : any) => {
             connectToSocket()
         }
     }   
+
+    const getFriendShips = async() => {
+        try {
+            const response = await fetch('/api/v1/users/me/friendships')
+            const data = await response.json()
+    
+            setFriendships(data)
+        } catch (error) {
+            console.log()
+            setFriendships(null)
+        }
+    }
     
     const getOauthJwtToken = async () => {
         const jwt = await account.createJWT();
         return jwt;
     }
 
+    const friendConnections = useMemo(() => {
+        if(!friendships || !userInfo) return []
+        return friendships
+            .filter(friendship => friendship.status === 'accepted')
+            .map(friendship => {
+                if (friendship.userId === userInfo.userId) {
+                    return {
+                        friendshipId: friendship.id,
+                        friend: friendship.users_friendships_friendIdTousers
+                    }
+                } else if (friendship.friendId === userInfo.userId) {
+                    return {
+                        friendshipId: friendship.id,
+                        friend: friendship.users_friendships_userIdTousers
+                    }
+                } 
+                return null
+            })
+            .filter(Boolean)
+    }, [friendships, userInfo])
+
+    const requesterConnections = useMemo(() => {
+        if(!friendships || !userInfo) return []
+        return friendships
+            .filter(friendship => friendship.status === 'pending')
+            .map(friendship => {
+                if (friendship.userId === userInfo.userId) {
+                    return null
+                } else if (friendship.friendId === userInfo.userId) {
+                    return {
+                        friendshipId: friendship.id,
+                        requester: friendship.users_friendships_userIdTousers
+                    }
+                } 
+                return null
+            })
+            .filter(Boolean)
+    }, [friendships, userInfo])
+
     // TESTING USEEFFECT
     useEffect(() => {
-        console.log('onlineUsers:', onlineUsers);
-    }, [onlineUsers])
+        console.log('friendships:', friendships);
+    }, [friendships])
 
     useEffect(() => {
         console.log('notifications:', notifications);
@@ -128,25 +179,37 @@ export const AuthProvider = ({ children } : any) => {
     // TESTING USEEFFECT
 
     useEffect(() => {
-        // setNotifications(testNotifications)
         getUserFromDb()
+        getFriendShips()
     }, [])
 
     useEffect(() => {
         if(userInfo) {
             connectToSocket()
-            socket.on('friend-request-received', ({type, friendshipId, from}) => {
+            socket.on('friend-request-received', ({type, friendshipId, from, createdAt}) => {
                 const newNotification = {
                     type,
                     friendshipId,
                     from: {
                         userId: from.userId,
                         username: from.username,
-                        pfp_id: from.pfp_id
+                        user_atribut: {
+                            pfp_id: from.user_atribut.pfp_id
+                        }
                     },
                     title: `New Friend Request`,
                 }
                 setNotifications((prev) => [...prev, newNotification]);
+                setNewFriendRequests((prev) => [...prev, {
+                    friendshipId: friendshipId,
+                    requester : {
+                        userId: from.userId,
+                        username: from.username,
+                        user_atribut: {
+                            pfp_id: from.user_atribut.pfp_id
+                        }
+                    }
+                }])
             })
 
             socket.on('new-message-notification', ({ id, type, conversationId, from, content}) => {
@@ -157,7 +220,9 @@ export const AuthProvider = ({ children } : any) => {
                     from: {
                         userId: from.senderId,
                         username: from.senderUsername,
-                        pfp_id: from.senderPfp_id
+                        user_atribut: {
+                            pfp_id: from.senderPfp_id
+                        }
                     },
                     content,
                 }
@@ -195,12 +260,14 @@ export const AuthProvider = ({ children } : any) => {
         console.log('userInfo:', userInfo);
     }, [userInfo])
 
-    if (loadingServer.value && userInfo){
-        return null;
-    }
+    useEffect(() => {
+        console.log('friendships:', friendships);
+    }, [friendships])
+
+    if (loadingServer.value && userInfo) return null
     
     return (
-        <AuthContext.Provider value={{ userInfo, getOauthJwtToken, loadingGetUser, onlineUsers, loadingServer }}>
+        <AuthContext.Provider value={{ userInfo, getOauthJwtToken, loadingGetUser, onlineUsers, loadingServer, friendships, setFriendships, friendConnections, requesterConnections, newFriendRequests }}>
             {notifications.length > 0 && <Notification queues={notifications} setNotifications={setNotifications}/>}
             {children}
         </AuthContext.Provider>

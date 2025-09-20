@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { GetUserIdFromCookie } from "@/lib/auth/getUserIdFromCookie";
+import { GetUserIdFromCookie } from "@/functions/auth/user/getUserIdFromCookie";
 
 
 export async function PATCH(req: Request) {

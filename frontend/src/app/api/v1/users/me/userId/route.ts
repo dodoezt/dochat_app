@@ -1,4 +1,4 @@
-import { GetUserIdFromCookie } from "@/lib/auth/getUserIdFromCookie";
+import { GetUserIdFromCookie } from "@/functions/auth/user/getUserIdFromCookie";
 import { NextResponse } from "next/server";
 
 export async function GET(req: Request) {

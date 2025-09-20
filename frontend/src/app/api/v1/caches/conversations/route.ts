@@ -2,7 +2,7 @@ import { ConversationsCache } from '@/lib/caches/ConversationsCache'
 import { NextResponse } from 'next/server';
 import { ConversationListItem } from '@/components/seperated-component/chat/conversations';
 import { redis } from "@/lib/caches/RedisCaches";
-import { GetUserIdFromCookie } from "@/lib/auth/getUserIdFromCookie";
+import { GetUserIdFromCookie } from "@/functions/auth/user/getUserIdFromCookie";
 
 export async function GET() {
     const userId = await GetUserIdFromCookie();

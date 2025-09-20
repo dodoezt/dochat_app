@@ -1,4 +1,4 @@
-import { GetUserInfoFromCookie } from "@/lib/auth/getUserInfoFromCookie";
+import { GetUserInfoFromCookie } from "@/functions/auth/user/getUserInfoFromCookie";
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { uploadProfilePicture } from "@/functions/uploadToAppwrite";
@@ -16,6 +16,7 @@ export async function POST(req: Request) {
 
     if(!pfp_id) return NextResponse.json({message: 'failed to upload'}, {status: 401})
 
+mysql -u root -p
     try {
         const response = await prisma.user_atribut.update({
             where: {userId: userInfo.userId},

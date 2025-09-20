@@ -1,9 +1,10 @@
 'use client'
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef, useState, useMemo } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useDebounce } from 'use-debounce'
 import socket from '@/lib/socket'
 import { UseBoolean } from '@/hooks/useBoolean'
+import { RoundSpinner, Spinner } from '@/components/ui/spinner'
 
 import ChatSearchBar from '@/components/seperated-component/chat/searchBar'
 import ChatNavbar from '@/components/seperated-component/chat/navbar'
@@ -15,7 +16,11 @@ import { FaRegCircleUser } from "react-icons/fa6";
 import { BsCheck, BsCheckAll } from "react-icons/bs";
 import { MdAccountCircle } from 'react-icons/md'
 import { IoMdPersonAdd } from "react-icons/io";
+import { BsFillPersonCheckFill } from "react-icons/bs";
+import { IoCheckmarkOutline } from "react-icons/io5";
 import { IoChatboxEllipses } from "react-icons/io5";
+import { produce } from 'immer'
+import { friendshipsType } from '@/types/contexts'
 
 const VALID_TABS = ['chat', 'search']
 const DEFAULT_TAB = 'chat'
@@ -28,13 +33,15 @@ const Conversations:React.FC<props> = ({}) => {
   const [isSearchOnFocus, setIsSearchOnFocus] = useState<boolean>(false)
   const [keyword, setKeyword] = useState<string>('')
   const [users, setUsers] = useState<any[] | null>(null)
-  // const loadingCachedConversations = UseBoolean(true)
-  // const loadingConversations = UseBoolean(true)
   
   const [keywordDebounce] = useDebounce(keyword, 500)
   const searchLoading = UseBoolean()
   const router = useRouter()
+
+  const { friendships, setFriendships, friendConnections } = useAuthContext()
   const { userInfo, conversations } = useChatContext();
+
+  const [loadingAddUser, setLoadingAddUser] = useState<number | null>(null)
   
   const { onlineUsers } = useAuthContext()
   
@@ -44,7 +51,6 @@ const Conversations:React.FC<props> = ({}) => {
   // }, []);
 
   //  TESTING USEEFFECT
-
 
   useEffect(() => {
     if(keyword.trim() === '') return;
@@ -89,6 +95,8 @@ const Conversations:React.FC<props> = ({}) => {
   // }
 
   async function handleAddFriend (toUserId: number) {
+    if(loadingAddUser) return;
+    setLoadingAddUser(toUserId)
     try {
       const response = await fetch('/api/v1/friendships', {
         method: 'POST',
@@ -98,22 +106,32 @@ const Conversations:React.FC<props> = ({}) => {
         body: JSON.stringify({ toUserId }),
         credentials: 'include',
       })
+      const { data, isExisted } = await response.json()
 
-      if(response.ok) {
-        const { data } = await response.json()
-        console.log('friend request sent:', data)
+      if(response.ok && !isExisted) {
+        setFriendships(prev => 
+          produce(prev, draft => {
+            if(draft) draft.push(data)
+            return draft
+          }
+        ))
+
         socket.emit('send-friend-request', {
           toUserId: toUserId,
           friendshipId: data.id, 
           from: {
             userId: userInfo.userId,
             username: userInfo.username,
-            pfp_id: userInfo.user_atribut.pfp_id
+            user_atribut: {
+              pfp_id: userInfo.user_atribut.pfp_id
+            }
           }
         })
       }
     } catch (error) {
       console.log(error)
+    } finally {
+      setLoadingAddUser(null)
     }
   }
 
@@ -180,7 +198,31 @@ const Conversations:React.FC<props> = ({}) => {
   const handleSearchBlur = () => {
     setIsSearchOnFocus(false)
   }
-  if(!conversations || !userInfo) return null
+
+  const addedPeople = useMemo(() => {
+    if(!friendships || !userInfo) return []
+    return friendships
+      .filter(friendship => friendship.status === 'pending')
+      .map(friendship => {
+          if (friendship.userId === userInfo.userId) {
+              return {
+                  friendshipId: friendship.id,
+                  friend: friendship.users_friendships_friendIdTousers
+              }
+          } else if (friendship.friendId === userInfo.userId) {
+              return null
+          }
+          return null
+      })
+      .filter(Boolean)
+  }, [friendships, userInfo])
+
+  const filteredSearchedUsers = useMemo(() => {
+    if(!users || !userInfo) return null;
+    return users.filter(user => user.userId !== userInfo.userId)
+  }, [users, userInfo, keyword])
+
+  if(!conversations || !userInfo || !friendships) return null
 
   return (
     <div className='relative w-screen h-screen'>
@@ -203,46 +245,59 @@ const Conversations:React.FC<props> = ({}) => {
             searchLoading={searchLoading}
           />
           <div className={`w-full ${keyword.trim() === '' ? 'hidden' : 'block'}`}>
-            {users?.length === 0 ? (
+            {filteredSearchedUsers?.length === 0 ? (
               <div className="flex justify-center w-full">
                 <h1 className="m-auto mt-5 font-sans text-sm text-gray-700">
                   No user found.
                 </h1>
               </div>
             ): (
-              users?.map((user, index) => (
-                <div
-                key={index} className="flex items-center justify-between w-full h-16 px-2 py-2">
-                  <div className="flex h-full gap-3">
-                    <div className="h-full aspect-square">
-                      <button className="w-full h-full overflow-hidden rounded-full cursor-pointer">
-                        {user.user_atribut.pfp_id ? (
-                          <img src={`https://fra.cloud.appwrite.io/v1/storage/buckets/683bc8bf0001881c6cc5/files/${user.user_atribut.pfp_id}/view?project=681cbc230020279ce784`} alt={user.username} className={`w-full h-full transition-all ease-in-out duration-200`} />
-                        ): (
-                          <div className="flex items-center justify-center h-full aspect-square">
-                            <MdAccountCircle className='text-5xl text-white'/>
-                          </div>
-                        )}
+              filteredSearchedUsers?.map((user, index) => {
+                const isAdded = friendships.some(f => f.userId === userInfo.userId && f.friendId === user.userId && f.status === 'pending')
+                return (
+                  <div
+                  key={index} className="flex items-center justify-between w-full h-16 px-2 py-2">
+                    <div className="flex h-full gap-3">
+                      <div className="h-full aspect-square">
+                        <button className="w-full h-full overflow-hidden rounded-full cursor-pointer">
+                          {user.user_atribut.pfp_id ? (
+                            <img src={`https://fra.cloud.appwrite.io/v1/storage/buckets/683bc8bf0001881c6cc5/files/${user.user_atribut.pfp_id}/view?project=681cbc230020279ce784`} alt={user.username} className={`w-full h-full transition-all ease-in-out duration-200`} />
+                          ): (
+                            <div className="flex items-center justify-center h-full aspect-square">
+                              <MdAccountCircle className='text-5xl text-white'/>
+                            </div>
+                          )}
+                        </button>
+                      </div>
+                      <div className="flex items-center h-full">
+                        <h1 className="font-sans text-lg text-white cursor-pointer">{user.username}</h1>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <button
+                      onClick={() => handleStartConversation(user.userId)} 
+                      className="flex items-center justify-center h-full cursor-pointer">
+                        <IoChatboxEllipses className='text-xl text-white'/>
                       </button>
-                    </div>
-                    <div className="flex items-center h-full">
-                      <h1 className="font-sans text-lg text-white cursor-pointer">{user.username}</h1>
+                      <button 
+                        onClick={() => handleAddFriend(user.userId)}
+                        disabled={loadingAddUser === user.userId || isAdded}
+                        className={`flex items-center justify-center h-full ${
+                            loadingAddUser === user.userId || isAdded ? 'cursor-default' : 'cursor-pointer'
+                        }`}
+                      >
+                        {loadingAddUser === user.userId ? (
+                            <RoundSpinner size="sm" />
+                        ) : isAdded ? (
+                            <IoCheckmarkOutline className='text-xl text-white'/>
+                        ) : (
+                            <IoMdPersonAdd className='text-xl text-white'/>
+                        )}
+                    </button>
                     </div>
                   </div>
-                  <div className="flex items-center gap-3">
-                    <button
-                    onClick={() => handleStartConversation(user.userId)} 
-                    className="flex items-center justify-center h-full cursor-pointer">
-                      <IoChatboxEllipses className='text-xl text-white'/>
-                    </button>
-                    <button 
-                    onClick={() => handleAddFriend(user.userId)}
-                    className="flex items-center justify-center h-full cursor-pointer">
-                      <IoMdPersonAdd className='text-xl text-white'/>
-                    </button>
-                  </div>
-                </div>
-              ))
+                )
+              })
             )}
           </div>
         </div>

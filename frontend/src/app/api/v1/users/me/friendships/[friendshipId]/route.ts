@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { GetUserInfoFromCookie } from "@/lib/auth/getUserInfoFromCookie";
+import { GetUserInfoFromCookie } from "@/functions/auth/user/getUserInfoFromCookie";
 
 export async function PATCH(request: Request, { params } : { params: Promise<{friendshipId: number}> }) {
     const { friendshipId } = await params;

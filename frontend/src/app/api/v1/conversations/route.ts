@@ -1,7 +1,7 @@
-import { GetUserIdFromCookie } from "@/lib/auth/getUserIdFromCookie";
+import { GetUserIdFromCookie } from "@/functions/auth/user/getUserIdFromCookie";
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
-import { findPrivateConversation } from '@/lib/auth/chat/findConversation.'
+import { findPrivateConversation } from "@/functions/auth/chat/findConversation.";
 
 export async function POST(req: Request) {
     const userId = await GetUserIdFromCookie()

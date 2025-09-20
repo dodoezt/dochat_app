@@ -295,6 +295,8 @@ export const ChatProvider = ({ children }: {children: React.ReactNode}) => {
         }
     }
 
+    
+
     if (loadingCachedConversations.value || !conversations || loadingServer?.value) {
         return <p className="text-white">loading...</p>
     }

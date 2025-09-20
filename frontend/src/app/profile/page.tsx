@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { produce } from 'immer'
+import { useAuthContext } from '@/components/contexts/children/authContext'
 
 import { UseBoolean } from '@/hooks/useBoolean'
 import { UserInfoType } from '@/types/user'
@@ -67,9 +68,10 @@ const page = () => {
     const [currentImgSrc, setCurrentImgSrc] = useState<any | null>(null)
     const [fileId, setFileId] = useState<string | null>(null)
     const [tags, setTags] = useState<any[] | null>(null)
-    const [friendships, setFriendships] = useState<friendshipsType[] | null>(null)
     const [socialFilter, setSocialFilter] = useState<'friends' | 'requests'>('friends')
     const router = useRouter()
+
+    const { friendships, setFriendships, friendConnections, requesterConnections, newFriendRequests } = useAuthContext()
 
     const loadings = {
         user: UseBoolean(true),
@@ -92,7 +94,6 @@ const page = () => {
     useEffect(() => {
         getUser()
         getTag()
-        getFriendShips()
     }, [])
 
     useEffect(() => {
@@ -137,6 +138,10 @@ const page = () => {
         if(tags && userInfo) loading.setFalse()
     }, [tags, userInfo])
 
+    useEffect(() => {
+        if(friendships) loadings.friendships.setFalse()
+    }, [friendships])
+
     const handleFileChange = async(e: React.ChangeEvent<HTMLInputElement>) => {
         editMode.setTrue()
         const file = e.target.files?.[0]
@@ -150,21 +155,6 @@ const page = () => {
         reader.readAsDataURL(file);
 
         cropMode.setTrue()
-    }
-
-    const getFriendShips = async() => {
-        loadings.friendships.setTrue()
-        try {
-            const response = await fetch('/api/v1/users/me/friendships')
-            const data = await response.json()
-    
-            setFriendships(data)
-        } catch (error) {
-            console.log()
-            setFriendships(null)
-        } finally {
-            loadings.friendships.setFalse()
-        }
     }
 
     const getTag = async() => {
@@ -244,6 +234,16 @@ const page = () => {
                 credentials: 'include'
             })
             const data = await response.json()
+
+            if(response.ok){
+                setFriendships(prev => 
+                    produce(prev, draft => {
+                        const index = draft!.findIndex(friendship => friendship.id === friendshipId)
+                        if(index !== -1) draft![index] = {...draft![index], status: 'accepted'}
+                        return draft
+                    })
+                )
+            }
         } catch (error) {
             console.log(error)
         }
@@ -259,8 +259,16 @@ const page = () => {
                 credentials: 'include'
             })
 
+            setFriendships(prev => 
+                produce(prev, draft => {
+                    const index = draft!.findIndex(friendship => friendship.id === friendshipId)
+                    if(index !== -1) draft!.splice(index, 1)
+                    return draft
+                })
+            )
+
             if(response.ok){
-                setFriendships(prev => prev!.filter(friendship => friendship.id !== friendshipId))
+                setFriendships?.(prev => prev!.filter(friendship => friendship.id !== friendshipId))
             }
         } catch (error) {
             console.error(error)            
@@ -276,6 +284,16 @@ const page = () => {
                 },
                 credentials: 'include'
             })
+
+            if(response.ok){
+                setFriendships(prev => 
+                    produce(prev, draft => {
+                        const index = draft!.findIndex(friendship => friendship.id === friendshipId)
+                        if(index !== -1) draft!.splice(index, 1)
+                        return draft
+                    })
+                )
+            }
         } catch (error) {
             console.error(error)            
         }
@@ -302,44 +320,15 @@ const page = () => {
         }
     }
 
-    const friendConnections = useMemo(() => {
-        if(!friendships || !userInfo) return []
-        return friendships
-            .filter(friendship => friendship.status === 'accepted')
-            .map(friendship => {
-                if (friendship.userId === userInfo.userId) {
-                    return {
-                        friendshipId: friendship.id,
-                        friend: friendship.users_friendships_friendIdTousers
-                    }
-                } else if (friendship.friendId === userInfo.userId) {
-                    return {
-                        friendshipId: friendship.id,
-                        friend: friendship.users_friendships_userIdTousers
-                    }
-                } 
-                return null
-            })
-            .filter(Boolean)
-    }, [friendships])
+    const fullRequesterConnections = useMemo(() => {
+        if (!requesterConnections) return;
 
-    const requesterConnections = useMemo(() => {
-        if(!friendships || !userInfo) return []
-        return friendships
-            .filter(friendship => friendship.status === 'pending')
-            .map(friendship => {
-                if (friendship.userId === userInfo.userId) {
-                    return null
-                } else if (friendship.friendId === userInfo.userId) {
-                    return {
-                        friendshipId: friendship.id,
-                        requester: friendship.users_friendships_userIdTousers
-                    }
-                } 
-                return null
-            })
-            .filter(Boolean)
-    }, [friendships])
+        return [...newFriendRequests, ...requesterConnections]
+    }, [requesterConnections, newFriendRequests])
+
+    useEffect(() => {
+        console.log('fullRequesterConnections', fullRequesterConnections)
+    }, [fullRequesterConnections])
 
     useEffect(() => {
         console.table(friendships)
@@ -533,7 +522,7 @@ const page = () => {
                                                     )
                                                 })
                                             ) : (
-                                                requesterConnections && requesterConnections.length > 0 ? requesterConnections.map((requesterConnection, idx) => {
+                                                requesterConnections && requesterConnections.length > 0 ? [...newFriendRequests, ...requesterConnections].map((requesterConnection, idx) => {
                                                     const requester = requesterConnection?.requester
                                                     if(!requester) return;
                                                     return (
@@ -567,7 +556,7 @@ const page = () => {
                                         <p className="text-sm text-white">You dont have any {socialFilter} yet.</p>
                                     )
                                 ) : (
-                                    <h1 className="text-sm font-medium text-white">You dont have any social interaction yet.</h1>
+                                    <h1 className="text-sm font-medium text-white">loading...</h1>
                                 )}
                             </div>
                         </div>

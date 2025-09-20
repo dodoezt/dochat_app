@@ -17,7 +17,9 @@ type Queue = {
     from: {
         userId: number,
         username: string,
-        pfp_id: string,
+        user_atribut: {
+            pfp_id: string,
+        }
     },
     conversationId?: string,
     content?: string,
@@ -72,7 +74,7 @@ const Notification: React.FC<NotificationProps> = ({queues, setNotifications}) =
                         <main className="flex items-center justify-between w-full">
                             <div className="flex items-center gap-3">
                                 <div className="w-8 overflow-hidden rounded-full aspect-square">
-                                    <GeneratePfp pfp_id={queues[0].from.pfp_id} username={queues[0].from.username}/>
+                                    <GeneratePfp pfp_id={queues[0].from.user_atribut.pfp_id} username={queues[0].from.username}/>
                                 </div>
                                 <h1 className="font-sans font-medium text-white font-white">{queues[0].from.username}</h1>
                             </div>
@@ -87,7 +89,7 @@ const Notification: React.FC<NotificationProps> = ({queues, setNotifications}) =
                     <div className="flex flex-col w-full space-y-2">
                         <header className="flex items-center w-full gap-3">
                             <div className="overflow-hidden rounded-full w-7 aspect-square">
-                                <GeneratePfp pfp_id={queues[0].from.pfp_id} username={queues[0].from.username}/>
+                                <GeneratePfp pfp_id={queues[0].from.user_atribut.pfp_id} username={queues[0].from.username}/>
                             </div>
                             <h1 className="font-sans font-medium text-white font-white">{queues[0].from.username}</h1>
                         </header>

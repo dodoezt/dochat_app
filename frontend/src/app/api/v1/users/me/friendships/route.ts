@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
-import { GetUserInfoFromCookie } from "@/lib/auth/getUserInfoFromCookie";
+import { GetUserInfoFromCookie } from "@/functions/auth/user/getUserInfoFromCookie";
 
 export async function GET() {
     const userInfo = await GetUserInfoFromCookie()

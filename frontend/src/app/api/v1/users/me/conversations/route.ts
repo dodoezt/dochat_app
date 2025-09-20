@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 
 import { ConversationsCache } from '@/lib/caches/ConversationsCache';
 import { userInfoByGoogle } from '@/types/contexts'
-import { GetUserIdFromCookie } from "@/lib/auth/getUserIdFromCookie";
+import { GetUserIdFromCookie } from "@/functions/auth/user/getUserIdFromCookie";
 import { redis } from "@/lib/caches/RedisCaches";
 
 export async function POST(req: Request) {

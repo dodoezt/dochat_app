@@ -1,4 +1,4 @@
-import { GetUserIdFromCookie } from '@/lib/auth/getUserIdFromCookie';
+import { GetUserIdFromCookie } from '@/functions/auth/user/getUserIdFromCookie';
 import { prisma } from '@/lib/prisma';
 import { NextResponse } from 'next/server';
 

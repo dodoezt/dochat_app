@@ -12,6 +12,39 @@ export type GoogleUserInfo = {
     email: string;
 }
 
+export type friendshipsType = {
+    id: number
+    userId: number
+    friendId: number 
+    status: 'accepted' | 'pending' | 'rejected'
+    createdAt: Date
+    users_friendships_userIdTousers: {
+        userId: number
+        username: string
+        user_atribut: {
+            pfp_id: string
+        }
+    }
+    users_friendships_friendIdTousers: {
+        userId: number
+        username: string
+        user_atribut: {
+            pfp_id: string
+        }
+    }
+}
+
+export type requesterConnectionsType = {
+    friendshipId: number;
+    requester: {
+        userId: number;
+        username: string;
+        user_atribut: {
+            pfp_id: string | null;
+        }
+    }
+}
+
 export type AuthContextType = BaseAuthContext & {
     provider: ProviderType;
     userInfo?: userInfoByGoogle;
@@ -23,6 +56,20 @@ export type AuthContextType = BaseAuthContext & {
     loadingServer?: UseBooleanType;
     onlineUsers?: any[];
     audio: any;
+    friendships: friendshipsType[] | null;
+    setFriendships: React.Dispatch<React.SetStateAction<friendshipsType[] | null>>;
+    friendConnections: {
+        friendshipId: number;
+        friend: {
+            userId: number;
+            username: string;
+            user_atribut: {
+                pfp_id: string | null;
+            }
+        }
+    }[];
+    requesterConnections: requesterConnectionsType[];
+    newFriendRequests: requesterConnectionsType[];
 };
 
 export type UnLoggedContextType = BaseAuthContext & {
