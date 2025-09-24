@@ -7,38 +7,15 @@ import { useAuthContext } from '@/components/contexts/children/authContext'
 import { UseBoolean } from '@/hooks/useBoolean'
 import { UserInfoType } from '@/types/user'
 import ImageCropper from '@/functions/cropper'
-import { uploadProfilePicture } from '@/functions/uploadToAppwrite'
-import socket from '@/lib/socket'
 
 import ShinyText from '@/components/reactBits/shinyText'
+import { RoundSpinner } from '@/components/ui/spinner'
 
 import { MdAccountCircle, MdPersonRemove } from 'react-icons/md'
 import { FiEdit3 } from "react-icons/fi";
 import { FaCheck } from "react-icons/fa";
-import { IoMdClose } from "react-icons/io";
+import { IoMdClose, IoMdArrowBack } from "react-icons/io";
 import { IoChatboxEllipses } from "react-icons/io5";
-
-type friendshipsType = {
-    id: number
-    userId: number
-    friendId: number 
-    status: 'accepted' | 'pending' | 'rejected'
-    createdAt: Date
-    users_friendships_userIdTousers: {
-        userId: number
-        username: string
-        user_atribut: {
-            pfp_id: string
-        }
-    }
-    users_friendships_friendIdTousers: {
-        userId: number
-        username: string
-        user_atribut: {
-            pfp_id: string
-        }
-    }
-}
 
 export const tagColors = [
   {
@@ -66,7 +43,6 @@ const page = () => {
     const [croppedImage, setCroppedImage] = useState<string | null>(null)
     const [croppedBlob, setCroppedBlob] = useState<Blob | null>(null)
     const [currentImgSrc, setCurrentImgSrc] = useState<any | null>(null)
-    const [fileId, setFileId] = useState<string | null>(null)
     const [tags, setTags] = useState<any[] | null>(null)
     const [socialFilter, setSocialFilter] = useState<'friends' | 'requests'>('friends')
     const router = useRouter()
@@ -95,40 +71,6 @@ const page = () => {
         getUser()
         getTag()
     }, [])
-
-    useEffect(() => {
-        if(!userInfo) return;
-        // socket.on("friend-request-received", ({friendshipId, from}) => {
-        //     setFriendships(prev => 
-        //         produce(prev, draft => {
-        //         draft?.unshift({
-        //             id: friendshipId,
-        //             userId: from.userId,
-        //             friendId: userInfo!.userId,
-        //             status: 'pending',
-        //             createdAt: new Date().toISOString() as unknown as Date,
-        //             users_friendships_userIdTousers: {
-        //                 userId: from.userId,
-        //                 username: from.username,
-        //                 user_atribut: {
-        //                     pfp_id: from.pfp_id
-        //                 }
-        //             },
-        //             users_friendships_friendIdTousers: {
-        //                 userId: userInfo!.userId,
-        //                 username: userInfo!.username,
-        //                 user_atribut: {
-        //                     pfp_id: userInfo!.user_atribut.pfp_id!
-        //                 },
-        //             }
-        //         })
-        //     }))
-        // })
-
-        // return () => {
-        //     socket.off("friend-request-received")
-        // }
-    }, [userInfo])
     
     useEffect(() => {
         console.log(currentImgSrc)
@@ -336,7 +278,14 @@ const page = () => {
         console.log('requesterConnections', requesterConnections)
     }, [friendships])
     
-    if(loading.value) return <p className="text-white">loading</p>
+    if(loading.value) {
+        return (
+            <div className="flex flex-col items-center justify-center w-screen h-screen space-y-1">
+                <RoundSpinner color="white" size="lg"/>
+                <p className="font-sans text-xs text-white">gathering your data...</p>
+            </div>
+        )
+    }
 
     if(cropMode.value) return (
         <div className="w-screen h-screen bg-[rgba(0, 0, 0, 0.6)] flex items-center justify-center">
@@ -348,8 +297,18 @@ const page = () => {
 
     return (
         <div className="flex flex-col items-center justify-start w-screen h-screen p-3">
-            <header className="w-full">
-                <p className="font-sans text-[#e0e0e0] text-[0.9rem] font-medium">Profile</p>
+            <header className="flex items-center justify-between w-full">
+                <div className="flex items-center justify-start flex-1 space-x-1">
+                    <button className="flex items-center justify-center p-1 aspect-square">
+                        <IoMdArrowBack className='text-white text-md'/>
+                    </button>
+                    <p className="font-sans text-[#e0e0e0] text-[0.9rem] font-medium">Profile</p>
+                </div>
+                <div className="flex items-center justify-end flex-1 space-x-1">
+                    <button className="flex items-center px-2 py-1 font-sans font-medium text-white cursor-pointer border-b border-[#2c2c2c] text-xs">
+                        Edit Profile
+                    </button>
+                </div>
             </header>
             <main className="w-full p-2">
                 <div className="flex flex-col items-center w-full">

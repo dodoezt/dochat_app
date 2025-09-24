@@ -1,5 +1,4 @@
-'use clientD:\code\chatting-app'
-import { useChatContext } from 'D:\code\chatting-app@/components/contexts/children/chatContext';
+'use client'
 import Conversations from '@/components/seperated-component/chat/conversations';
 
 interface Props {}

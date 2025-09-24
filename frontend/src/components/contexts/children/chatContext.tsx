@@ -7,6 +7,7 @@ import { useAuthContext } from '@/components/contexts/children/authContext';
 import socket from '@/lib/socket';
 import { UseBoolean } from '@/hooks/useBoolean';
 import { produce } from 'immer'
+import { Spinner,RoundSpinner } from '@/components/ui/spinner';
 
 export type ConversationListItem = {
   conversation: {
@@ -296,9 +297,13 @@ export const ChatProvider = ({ children }: {children: React.ReactNode}) => {
     }
 
     
-
     if (loadingCachedConversations.value || !conversations || loadingServer?.value) {
-        return <p className="text-white">loading...</p>
+        return (
+            <div className="flex flex-col items-center justify-center w-screen h-screen space-y-1">
+                <RoundSpinner color="white" size="lg"/>
+                <p className="font-sans text-xs text-white">gathering your data...</p>
+            </div>
+        )
     }
 
     return (
