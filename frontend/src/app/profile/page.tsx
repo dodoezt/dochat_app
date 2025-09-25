@@ -3,10 +3,12 @@ import { useEffect, useRef, useState, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { produce } from 'immer'
 import { useAuthContext } from '@/components/contexts/children/authContext'
+import { useSearchParams } from 'next/navigation'
 
 import { UseBoolean } from '@/hooks/useBoolean'
 import { UserInfoType } from '@/types/user'
 import ImageCropper from '@/functions/cropper'
+import GeneratePfp from '@/functions/generatePfp'
 
 import ShinyText from '@/components/reactBits/shinyText'
 import { RoundSpinner } from '@/components/ui/spinner'
@@ -46,6 +48,8 @@ const page = () => {
     const [tags, setTags] = useState<any[] | null>(null)
     const [socialFilter, setSocialFilter] = useState<'friends' | 'requests'>('friends')
     const router = useRouter()
+    const searchParams = useSearchParams()
+    const initialEditMode = searchParams.get('editMode') === "1" ? true : false
 
     const { friendships, setFriendships, friendConnections, requesterConnections, newFriendRequests } = useAuthContext()
 
@@ -60,7 +64,7 @@ const page = () => {
     }
     
     const cropMode = UseBoolean(false)
-    const editMode = UseBoolean(false)
+    const editMode = UseBoolean(initialEditMode)
     const previewMode = UseBoolean(false)
     const loading = UseBoolean(true)
     const loadingUpImg = UseBoolean(false)
@@ -299,241 +303,391 @@ const page = () => {
         <div className="flex flex-col items-center justify-start w-screen h-screen p-3">
             <header className="flex items-center justify-between w-full">
                 <div className="flex items-center justify-start flex-1 space-x-1">
-                    <button className="flex items-center justify-center p-1 aspect-square">
+                    <button
+                    onClick={() => {
+                        if(editMode.value) {
+                            router.replace('/profile')
+                            editMode.setFalse()
+                        } else {
+                            router.push('/chat')
+                        }
+                    } }
+                    className="flex items-center justify-center p-1 cursor-pointer aspect-square">
                         <IoMdArrowBack className='text-white text-md'/>
                     </button>
-                    <p className="font-sans text-[#e0e0e0] text-[0.9rem] font-medium">Profile</p>
-                </div>
-                <div className="flex items-center justify-end flex-1 space-x-1">
-                    <button className="flex items-center px-2 py-1 font-sans font-medium text-white cursor-pointer border-b border-[#2c2c2c] text-xs">
-                        Edit Profile
-                    </button>
+                    <p className="font-sans text-[#e0e0e0] text-[0.9rem] font-medium">
+                        {editMode.value ? 'Edit Profile' : 'Profile'}
+                    </p>
                 </div>
             </header>
-            <main className="w-full p-2">
-                <div className="flex flex-col items-center w-full">
-                    <div className="flex flex-col items-center justify-center w-full">
-                        <div className="flex flex-col items-center justify-center w-full space-y-2">
-                            <div className="relative">
-                                <label
-                                htmlFor='file-upload' 
-                                className="absolute p-1 bottom-0 right-0 bg-[rgba(0,0,0,0.6)] cursor-pointer">
-                                    <FiEdit3 className='text-[#e0e0e0] text-lg'/>
-                                </label>
-                                <input
-                                    id="file-upload"
-                                    type="file"
-                                    onChange={handleFileChange}
-                                    className="hidden"
-                                />
-                                <button 
-                                onClick={()=> {
-                                    previewMode.setTrue()
-                                }}
-                                className="flex items-center justify-center w-20 overflow-hidden rounded-full cursor-pointer aspect-square">
-                                    {currentImgSrc ? (
-                                        <img src={currentImgSrc} alt={userInfo?.username} className="w-full h-full" />
-                                    ): (
-                                         <div className="flex items-center justify-center w-full h-full">
-                                            <MdAccountCircle className='text-gray-400 text-[10rem]'/>
-                                        </div>
-                                    )}
-                                </button>
+            {editMode.value ? (
+                <main className="w-full p-2">
+                    <div className="flex flex-col items-center w-full">
+                        <div className="flex flex-col w-full">
+                            <div id="header" className="flex flex-col items-center space-y-1">
+                                <div className="w-12 overflow-hidden rounded-full aspect-square">
+                                    <GeneratePfp pfp_id={userInfo?.user_atribut.pfp_id!} username={userInfo?.username!}/>
+                                </div>
+                                <p className="font-sans text-xs text-blue-500">change your profile picture</p>
                             </div>
-                            <div className="flex items-center gap-2">
-                                <h1 className="font-sans text-white">{userInfo!.username}</h1>
-                                {userInfo?.user_atribut.pronounces && (
-                                    <p className="font-sans text-sm text-gray-500">
-                                        {userInfo.user_atribut.pronounces.join('/')}
-                                    </p>
-                                )}
-                            </div>
-                            <div className="flex flex-wrap items-center justify-center w-2/3 gap-2">
-                                {userInfo?.user_atribut ? (
-                                    userInfo?.user_atribut?.tags_used?.map((tagId) => {
-                                        const tagValue = tags!.find(tag => tag.id == tagId)
-                                        const tagColor = tagColors.find(tagVariable => tagVariable.tier === tagValue.tier)
-
-                                        return (
-                                            <div 
-                                            key={tagId} 
-                                            style={{
-                                                backgroundColor: tagColor?.bgColor,
-                                                borderColor: tagColor?.borderColor,
-                                                color: tagColor?.textColor,
+                            <div id="main" className="flex flex-col w-full space-y-2">                
+                                <div className="flex flex-col items-start justify-center w-full px-5 space-y-1">
+                                    <span className="font-sans text-sm text-white">Username</span>
+                                    <input 
+                                    value={userInfo?.username}
+                                    onChange={(e) => {
+                                        setUserInfo((prev) => ({
+                                            ...prev!,
+                                            username: e.target.value
+                                        }))
+                                    }}
+                                    type="text" 
+                                    className="w-full px-3 py-2 text-sm text-white border-[#2c2c2c] outline-none appearance-none border-1 focus:border-white transition-all ease-in-out duration-150 rounded-lg" />
+                                </div>
+                                <div className="flex flex-col items-start justify-center w-full px-5 space-y-1">
+                                    <span className="font-sans text-sm text-white">Pronounces</span>
+                                    <div className="flex items-center w-full space-x-2">    
+                                        <input 
+                                            placeholder='Pronounce 1'
+                                            value={userInfo?.user_atribut.pronounces?.[0] || ''}
+                                            onBlur={() => {
+                                                if(!userInfo?.user_atribut.pronounces?.[0] || userInfo.user_atribut.pronounces[0] === ""){
+                                                    setUserInfo((prev) =>
+                                                        produce(prev!, draft => {
+                                                            if(!draft.user_atribut.pronounces) draft.user_atribut.pronounces = []
+                                                            draft.user_atribut.pronounces.shift()
+                                                            return draft
+                                                        })
+                                                    )
+                                                }
                                             }}
-                                            draggable={false}
-                                            className='px-2 text-center border rounded-full cursor-default'>
-                                                {tagValue.tier === 'Absolute_OG' ? (
-                                                    <ShinyText text={tagValue.name} className='text-xs text-[#8A0000] font-sans'/>
-                                                ): (
-                                                    <p className="font-sans text-xs font-medium">{tagValue.name}</p>
+                                            onChange={(e) => {
+                                                setUserInfo((prev) => 
+                                                    produce(prev!, draft => {
+                                                        if(!draft.user_atribut.pronounces) draft.user_atribut.pronounces = []
+                                                        draft.user_atribut.pronounces[0] = e.target.value
+                                                        return draft
+                                                    })
+                                                )
+                                            }}
+                                            type="text" 
+                                            className="w-full px-3 py-2 text-sm text-white border-[#2c2c2c] outline-none appearance-none border-1 focus:border-white transition-all ease-in-out duration-150 rounded-lg" 
+                                        />
+                                        <input 
+                                            placeholder='Pronounce 2'
+                                            value={userInfo?.user_atribut.pronounces?.[1] || ''}
+                                            onBlur={() => {
+                                                if(!userInfo?.user_atribut.pronounces?.[0] || userInfo.user_atribut.pronounces[0] === ""){
+                                                    setUserInfo((prev) =>
+                                                        produce(prev!, draft => {
+                                                            if(!draft.user_atribut.pronounces) draft.user_atribut.pronounces = []
+                                                            draft.user_atribut.pronounces.shift()
+                                                            return draft
+                                                        })
+                                                    )
+                                                }
+                                            }}
+                                            onChange={(e) => {
+                                                setUserInfo((prev) => 
+                                                    produce(prev!, draft => {
+                                                        if(!draft.user_atribut.pronounces) draft.user_atribut.pronounces = []
+                                                        draft.user_atribut.pronounces[1] = e.target.value
+                                                        return draft
+                                                    }
+                                                ))
+                                            }}
+                                            type="text" 
+                                            className="w-full px-3 py-2 text-sm text-white border-[#2c2c2c] outline-none appearance-none border-1 focus:border-white transition-all ease-in-out duration-150 rounded-lg" 
+                                        />
+                                    </div>
+                                </div>
+                                <div className="flex flex-col items-start justify-center w-full px-5 space-y-1">
+                                    <span className="font-sans text-sm text-white">Tags</span>
+                                    <div className="flex flex-wrap items-center w-full space-x-1 space-y-1">
+                                        {tags?.map((tag) => {
+                                            const userTags = userInfo?.user_atribut?.tags_used ?? [];
+                                            const isOwned = userTags.includes(tag.id); // cek apakah user punya tag ini
+                                            const tagColor = tagColors.find(
+                                            (tagVariable) => tagVariable.tier === tag.tier
+                                            );
+
+                                            return (
+                                            <div
+                                                key={tag.id}
+                                                style={{
+                                                backgroundColor: isOwned ? tagColor?.bgColor : "transparent",
+                                                borderColor: isOwned ? tagColor?.borderColor : "#2c2c2c",
+                                                color: isOwned ? tagColor?.textColor : "#aaa",
+                                                }}
+                                                className={`px-2 text-center border rounded-full cursor-default ${
+                                                isOwned ? "font-medium" : "opacity-50"
+                                                }`}
+                                            >
+                                                {tag.tier === "Absolute_OG" && isOwned ? (
+                                                <ShinyText
+                                                    text={tag.name}
+                                                    className="text-xs text-[#8A0000] font-sans"
+                                                />
+                                                ) : (
+                                                <p className="font-sans text-xs">{tag.name}</p>
                                                 )}
                                             </div>
-                                        )
-                                    })
-                                ) : (
-                                    <div className=""></div>
-                                )}
+                                            );
+                                        })}
+                                        </div>
+
+                                </div>
                             </div>
-                            {editModes.bio.value ? (
-                                <div className="w-2/3 font-sans text-sm text-center text-white">
+                        </div>
+                    </div>
+                </main>
+            ) : (
+                <main className="w-full p-2">
+                    <div className="flex flex-col items-center w-full">
+                        <div className="flex flex-col items-center justify-center w-full">
+                            <div className="flex flex-col items-center justify-center w-full space-y-2">
+                                <div className="relative">
+                                    <label
+                                    htmlFor='file-upload' 
+                                    className="absolute p-1 bottom-0 right-0 bg-[rgba(0,0,0,1)] cursor-pointer">
+                                        <FiEdit3 className='text-[#e0e0e0] text-lg'/>
+                                    </label>
                                     <input
-                                    onBlur={(() => {
-                                        editModes.bio.setFalse()
-                                        if(bioInputRef.current) {
-                                            bioInputRef.current.blur()
-                                            bioInputRef.current.select()
-                                        }
-                                        if(userInfo?.user_atribut.bio && userInfo.user_atribut.bio.trim() === ''){
+                                        id="file-upload"
+                                        type="file"
+                                        onChange={handleFileChange}
+                                        className="hidden"
+                                    />
+                                    <button 
+                                    onClick={()=> {
+                                        previewMode.setTrue()
+                                    }}
+                                    className="flex items-center justify-center w-20 overflow-hidden rounded-full cursor-pointer aspect-square">
+                                        {currentImgSrc ? (
+                                            <img src={currentImgSrc} alt={userInfo?.username} className="w-full h-full" />
+                                        ): (
+                                            <div className="flex items-center justify-center w-full h-full">
+                                                <MdAccountCircle className='text-gray-400 text-[10rem]'/>
+                                            </div>
+                                        )}
+                                    </button>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <h1 className="font-sans text-white">{userInfo!.username}</h1>
+                                    {userInfo?.user_atribut.pronounces && (
+                                        <p className="font-sans text-sm text-gray-500">
+                                            {userInfo.user_atribut.pronounces.join('/')}
+                                        </p>
+                                    )}
+                                </div>
+                                <div className="flex flex-wrap items-center justify-center w-2/3 gap-2">
+                                    {userInfo?.user_atribut ? (
+                                        userInfo?.user_atribut?.tags_used?.map((tagId) => {
+                                            const tagValue = tags!.find(tag => tag.id == tagId)
+                                            const tagColor = tagColors.find(tagVariable => tagVariable.tier === tagValue.tier)
+
+                                            return (
+                                                <div 
+                                                key={tagId} 
+                                                style={{
+                                                    backgroundColor: tagColor?.bgColor,
+                                                    borderColor: tagColor?.borderColor,
+                                                    color: tagColor?.textColor,
+                                                }}
+                                                draggable={false}
+                                                className='px-2 text-center border rounded-full cursor-default'>
+                                                    {tagValue.tier === 'Absolute_OG' ? (
+                                                        <ShinyText text={tagValue.name} className='text-xs text-[#8A0000] font-sans'/>
+                                                    ): (
+                                                        <p className="font-sans text-xs font-medium">{tagValue.name}</p>
+                                                    )}
+                                                </div>
+                                            )
+                                        })
+                                    ) : (
+                                        <div className=""></div>
+                                    )}
+                                </div>
+                                {editModes.bio.value ? (
+                                    <div className="w-2/3 font-sans text-sm text-center text-white">
+                                        <input
+                                        onBlur={(() => {
+                                            editModes.bio.setFalse()
+                                            if(bioInputRef.current) {
+                                                bioInputRef.current.blur()
+                                                bioInputRef.current.select()
+                                            }
+                                            if(userInfo?.user_atribut.bio && userInfo.user_atribut.bio.trim() === ''){
+                                                setUserInfo((prev) => ({
+                                                    ...prev!,
+                                                    user_atribut: {
+                                                        ...prev!.user_atribut,
+                                                        bio: 'no bio yet.'
+                                                    }
+                                                }))
+                                            }
+                                        })} 
+                                        ref={bioInputRef}
+                                        type="text" 
+                                        value={userInfo?.user_atribut.bio ?? 'no bio yet.'}
+                                        onChange={((e) => {
                                             setUserInfo((prev) => ({
                                                 ...prev!,
                                                 user_atribut: {
                                                     ...prev!.user_atribut,
-                                                    bio: 'no bio yet.'
+                                                    bio: e.target.value
                                                 }
                                             }))
-                                        }
-                                    })} 
-                                    ref={bioInputRef}
-                                    type="text" 
-                                    value={userInfo?.user_atribut.bio ?? 'no bio yet.'}
-                                    onChange={((e) => {
-                                        setUserInfo((prev) => ({
-                                            ...prev!,
-                                            user_atribut: {
-                                                ...prev!.user_atribut,
-                                                bio: e.target.value
-                                            }
-                                        }))
-                                    })}
-                                    className="w-auto h-auto text-center outline-none appearance-none text-wrap" />
-                                </div>
-                            ): (
-                                <div
-                                className="w-2/3 font-sans text-sm text-center text-white">
-                                    <button 
-                                        onClick={() => {
-                                            editModes.bio.setTrue()
-                                            if(bioInputRef.current) {
-                                                bioInputRef.current.focus()
-                                            }
-                                        }}
-                                        className="w-auto h-auto cursor-text">
-                                        {userInfo?.user_atribut.bio ? (
-                                            <p className="">{userInfo.user_atribut.bio}</p>
-                                        ): (
-                                            <p className="">no bio yet.</p>
-                                        )}
-                                    </button>
-                                </div>
-                            )}
-                        </div>
-                    </div>
-                    <div className="w-full">
-                        <div className="flex w-full">
-                            <div className="flex flex-col w-full">
-                                <div className="flex items-center w-full">
-                                    <h1 className="font-sans text-lg font-medium text-white">Friend List</h1>
-                                </div>
-                                <div className="flex items-center w-full gap-2">
-                                    <button 
-                                    onClick={() => setSocialFilter('friends')}
-                                    id='friends'
-                                    className={`text-xs text-white font-sans px-2 py-1 rounded-lg bg-[#2c2c2c] hover:bg-[#393939] cursor-pointer ${socialFilter === 'friends' ? 'border border-white' : ''}`}>
-                                        friends
-                                    </button>
-                                    <button
-                                    onClick={() => setSocialFilter('requests')}
-                                    id='requests'
-                                    className={`text-xs text-white font-sans px-2 py-1 rounded-lg bg-[#2c2c2c] hover:bg-[#393939] cursor-pointer ${socialFilter === 'requests' ? 'border border-white' : ''}`}>
-                                        requests
-                                    </button>
-                                </div>
-                                {friendships ? (
-                                    friendships.filter(friendship => friendship.status === (socialFilter === 'friends' ? 'accepted' : 'pending')).length > 0 ? (
-                                        <div className="flex flex-col w-full mt-2">
-                                            {socialFilter === 'friends' ? (
-                                                friendConnections && friendConnections.map((friendConnection, idx) => {
-                                                    const friend = friendConnection?.friend
-                                                    if(!friend) return;
-                                                    return (
-                                                        <div key={idx} className="flex items-center justify-between w-full px-2 py-2 h-14 ">
-                                                            <div className="flex items-center h-full gap-2">
-                                                                <div className="h-full overflow-hidden rounded-full aspect-square">
-                                                                    <img src={`${process.env.NEXT_PUBLIC_APPWRITE_BUCKET_URL}${friend?.user_atribut.pfp_id}${process.env.NEXT_PUBLIC_APPWRITE_BUCKET_URL_END}`} alt={`${friend?.username} pfp`} className="object-cover w-full h-full" />
-                                                                </div>
-                                                                <h1 className="text-base font-medium text-white font-roboto">{friend?.username}</h1>
-                                                            </div>
-                                                            <div className="flex items-center h-full gap-3">
-                                                                <button 
-                                                                onClick={() => handleStartConversation(friend?.userId)}
-                                                                className="flex items-center justify-center h-full p-1 cursor-pointer">
-                                                                    <IoChatboxEllipses className='text-xl text-white'/>
-                                                                </button>
-                                                                <button 
-                                                                onClick={() => handleOnRemoveFriend(friendConnection.friendshipId)}
-                                                                className="flex items-center justify-center h-full p-1 cursor-pointer">
-                                                                    <MdPersonRemove className='text-xl text-red-500'/>
-                                                                </button>
-                                                            </div>
-                                                        </div>
-                                                    )
-                                                })
-                                            ) : (
-                                                requesterConnections && requesterConnections.length > 0 ? [...newFriendRequests, ...requesterConnections].map((requesterConnection, idx) => {
-                                                    const requester = requesterConnection?.requester
-                                                    if(!requester) return;
-                                                    return (
-                                                        <div key={idx} className="flex items-center justify-between w-full h-12 px-2 py-2">
-                                                            <div className="flex items-center h-full gap-2">
-                                                                <div className="h-full overflow-hidden rounded-full aspect-square">
-                                                                    <img src={`${process.env.NEXT_PUBLIC_APPWRITE_BUCKET_URL}${requester?.user_atribut.pfp_id}${process.env.NEXT_PUBLIC_APPWRITE_BUCKET_URL_END}`} alt={`${requester?.username} pfp`} className="w-full h-full" />
-                                                                </div>
-                                                                <h1 className="text-base font-medium text-white font-roboto">{requester?.username}</h1>
-                                                            </div>
-                                                            <div className="flex items-center gap-2">
-                                                                <button 
-                                                                onClick={() => handleOnAccept(requesterConnection!.friendshipId)}
-                                                                className="flex items-center justify-center p-2 bg-green-600 rounded-full cursor-pointer">
-                                                                    <FaCheck className='text-[#121212] text-base'/>
-                                                                </button>
-                                                                <button
-                                                                onClick={() => handleOnDecline(requesterConnection!.friendshipId)}
-                                                                className="flex items-center justify-center p-2 bg-gray-500 rounded-full cursor-pointer">
-                                                                    <IoMdClose className='text-[#121212] text-lg'/>
-                                                                </button>
-                                                            </div>
-                                                        </div>
-                                                    )
-                                                }) : (
-                                                    <p className="text-sm text-white">You dont have any request yet.</p>
-                                                )
+                                        })}
+                                        className="w-auto h-auto text-center outline-none appearance-none text-wrap" />
+                                    </div>
+                                ): (
+                                    <div
+                                    className="w-2/3 font-sans text-sm text-center text-white">
+                                        <button 
+                                            onClick={() => {
+                                                editModes.bio.setTrue()
+                                                if(bioInputRef.current) {
+                                                    bioInputRef.current.focus()
+                                                }
+                                            }}
+                                            className="w-auto h-auto cursor-text">
+                                            {userInfo?.user_atribut.bio ? (
+                                                <p className="">{userInfo.user_atribut.bio}</p>
+                                            ): (
+                                                <p className="">no bio yet.</p>
                                             )}
-                                        </div>
-                                    ) : (
-                                        <p className="text-sm text-white">You dont have any {socialFilter} yet.</p>
-                                    )
-                                ) : (
-                                    <h1 className="text-sm font-medium text-white">loading...</h1>
+                                        </button>
+                                    </div>
                                 )}
+                                <div className="flex items-center space-x-2">
+                                    <div className="flex items-center justify-end space-x-1">
+                                        <button 
+                                        onClick={() => {
+                                            router.replace('/profile?editMode=1')
+                                            editMode.setTrue()
+                                        }}
+                                        className="flex items-center px-3 py-1 font-sans text-white cursor-pointer border-b-1 border-x border-[#2c2c2c] text-sm bg-transparent hover:bg-[rgba(0,0,0,1)] transition-all duration-150 ease-in-out rounded-lg">
+                                            Edit Profile
+                                        </button>
+                                    </div>
+                                    <div className="flex items-center justify-end space-x-1">
+                                        <button className="flex items-center px-3 py-1 font-sans text-white cursor-pointer border-b-1 border-x border-[#2c2c2c] text-sm bg-transparent hover:bg-[rgba(0,0,0,1)] transition-all duration-150 ease-in-out rounded-lg">
+                                            Share Profile
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="w-full">
+                            <div className="flex w-full">
+                                <div className="flex flex-col w-full">
+                                    <div className="flex items-center w-full">
+                                        <h1 className="font-sans text-lg font-medium text-white">Friend List</h1>
+                                    </div>
+                                    <div className="flex items-center w-full gap-2">
+                                        <button 
+                                            onClick={() => setSocialFilter('friends')}
+                                            id="friends"
+                                            className={`flex items-center px-3 py-1 font-sans font-medium text-white cursor-pointer border-x border-b border-[#2c2c2c] text-xs hover:bg-[rgba(0,0,0,1)] transition-all duration-150 ease-in-out rounded-lg 
+                                                ${socialFilter === 'friends' ? 'bg-[rgba(0,0,0,1)]' : 'bg-transparent'}`}
+                                            >
+                                            friends
+                                        </button>
+
+                                        <button
+                                            onClick={() => setSocialFilter('requests')}
+                                            id='requests'
+                                            className={`flex items-center px-3 py-1 font-sans font-medium text-white cursor-pointer border-x border-b border-[#2c2c2c] text-xs hover:bg-[rgba(0,0,0,1)] transition-all duration-150 ease-in-out rounded-lg 
+                                                ${socialFilter === 'requests' ? 'bg-[rgba(0,0,0,1)]' : 'bg-transparent'}`}>
+                                                requests
+                                        </button>
+                                    </div>
+                                    {friendships ? (
+                                        friendships.filter(friendship => friendship.status === (socialFilter === 'friends' ? 'accepted' : 'pending')).length > 0 ? (
+                                            <div className="flex flex-col w-full mt-2">
+                                                {socialFilter === 'friends' ? (
+                                                    friendConnections && friendConnections.map((friendConnection, idx) => {
+                                                        const friend = friendConnection?.friend
+                                                        if(!friend) return;
+                                                        return (
+                                                            <div key={idx} className="flex items-center justify-between w-full px-2 py-2 h-14 ">
+                                                                <div className="flex items-center h-full gap-2">
+                                                                    <div className="h-full overflow-hidden rounded-full aspect-square">
+                                                                        <img src={`${process.env.NEXT_PUBLIC_APPWRITE_BUCKET_URL}${friend?.user_atribut.pfp_id}${process.env.NEXT_PUBLIC_APPWRITE_BUCKET_URL_END}`} alt={`${friend?.username} pfp`} className="object-cover w-full h-full" />
+                                                                    </div>
+                                                                    <h1 className="text-base font-medium text-white font-roboto">{friend?.username}</h1>
+                                                                </div>
+                                                                <div className="flex items-center h-full gap-3">
+                                                                    <button 
+                                                                    onClick={() => handleStartConversation(friend?.userId)}
+                                                                    className="flex items-center justify-center h-full p-1 cursor-pointer">
+                                                                        <IoChatboxEllipses className='text-xl text-white'/>
+                                                                    </button>
+                                                                    <button 
+                                                                    onClick={() => handleOnRemoveFriend(friendConnection.friendshipId)}
+                                                                    className="flex items-center justify-center h-full p-1 cursor-pointer">
+                                                                        <MdPersonRemove className='text-xl text-red-500'/>
+                                                                    </button>
+                                                                </div>
+                                                            </div>
+                                                        )
+                                                    })
+                                                ) : (
+                                                    requesterConnections && requesterConnections.length > 0 ? [...newFriendRequests, ...requesterConnections].map((requesterConnection, idx) => {
+                                                        const requester = requesterConnection?.requester
+                                                        if(!requester) return;
+                                                        return (
+                                                            <div key={idx} className="flex items-center justify-between w-full h-12 px-2 py-2">
+                                                                <div className="flex items-center h-full gap-2">
+                                                                    <div className="h-full overflow-hidden rounded-full aspect-square">
+                                                                        <img src={`${process.env.NEXT_PUBLIC_APPWRITE_BUCKET_URL}${requester?.user_atribut.pfp_id}${process.env.NEXT_PUBLIC_APPWRITE_BUCKET_URL_END}`} alt={`${requester?.username} pfp`} className="w-full h-full" />
+                                                                    </div>
+                                                                    <h1 className="text-base font-medium text-white font-roboto">{requester?.username}</h1>
+                                                                </div>
+                                                                <div className="flex items-center gap-2">
+                                                                    <button 
+                                                                    onClick={() => handleOnAccept(requesterConnection!.friendshipId)}
+                                                                    className="flex items-center justify-center p-2 bg-green-600 rounded-full cursor-pointer">
+                                                                        <FaCheck className='text-[#121212] text-base'/>
+                                                                    </button>
+                                                                    <button
+                                                                    onClick={() => handleOnDecline(requesterConnection!.friendshipId)}
+                                                                    className="flex items-center justify-center p-2 bg-gray-500 rounded-full cursor-pointer">
+                                                                        <IoMdClose className='text-[#121212] text-lg'/>
+                                                                    </button>
+                                                                </div>
+                                                            </div>
+                                                        )
+                                                    }) : (
+                                                        <p className="text-sm text-white">You dont have any request yet.</p>
+                                                    )
+                                                )}
+                                            </div>
+                                        ) : (
+                                            <p className="text-sm text-white">You dont have any {socialFilter} yet.</p>
+                                        )
+                                    ) : (
+                                        <h1 className="text-sm font-medium text-white">loading...</h1>
+                                    )}
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-                <div className="">
-                    {croppedBlob && (
-                        <button
-                        onClick={handleSavePfp}
-                        className="font-sans text-lg text-white">save</button>
-                    )}
-                </div>
-            </main>
+                    <div className="">
+                        {croppedBlob && (
+                            <button
+                            onClick={handleSavePfp}
+                            className="font-sans text-lg text-white">save</button>
+                        )}
+                    </div>
+                </main>
+            )}
             <button
             onClick={() => {
                 previewMode.setFalse()
             }}
-            className={`${previewMode.value ? 'flex' : 'hidden'} w-screen h-screen fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 items-center justify-center bg-[rgba(0,0,0,0.6)]`}>
+            className={`${previewMode.value ? 'flex' : 'hidden'} w-screen h-screen fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 items-center justify-center bg-[rgba(0,0,0,1)]`}>
                 <div className="w-2/3 aspect-square">
                     <img src={currentImgSrc} alt={userInfo?.username} className="h-full w-fudll" />
                 </div>
