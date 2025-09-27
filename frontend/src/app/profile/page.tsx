@@ -9,6 +9,7 @@ import { UseBoolean } from '@/hooks/useBoolean'
 import { UserInfoType } from '@/types/user'
 import ImageCropper from '@/functions/cropper'
 import GeneratePfp from '@/functions/generatePfp'
+import TagsList from '@/components/seperated-component/profile/TagsList'
 
 import ShinyText from '@/components/reactBits/shinyText'
 import { RoundSpinner } from '@/components/ui/spinner'
@@ -18,8 +19,16 @@ import { FiEdit3 } from "react-icons/fi";
 import { FaCheck } from "react-icons/fa";
 import { IoMdClose, IoMdArrowBack } from "react-icons/io";
 import { IoChatboxEllipses } from "react-icons/io5";
+import { FaSquareCheck } from "react-icons/fa6";
 
-export const tagColors = [
+export type tagColorsType = {
+    tier : "Common" | "Kinda_Cool" | "Absolute_OG",
+    bgColor: string,
+    borderColor: string,
+    textColor: string,
+}
+
+export const tagColors: tagColorsType[] = [
   {
     tier: 'Common',
     bgColor: '#181C14',    
@@ -41,17 +50,19 @@ export const tagColors = [
 ];
 
 const page = () => {
-    const [userInfo, setUserInfo] = useState<UserInfoType | null>(null)
+    const { userInfo, setUserInfo, friendships, setFriendships, friendConnections, requesterConnections, newFriendRequests } = useAuthContext()
     const [croppedImage, setCroppedImage] = useState<string | null>(null)
     const [croppedBlob, setCroppedBlob] = useState<Blob | null>(null)
     const [currentImgSrc, setCurrentImgSrc] = useState<any | null>(null)
     const [tags, setTags] = useState<any[] | null>(null)
     const [socialFilter, setSocialFilter] = useState<'friends' | 'requests'>('friends')
+    const [originalUserInfo, setOriginalUserInfo] = useState<UserInfoType | null>(null)
+
     const router = useRouter()
     const searchParams = useSearchParams()
     const initialEditMode = searchParams.get('editMode') === "1" ? true : false
 
-    const { friendships, setFriendships, friendConnections, requesterConnections, newFriendRequests } = useAuthContext()
+    const isChanged = UseBoolean(false)
 
     const loadings = {
         user: UseBoolean(true),
@@ -72,7 +83,7 @@ const page = () => {
     const bioInputRef = useRef<HTMLInputElement>(null)
 
     useEffect(() => {
-        getUser()
+        // getUser()
         getTag()
     }, [])
     
@@ -87,6 +98,42 @@ const page = () => {
     useEffect(() => {
         if(friendships) loadings.friendships.setFalse()
     }, [friendships])
+
+    useEffect(() => {
+        if(userInfo && !originalUserInfo) setOriginalUserInfo(userInfo)
+    }, [userInfo, originalUserInfo])
+
+    useEffect(() => {
+        if(!userInfo || !originalUserInfo) return;
+
+        const changed = JSON.stringify(userInfo) !== JSON.stringify(originalUserInfo);
+
+        if(changed) isChanged.setTrue()
+        else isChanged.setFalse()
+    }, [userInfo, originalUserInfo])
+
+    useEffect(() => {   
+        if(!userInfo?.user_atribut.pronounces) return;
+        const pronounces = userInfo.user_atribut.pronounces
+        let valueFound = false
+        for(let i = 0; i < pronounces.length; i++){
+            if(pronounces[i] && pronounces[i] !== ""){
+                valueFound = true
+            }
+        }
+
+        if(!valueFound) {
+            setUserInfo(prev => 
+                produce(prev, draft => {
+                    if(!draft) return
+                    draft!.user_atribut.pronounces = null
+                    return draft
+                })
+            )
+        }
+    }, [userInfo?.user_atribut.pronounces])
+
+    useEffect(() => {console.log(isChanged)}, [isChanged])
 
     const handleFileChange = async(e: React.ChangeEvent<HTMLInputElement>) => {
         editMode.setTrue()
@@ -124,27 +171,27 @@ const page = () => {
         }
     }
 
-    const getUser = async() => {
-        loadings.user.setTrue()
-        try {
-            const response = await fetch('/api/v1/users/me', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'applications/json'
-                },
-                credentials: 'include'
-            })
+    // const getUser = async() => {
+    //     loadings.user.setTrue()
+    //     try {
+    //         const response = await fetch('/api/v1/users/me', {
+    //             method: 'POST',
+    //             headers: {
+    //                 'Content-Type': 'applications/json'
+    //             },
+    //             credentials: 'include'
+    //         })
     
-            const {user} = await response.json()
-            setUserInfo(user)
-            if(user) setCurrentImgSrc(`https://fra.cloud.appwrite.io/v1/storage/buckets/683bc8bf0001881c6cc5/files/${user.user_atribut.pfp_id}/view?project=681cbc230020279ce784&mode=admin`)
-        } catch (error: any) {
-            console.log(error.message)
-            setUserInfo(null)
-        } finally {
-            loadings.user.setFalse()
-        }
-    }
+    //         const {user} = await response.json()
+    //         setUserInfo(user)
+    //         if(user) setCurrentImgSrc(`https://fra.cloud.appwrite.io/v1/storage/buckets/683bc8bf0001881c6cc5/files/${user.user_atribut.pfp_id}/view?project=681cbc230020279ce784&mode=admin`)
+    //     } catch (error: any) {
+    //         console.log(error.message)
+    //         setUserInfo(null)
+    //     } finally {
+    //         loadings.user.setFalse()
+    //     }
+    // }
 
     const getImageData = (data: any) => {
         setCroppedImage(data.croppedImg)
@@ -319,6 +366,14 @@ const page = () => {
                         {editMode.value ? 'Edit Profile' : 'Profile'}
                     </p>
                 </div>
+                <div className="flex items-center justify-end flex-1">
+                    {editMode.value && (
+                        <button 
+                        className={`px-2 py-1 font-sans text-sm font-medium bg-white border border-white text-[#121212] rounded-lg ${isChanged.value ? "cursor-pointer brightness-100" : "cursor-default brightness-50"} transition-all ease-in-out duration-200`}>
+                            Save Update
+                        </button>
+                    )}
+                </div>
             </header>
             {editMode.value ? (
                 <main className="w-full p-2">
@@ -402,39 +457,60 @@ const page = () => {
                                     </div>
                                 </div>
                                 <div className="flex flex-col items-start justify-center w-full px-5 space-y-1">
-                                    <span className="font-sans text-sm text-white">Tags</span>
-                                    <div className="flex flex-wrap items-center w-full space-x-1 space-y-1">
-                                        {tags?.map((tag) => {
-                                            const userTags = userInfo?.user_atribut?.tags_used ?? [];
-                                            const isOwned = userTags.includes(tag.id); // cek apakah user punya tag ini
-                                            const tagColor = tagColors.find(
-                                            (tagVariable) => tagVariable.tier === tag.tier
-                                            );
+                                    <div className="flex items-center space-x-1">
+                                        <h1 className="font-sans text-sm text-white">Tags</h1>
+                                        <span className="font-sans text-sm text-white">({userInfo?.user_atribut.tags_used?.length ?? 0}/6)</span>
+                                    </div>
+                                    <div className="flex flex-wrap items-center gap-1">
+                                        {userInfo?.user_atribut && (
+                                            userInfo?.user_atribut?.tags_used?.map((tagId) => {
+                                                const tagValue = tags!.find(tag => tag.id == tagId)
+                                                const tagColor = tagColors.find(tagVariable => tagVariable.tier === tagValue.tier)
 
-                                            return (
-                                            <div
-                                                key={tag.id}
-                                                style={{
-                                                backgroundColor: isOwned ? tagColor?.bgColor : "transparent",
-                                                borderColor: isOwned ? tagColor?.borderColor : "#2c2c2c",
-                                                color: isOwned ? tagColor?.textColor : "#aaa",
-                                                }}
-                                                className={`px-2 text-center border rounded-full cursor-default ${
-                                                isOwned ? "font-medium" : "opacity-50"
-                                                }`}
-                                            >
-                                                {tag.tier === "Absolute_OG" && isOwned ? (
-                                                <ShinyText
-                                                    text={tag.name}
-                                                    className="text-xs text-[#8A0000] font-sans"
-                                                />
-                                                ) : (
-                                                <p className="font-sans text-xs">{tag.name}</p>
-                                                )}
-                                            </div>
-                                            );
-                                        })}
-                                        </div>
+                                                return (
+                                                    <div 
+                                                    key={tagId} 
+                                                    style={{
+                                                        backgroundColor: tagColor?.bgColor,
+                                                        borderColor: tagColor?.borderColor,
+                                                        color: tagColor?.textColor,
+                                                    }}
+                                                    draggable={false}
+                                                    className='px-2 text-center border rounded-full cursor-default'>
+                                                        {tagValue.tier === 'Absolute_OG' ? (
+                                                            <ShinyText text={tagValue.name} className='text-xs text-[#8A0000] font-sans'/>
+                                                        ): (
+                                                            <p className="font-sans text-xs font-medium">{tagValue.name}</p>
+                                                        )}
+                                                    </div>
+                                                )
+                                            })
+                                        )}
+                                    </div>
+                                    <TagsList tags={tags!} userInfo={userInfo!} setUserInfo={setUserInfo}/>
+                                </div>
+                                <div className="flex flex-col items-start justify-center w-full px-5 space-y-1">
+                                    <div className="flex items-center space-x-1">
+                                        <h1 className="font-sans text-sm text-white">Bio</h1>
+                                        <span className="font-sans text-sm text-white">({userInfo?.user_atribut.bio?.length ?? 0}/255)</span>
+                                    </div>
+                                    <textarea
+                                        value={userInfo?.user_atribut.bio ?? ""}
+                                        onChange={(e) => {
+                                            if(e.target.value.length > 255) return;
+                                            setUserInfo((prev) => {
+                                                const value = e.target.value !== "" ? e.target.value : null
+                                                return ({
+                                                    ...prev!,
+                                                    user_atribut: {
+                                                        ...prev!.user_atribut,
+                                                        bio: value,
+                                                    },
+                                                })
+                                            });
+                                        }}
+                                        className="w-full min-h-20 max-h-36 px-3 py-2 text-xs text-white border border-[#2c2c2c] outline-none rounded-lg  focus:border-white transition-all ease-in-out duration-150 overflow-y-auto resize-none text-left align-top"
+                                    />
 
                                 </div>
                             </div>
@@ -463,8 +539,8 @@ const page = () => {
                                         previewMode.setTrue()
                                     }}
                                     className="flex items-center justify-center w-20 overflow-hidden rounded-full cursor-pointer aspect-square">
-                                        {currentImgSrc ? (
-                                            <img src={currentImgSrc} alt={userInfo?.username} className="w-full h-full" />
+                                        {userInfo?.user_atribut.pfp_id ? (
+                                            <GeneratePfp pfp_id={userInfo.user_atribut.pfp_id} username={userInfo.user_atribut.pfp_id}/>
                                         ): (
                                             <div className="flex items-center justify-center w-full h-full">
                                                 <MdAccountCircle className='text-gray-400 text-[10rem]'/>
