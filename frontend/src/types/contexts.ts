@@ -1,5 +1,7 @@
 import { Models } from "appwrite";
 import { UseBooleanType } from "./hooks";
+import { UserInfoType } from "./user";
+
 export type ProviderType = 'google' | 'whatsapp' | null;
 
 export type BaseAuthContext = {
@@ -47,7 +49,8 @@ export type requesterConnectionsType = {
 
 export type AuthContextType = BaseAuthContext & {
     provider: ProviderType;
-    userInfo?: userInfoByGoogle;
+    userInfo?: UserInfoType;
+    setUserInfo: React.Dispatch<React.SetStateAction<UserInfoType | null>>;
     googleUserInfo?: GoogleUserInfo;
     getUser?: () => Promise<void>;
     googleLogOut?: () => Promise<void>;
@@ -81,7 +84,6 @@ export type UnLoggedContextType = BaseAuthContext & {
 
 export type UnifiedAuthContextType = AuthContextType & UnLoggedContextType;
 
-
 export type DecodedToken = {
     userId: number,
     username: string,
@@ -91,10 +93,3 @@ export type DecodedToken = {
     dial_code?: string,
 };
 
-export type userInfoByGoogle = {
-    userId: number | null,
-    username: string,
-    email: string,
-    email_name: string,
-    createdAt: string,
-}

@@ -93,13 +93,13 @@ export const ChatProvider = ({ children }: {children: React.ReactNode}) => {
     useEffect(() => {
         if(loadingServer?.value) return;
         if(currentConvId) {
-            socket.emit('join-room', {
+            socket.emit('room:join', {
                 userId: userInfo?.userId,
                 conversationId: currentConvId
             });
         }
         if(!currentConvId && lastConvId) {
-            socket.emit('leave-room', {
+            socket.emit('room:leave', {
                 userId: userInfo?.userId,
                 conversationId: lastConvId
             })
@@ -190,8 +190,8 @@ export const ChatProvider = ({ children }: {children: React.ReactNode}) => {
             });
         };
     
-        socket.on('new-preview-message', handleNewPreviewMessage);
-        socket.on('new-messages-received', ({ isUpdated}) => {
+        socket.on('message:preview', handleNewPreviewMessage);
+        socket.on('message:received:confirm', ({ isUpdated}) => {
             if (isUpdated) {
                 setConversations(
                     produce((draft) => {
@@ -232,7 +232,7 @@ export const ChatProvider = ({ children }: {children: React.ReactNode}) => {
             );
         })
 
-        socket.on('status-to-seen', ({ conversationId, userId }) => {
+        socket.on('message:status:seen', ({ conversationId, userId }) => {
             setConversations(
                 produce((draft) => {
                     const conversation = draft?.find(conv => conv.conversationId === conversationId)
@@ -250,9 +250,10 @@ export const ChatProvider = ({ children }: {children: React.ReactNode}) => {
 
         // Cleanup function to remove the event listener
         return () => {
-            socket.off('new-preview-message', handleNewPreviewMessage);
-            socket.off('new-messages-received');
+            socket.off('message:preview', handleNewPreviewMessage);
+            socket.off('message:received:confirm');
             socket.off('update-not-delivered-messages');
+            socket.off('message:status:seen');
         };
     }, [loadingServer, loadingConversations.value]);
 
@@ -280,11 +281,11 @@ export const ChatProvider = ({ children }: {children: React.ReactNode}) => {
         loadingConversations.setTrue()
         try {
             const response = await fetch('/api/v1/users/me/conversations', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            credentials: 'include',
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'include',
             });
 
             const data = await response.json();

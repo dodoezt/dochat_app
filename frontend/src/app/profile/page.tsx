@@ -98,12 +98,9 @@ const page = () => {
     useEffect(() => {
         if(friendships) loadings.friendships.setFalse()
     }, [friendships])
-
+    
     useEffect(() => {
         if(userInfo && !originalUserInfo) setOriginalUserInfo(userInfo)
-    }, [userInfo, originalUserInfo])
-
-    useEffect(() => {
         if(!userInfo || !originalUserInfo) return;
 
         const changed = JSON.stringify(userInfo) !== JSON.stringify(originalUserInfo);
@@ -115,6 +112,7 @@ const page = () => {
     useEffect(() => {   
         if(!userInfo?.user_atribut.pronounces) return;
         const pronounces = userInfo.user_atribut.pronounces
+        
         let valueFound = false
         for(let i = 0; i < pronounces.length; i++){
             if(pronounces[i] && pronounces[i] !== ""){

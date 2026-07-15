@@ -116,7 +116,7 @@ const Conversations:React.FC<props> = ({}) => {
           }
         ))
 
-        socket.emit('send-friend-request', {
+        socket.emit('friend:request:sent', {
           toUserId: toUserId,
           friendshipId: data.id, 
           from: {

@@ -69,7 +69,7 @@ const Conversation: React.FC<props> = ({convId}) => {
     }, [getConversationLoading.value])
 
     useEffect(() => {
-        socket.on('receive-message', (msg: RecievedMsgType) => {
+        socket.on('message:received', (msg: RecievedMsgType) => {
             setMessages((prev) => {
                 const existingIdx = prev.findIndex((m) => 
                     msg.senderId === userInfo.userId
@@ -120,7 +120,7 @@ const Conversation: React.FC<props> = ({convId}) => {
             });
         });
 
-        socket.on('message-status', ({temporaryId, status}) => {
+        socket.on('message:status:update', ({temporaryId, status}) => {
             setMessages((prev) => 
                 prev.map((msg) => (
                     msg.id === temporaryId ? {...msg, status} : msg
@@ -128,7 +128,7 @@ const Conversation: React.FC<props> = ({convId}) => {
             )
         })
 
-        socket.on('user-joined-room', ({userId}) => {
+        socket.on('room:user-joined', ({userId}) => {
             setMessages((prev) => 
                 prev.map((msg) => (
                     msg.senderId !== userId ? {...msg, status: 'SEEN'} : msg
@@ -153,7 +153,7 @@ const Conversation: React.FC<props> = ({convId}) => {
             // updateMessagesStatus()
         })
 
-        // socket.on('user-joined-room', async (user) => {
+        // socket.on('room:user-joined', async (user) => {
         //     // user's messages with different user.userId the status become SEEN
         //     const updateMsg = await fetch(`/api/v1/conversations/${convId}/messages`, {
         //         method: 'PATCH',
@@ -188,34 +188,33 @@ const Conversation: React.FC<props> = ({convId}) => {
 
     useEffect(() => {
         if (textInput.trim().length > 0 && !hasEmittedTyping) {
-            setHasEmittedTyping(true)
-            socket.emit('status-typing', { 
+            socket.emit('typing:status', { 
                 conversationId: convId, 
                 userId: userInfo.userId, 
                 typing: true 
             });
+            setHasEmittedTyping(true)
         }
     }, [textInput]);
 
     useEffect(() => {
-        if (debounceInput.trim().length === 0) return;
-            setHasEmittedTyping(false)
-            socket.emit('status-typing', { 
-                conversationId: convId,
-                userId: userInfo.userId, 
-                typing: false 
-            });
+        setHasEmittedTyping(false)
+        socket.emit('typing:status', { 
+            conversationId: convId,
+            userId: userInfo.userId, 
+            typing: false 
+        });
     }, [debounceInput]);
 
     useEffect(() => {
-        socket.on("show-typing-status", ({ senderId, typing }) => {
+        socket.on("typing:show", ({ senderId, typing }) => {
             if (senderId !== userInfo.userId) {
                 setIsTyping(typing);
             }
         });
 
         return () => {
-            socket.off("show-typing-status");
+            socket.off("typing:show");
         };
     }, []);
     
@@ -256,7 +255,7 @@ const Conversation: React.FC<props> = ({convId}) => {
             status: 'NOT_DELIVERED',
         }
 
-        socket.emit("send-message", newMsg);
+        socket.emit("message:send", newMsg);
 
         setTextInput("");
         setMessages((prev) => [...prev, newMsg])

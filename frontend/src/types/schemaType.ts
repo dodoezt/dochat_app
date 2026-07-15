@@ -83,9 +83,9 @@ export interface UserAtribut {
   id: number;
   userId: number;
   pfp_id?: string | null;
-  tags_used?: any;   // Json
-  owned_tags?: any;  // Json
-  pronounces?: any;  // Json
+  tags_used?: number[] | null;   // Json
+  owned_tags?: number[] | null;  // Json
+  pronounces?: string[] | null;  // Json
   bio?: string | null;
   users?: Users;
 }

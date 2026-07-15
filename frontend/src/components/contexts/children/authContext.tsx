@@ -1,7 +1,7 @@
 'use client'
 import React, { createContext, useContext, useEffect, useState, useRef, useMemo } from 'react';
 import { Client, Account, Models } from 'appwrite';
-import { AuthContextType, userInfoByGoogle, friendshipsType, requesterConnectionsType } from '@/types/contexts';
+import { AuthContextType, friendshipsType, requesterConnectionsType } from '@/types/contexts';
 import { UserInfoType } from '@/types/user';
 import socket from '@/lib/socket';
 import Notification from '@/components/mini-components/notification';
@@ -64,8 +64,8 @@ export const AuthProvider = ({ children } : any) => {
             console.log(userId)
 
             if (!socket.connected) socket.connect();
-            if (userId) socket.emit('register', userId);
-            socket.emit('receive-new-messages', {userId})
+            if (userId) socket.emit('user:register', userId);
+            socket.emit('message:receive:new', {userId})
 
         } catch (error) {
             console.log('Error fetching user ID:', error);
@@ -102,7 +102,6 @@ export const AuthProvider = ({ children } : any) => {
 
             const { user } = await response.json()
             setUserInfo(user)
-
         } catch (error) {
             console.log('failed to fetch user')
             setUserInfo(null);
@@ -186,7 +185,7 @@ export const AuthProvider = ({ children } : any) => {
     useEffect(() => {
         if(userInfo) {
             connectToSocket()
-            socket.on('friend-request-received', ({type, friendshipId, from, createdAt}) => {
+            socket.on('friend:request:received', ({type, friendshipId, from, createdAt}) => {
                 const newNotification = {
                     type,
                     friendshipId,
@@ -212,7 +211,7 @@ export const AuthProvider = ({ children } : any) => {
                 }])
             })
 
-            socket.on('new-message-notification', ({ id, type, conversationId, from, content}) => {
+            socket.on('message:notification', ({ id, type, conversationId, from, content}) => {
                 const newNotification = {
                     msgId : id,
                     type,
@@ -231,28 +230,28 @@ export const AuthProvider = ({ children } : any) => {
         }
 
         return () => {
-            socket.off('friend-request-received');
-            socket.off('new-message-notification');
+            socket.off('friend:request:received');
+            socket.off('message:notification');
         }
     }, [userInfo])
     
     useEffect(() => {
-        socket.on("receive-online-users", (users) => {
+        socket.on("user:list", (users) => {
             setOnlineUsers(users); // isi semua online users saat pertama daftar
         });
     
-        socket.on("user-connected", (user) => {
+        socket.on("user:connected", (user) => {
             setOnlineUsers((prev: any) => [...prev, user]); // tambahin user yang baru online
         });
     
-        socket.on("user-disconnected", ({ userId }) => {
+        socket.on("user:disconnected", ({ userId }) => {
             setOnlineUsers((prev: any) => prev.filter((u: any) => u.userId !== userId)); // hapus yang disconnect
         });
 
         return () => {
-            socket.off('receive-online-users')
+            socket.off('user:list')
             socket.off('user-connected')
-            socket.off('user-disconnected')
+            socket.off('user:disconnected')
         }
     }, [])
 
@@ -267,7 +266,7 @@ export const AuthProvider = ({ children } : any) => {
     if (loadingServer.value && userInfo) return null
     
     return (
-        <AuthContext.Provider value={{ userInfo, getOauthJwtToken, loadingGetUser, onlineUsers, loadingServer, friendships, setFriendships, friendConnections, requesterConnections, newFriendRequests }}>
+        <AuthContext.Provider value={{ userInfo, setUserInfo, getOauthJwtToken, loadingGetUser, onlineUsers, loadingServer, friendships, setFriendships, friendConnections, requesterConnections, newFriendRequests }}>
             {notifications.length > 0 && <Notification queues={notifications} setNotifications={setNotifications}/>}
             {children}
         </AuthContext.Provider>

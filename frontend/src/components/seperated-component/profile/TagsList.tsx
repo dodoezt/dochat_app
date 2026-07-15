@@ -57,31 +57,31 @@ export default function TagsList({ tags, userInfo, setUserInfo }: TagsList) {
                         const tagColor = tagColors.find((tc) => tc.tier === tag.tier);
 
                         return (
-                        <button
-                            onClick={() => handleClickTag(tag.id)}
-                            key={tag.id}
-                            style={{
-                                backgroundColor: isOwned ? tagColor?.bgColor : "transparent",
-                                borderColor: isOwned ? tagColor?.borderColor : "#2c2c2c",
-                                color: isOwned ? tagColor?.textColor : "#aaa",
-                                filter: isOwned && !isUsed ? "brightness(50%)" : "none"
-                            }}
-                            className={`px-2 text-center border rounded-full ${
-                            isOwned ? "font-medium cursor-pointer" : "opacity-50 cursor-default"
-                            } relative`}
-                        >
-                            {tier === "Absolute_OG" && isOwned ? (
-                                <ShinyText
-                                    text={tag.name}
-                                    className="text-xs text-[#8A0000] font-sans"
-                                />
-                            ) : (
-                                <p className="font-sans text-xs">{tag.name}</p>
-                            )}
-                            {/* {isUsed && (
-                                <FaSquareCheck className="text-[9px] text-green-700 absolute -bottom-0 -right-0" />
-                            )} */}
-                        </button>
+                            <button
+                                onClick={() => handleClickTag(tag.id)}
+                                key={tag.id}
+                                style={{
+                                    backgroundColor: isOwned ? tagColor?.bgColor : "transparent",
+                                    borderColor: isOwned ? tagColor?.borderColor : "#2c2c2c",
+                                    color: isOwned ? tagColor?.textColor : "#aaa",
+                                    filter: isOwned && !isUsed ? "brightness(50%)" : "none"
+                                }}
+                                className={`px-2 text-center border rounded-full ${
+                                isOwned ? "font-medium cursor-pointer" : "opacity-50 cursor-default"
+                                } relative`}
+                            >
+                                {tier === "Absolute_OG" && isOwned ? (
+                                    <ShinyText
+                                        text={tag.name}
+                                        className="text-xs text-[#8A0000] font-sans"
+                                    />
+                                ) : (
+                                    <p className="font-sans text-xs">{tag.name}</p>
+                                )}
+                                {/* {isUsed && (
+                                    <FaSquareCheck className="text-[9px] text-green-700 absolute -bottom-0 -right-0" />
+                                )} */}
+                            </button>
                         );
                     })}
                 </div>
